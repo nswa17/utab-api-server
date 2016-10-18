@@ -41,14 +41,14 @@ def check_name_and_code(target_list, code, name):
 		raise Exception("Entity id {} has name {}, not {}".format(code, element.name, name))
 
 class Tournament:
-	def __init__(self, tournament_code, tournament_name, round_num, style, host = "", url = "", break_team_num = 0):
-		self.name = tournament_name
-		self.tournament_code = tournament_code
+	def __init__(self, name, code, round_num, style, host = "", url = "", break_team_num = 0):
+		self.name = name
+		self.code = code
 		self.round_num = round_num
 		self.style = style
 		self.host = host
 		self.url = url
-		self.team_list = Team_list
+		self.team_list = []
 		self.adjudicator_list = []
 		self.debater_list = []
 		self.venue_list = []
@@ -62,7 +62,7 @@ class Tournament:
 		self.results = None
 		self.analysis = None
 
-	def add_team(self, code, name, url="", debaters, institutions):
+	def add_team(self, code, name, debaters, institutions, url=""):
 		team = Team(code, name, debaters, institutions)
 		add_element(self.team_list, team)
 
@@ -83,7 +83,7 @@ class Tournament:
 	def delete_team(self, team_or_code):
 		delete_element(self.team_list, team_or_code)
 
-	def add_adjudicator(self, code, name, url="", reputation, judge_test, institutions, conflict_teams):
+	def add_adjudicator(self, code, name, reputation, judge_test, institutions, conflict_teams, url=""):
 		adj = Adjudicator(code, name, url, reputation, judge_test, institutions, conflict_teams)
 		add_element(self.adjudicator_list, adj)
 
@@ -148,11 +148,7 @@ class Round:
 		self.allocation = None
 		self.panel_allocation = None
 		self.venue_allocation = None
-		self.matchups_processed = False
-		self.allocations_processed = False
-		self.panel_allocation_processed = False
-		self.venue_allocation_processed = False
-		self.finished = False
+		self.round_status = 0 ################### need docs
 		self.constants = {}
 		self.constants_of_adj = {}
 		self.filter_list = []
@@ -221,7 +217,8 @@ class Round:
 				time.sleep(0.5)
 
 		self.matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=filter_list, team_num=self.tournament.style["team_num"], workfolder_name=fnames["workfolder"])
-		self.matchups_processed = True
+		self.matchups_processed = True########
+		raise Exception("")
 
 	def set_matchup(self, matchup):
 		self.matchup = matchup
@@ -230,6 +227,7 @@ class Round:
 		lattice_list = create_lattice_list(matchups[0], tournament["adjudicator_list"])
 		self.allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list, constants_of_adj=self.constants_of_adj, workfolder_name=fnames["workfolder"])
 		self.allocations_processed = True
+		raise Exception("")
 
 	def set_allocation(self, allocation):
 		self.allocation = allocation
@@ -244,6 +242,7 @@ class Round:
 		#print(len(allocations))
 		self.allocation.sort(key=lambda lattice: lattice.venue.name)
 		self.venue_allocation_processed = True
+		raise Exception("")
 
 	def set_venue_allocation(self, venue_allocation):
 		self.venue_allocation = venue_allocation
@@ -300,113 +299,110 @@ class Round:
 					lattice.panel[1].active = True
 
 		self.panel_allocation_processed = True
+		raise Exception("")
 
 	def set_panel_allocation(self, panel_allocation):
 		self.panel_allocation = panel_allocation
 
 	def set_result(self, result, override = False):
-
-
-		#	{
-		#		debater単位
-		#	}
-		#
-		#
-		#
-		#
-		#
-		#
-		#
-
-        position_num = len(self.tournament.style["score_weights"])
-        team_num = self.tournament.style["team_num"]
-        debater_num_per_team = self.tournament.style["debater_num_per_team"]
-        score_weights = self.tournament.style["score_weights"]
-
-		if len(result["points"]) != position_num:
-			raise Exception("Length of points is incorrect")
-		if result["points"].count(0) == 0:
-			raise Exception("Debater id {} has fields with all 0".format(result["id"]))######### When in typical style?
-		elif result["points"].count(0) == positions:
-			raise Exception("points of Debater id {} has all fields non zero".format(result["id"]))
-
-		"""	
-
-        "team_id": team_id,
-        "id": ,
-        "points": ::[Float], /* 0 if he/she has no role */
-        "win": ::Bool /* True if win else False */,
-        "opponent_team_id": opponent_team_name,
-        "side": ::String /* in BP, "og", "oo", "cg", "co". in 2side game, "gov", "opp"
-
-        for i in range(int(len(results_list)/debater_num_per_team)):#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
-				for team in tournament["team_list"]:
-					if team.name == results_list[debater_num_per_team*i][0]:
-						member_names = [results_list[debater_num_per_team*i+j][1] for j in range(debater_num_per_team)]
-						member_score_lists = [results_list[debater_num_per_team*i+j][2:2+positions] for j in range(debater_num_per_team)]
-						side = results_list[debater_num_per_team*i][2+positions+team_num]
-						win = results_list[debater_num_per_team*i][2+positions]
-						for debater in team.debaters:
-							for member_name, member_score_list in zip(member_names, member_score_lists):
-								if debater.name == member_name:
-									score = 0
-									sum_weight = 0
-									for sc, weight in zip(member_score_list, score_weight):
-										score += sc
-										sum_weight += weight
-									if sum_weight == 0:
-										interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
-									else:
-										score = score/float(sum_weight)
-										debater.finishing_process(member_score_list, score)
-										debater_list_temp.append(debater)
-										break
-							else:
-								interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
-	
-						if team_num == 4:
-							margin = 0
-						else:
-							opp_team_score = 0
-							for results in results_list:
-								if results[0] == results_list[debater_num_per_team*i][3+positions]:
-									opp_team_score += sum(results[2:2+positions])
-							margin = sum([sum(member_score_list) for member_score_list in member_score_lists])-opp_team_score
-						team.finishing_process(opponent=[results_list[debater_num_per_team*i][3+positions+j] for j in range(team_num-1)], score=sum([sum(member_score_list) for member_score_list in member_score_lists]), side=side, win=win, margin=margin)
-						team_list_temp.append(team)
-	
-			all_debater_list = [d for t in tournament["team_list"] for d in t.debaters]
-			ranking = 1
-			for debater in all_debater_list:
-				debater.rankings.append(ranking)
-				debater.rankings_sub.append(ranking)
-				ranking += 1
-			rest_debater_list = [d for d in all_debater_list if d not in debater_list_temp]
-			for debater in rest_debater_list:
-				debater.score_lists_sub.append(['n/a']*positions)
-				debater.scores_sub.append('n/a')
-				debater.rankings_sub.append('n/a')
-	
-			for team in tournament["team_list"]:
-				if team.name not in [results[0] for results in results_list]:
-					if team.available:
-						interaction_modules.warn("team: {0:15s} not in results: {1}".format(team.name, filename_results))
-	
-			for team in tournament["team_list"]:
-				for debater in team.debaters:
-					if debater.name not in [results[1] for results in results_list]:
-						if team.available:
-							interaction_modules.warn("debater: {0:15s} not in results: {1}".format(debater.name, filename_results))
-	
-			rest_team_list = [t for t in tournament["team_list"] if t not in team_list_temp]
-			for team in rest_team_list:
-				team.dummy_finishing_process()
-				for debater in team.debaters:
-					debater.dummy_finishing_process(style_cfg)
-			"""
+		pass
 
 	def end(self, force = False):
 		if not force:
 			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
 
 		self.tournament.now_round += 1
+
+
+	def process_result(self):
+		if "processable":###
+			pass
+			"""
+	        position_num = len(self.tournament.style["score_weights"])
+	       	team_num = self.tournament.style["team_num"]
+	        debater_num_per_team = self.tournament.style["debater_num_per_team"]
+	        score_weights = self.tournament.style["score_weights"]
+
+			if len(result["points"]) != position_num:
+				raise Exception("Length of points is incorrect")
+			if result["points"].count(0) == 0:
+				raise Exception("Debater id {} has fields with all 0".format(result["id"]))######### When in typical style?
+			elif result["points"].count(0) == positions:
+				raise Exception("points of Debater id {} has all fields non zero".format(result["id"]))
+			"""
+
+			"""	
+
+	        "team_id": team_id,
+	        "id": ,
+	        "points": ::[Float], /* 0 if he/she has no role */
+	        "win": ::Bool /* True if win else False */,
+	        "opponent_team_id": opponent_team_name,
+	        "side": ::String /* in BP, "og", "oo", "cg", "co". in 2side game, "gov", "opp"
+
+	        for i in range(int(len(results_list)/debater_num_per_team)):#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
+					for team in tournament["team_list"]:
+						if team.name == results_list[debater_num_per_team*i][0]:
+							member_names = [results_list[debater_num_per_team*i+j][1] for j in range(debater_num_per_team)]
+							member_score_lists = [results_list[debater_num_per_team*i+j][2:2+positions] for j in range(debater_num_per_team)]
+							side = results_list[debater_num_per_team*i][2+positions+team_num]
+							win = results_list[debater_num_per_team*i][2+positions]
+							for debater in team.debaters:
+								for member_name, member_score_list in zip(member_names, member_score_lists):
+									if debater.name == member_name:
+										score = 0
+										sum_weight = 0
+										for sc, weight in zip(member_score_list, score_weight):
+											score += sc
+											sum_weight += weight
+										if sum_weight == 0:
+											interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
+										else:
+											score = score/float(sum_weight)
+											debater.finishing_process(member_score_list, score)
+											debater_list_temp.append(debater)
+											break
+								else:
+									interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
+		
+							if team_num == 4:
+								margin = 0
+							else:
+								opp_team_score = 0
+								for results in results_list:
+									if results[0] == results_list[debater_num_per_team*i][3+positions]:
+										opp_team_score += sum(results[2:2+positions])
+								margin = sum([sum(member_score_list) for member_score_list in member_score_lists])-opp_team_score
+							team.finishing_process(opponent=[results_list[debater_num_per_team*i][3+positions+j] for j in range(team_num-1)], score=sum([sum(member_score_list) for member_score_list in member_score_lists]), side=side, win=win, margin=margin)
+							team_list_temp.append(team)
+		
+				all_debater_list = [d for t in tournament["team_list"] for d in t.debaters]
+				ranking = 1
+				for debater in all_debater_list:
+					debater.rankings.append(ranking)
+					debater.rankings_sub.append(ranking)
+					ranking += 1
+				rest_debater_list = [d for d in all_debater_list if d not in debater_list_temp]
+				for debater in rest_debater_list:
+					debater.score_lists_sub.append(['n/a']*positions)
+					debater.scores_sub.append('n/a')
+					debater.rankings_sub.append('n/a')
+		
+				for team in tournament["team_list"]:
+					if team.name not in [results[0] for results in results_list]:
+						if team.available:
+							interaction_modules.warn("team: {0:15s} not in results: {1}".format(team.name, filename_results))
+		
+				for team in tournament["team_list"]:
+					for debater in team.debaters:
+						if debater.name not in [results[1] for results in results_list]:
+							if team.available:
+								interaction_modules.warn("debater: {0:15s} not in results: {1}".format(debater.name, filename_results))
+		
+				rest_team_list = [t for t in tournament["team_list"] if t not in team_list_temp]
+				for team in rest_team_list:
+					team.dummy_finishing_process()
+					for debater in team.debaters:
+						debater.dummy_finishing_process(style_cfg)
+			"""
+

@@ -10,6 +10,9 @@ import numpy as np
 #    : don't consider breaknum when breaknum = 0
 #	 : complete model, define controller/view, define exceptions, set logger
 #    : round herasu ni taiou
+#    : blocking for api server
+#    : set status
+#    : algorithm selection
 
 #################### ROLE OF EACH MODULE ####################
 # main: model
@@ -63,31 +66,30 @@ import numpy as np
 #
 #
 
+tournaments = {
+					#"a1":Tournament("a1", 1, 4, 'BP'),
+					#"a2":Tournament("a2", 2, 4, 'BP')
+			  }
 
+styles = {# => {style name, debater num per team, team num, [score weight], reply indexes}
+"ACADEMIC":{"style_name": "ACADEMIC", "debater_num_per_team":4, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
+"NA":{"style_name": "NA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 0.5], "replies":[1], "num_of_replies":0},
+"NAFA":{"style_name": "NAFA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
+"PDA":{"style_name": "PDA", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1], "replies":[], "num_of_replies":0},
+"ASIAN":{"style_name": "ASIAN", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1, 0.5], "replies":[0, 1], "num_of_replies":1},
+"BP":{"style_name": "BP", "debater_num_per_team":2, "team_num":4, "score_weights":[1, 1], "replies":[], "num_of_replies":0},
+"SMALLBP":{"style_name": "SMALLBP", "debater_num_per_team":1, "team_num":4, "score_weights":[1], "replies":[], "num_of_replies":0},
+"PF":{"style_name": "PF", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[0, 1], "num_of_replies":2},
+"SMALL":{"style_name": "SMALL", "debater_num_per_team":1, "team_num":2, "score_weights":[1, 0.5], "replies":[0], "num_of_replies":1}
+}
+#round_num
+#tournament_code
+#tournament_name
+#style
 
 if __name__ == "__main__":
-
-	tournaments = {
-						#"a1":Tournament("a1", 1, 4, 'BP'),
-						#"a2":Tournament("a2", 2, 4, 'BP')
-				  }
-
-	styles = {# => {style name, debater num per team, team num, [score weight], reply indexes}
-	"ACADEMIC":{"style_name": "ACADEMIC", "debater_num_per_team":4, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
-	"NA":{"style_name": "NA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 0.5], "replies":[1], "num_of_replies":0},
-	"NAFA":{"style_name": "NAFA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
-	"PDA":{"style_name": "PDA", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1], "replies":[], "num_of_replies":0},
-	"ASIAN":{"style_name": "ASIAN", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1, 0.5], "replies":[0, 1], "num_of_replies":1},
-	"BP":{"style_name": "BP", "debater_num_per_team":2, "team_num":4, "score_weights":[1, 1], "replies":[], "num_of_replies":0},
-	"SMALLBP":{"style_name": "SMALLBP", "debater_num_per_team":1, "team_num":4, "score_weights":[1], "replies":[], "num_of_replies":0},
-	"PF":{"style_name": "PF", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[0, 1], "num_of_replies":2},
-	"SMALL":{"style_name": "SMALL", "debater_num_per_team":1, "team_num":2, "score_weights":[1, 0.5], "replies":[0], "num_of_replies":1}
-	}
-	#round_num
-	#tournament_code
-	#tournament_name
-	#style
-
+	pass
+	"""
 	tournament = Tournament(tournament_code, tournament_name, round_num, style)
 
 	for i in range(round_num):
@@ -118,6 +120,8 @@ if __name__ == "__main__":
 			#	  COLLECTING RESULTS	#
 			#							#
 
+			tournament.round[i].set_result()##########belowと統合?
 			tournament.round[i].end(force=False) && break
 		
 	tournament.end()
+	"""

@@ -15,8 +15,6 @@ except:
 	sys.exit()
 	
 
-
-
 def finish_round_debug(allocations, round_num, style_cfg, workfolder_name):
 	export_random_result_adj(allocations, round_num, style_cfg, workfolder_name+"private/Results_of_adj"+str(round_num)+".csv")
 	export_random_result(allocations, round_num, style_cfg, workfolder_name+"private/Results"+str(round_num)+".csv")
