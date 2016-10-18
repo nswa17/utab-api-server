@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .property_modules import *
+from property_modules import *
 #from . import interaction_modules
 import copy
 import random

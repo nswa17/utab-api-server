@@ -214,3 +214,4 @@ class Lattice_list(list):
 		self.comment = ""
 		self.grid_type = "Lattice"
 
+		

@@ -6,87 +6,76 @@ import copy
 import itertools
 import re
 
-def check_results(round, style):
+def check_result(tournament, result):
+	### check whether the debater id belongs to the team id in dictionary
+	team = find_element_by_id(tournament.team_list, result["team_id"])
+
+	if team.debaters.is_belonging(result["debater_id"]):
+		raise Exception("debater_id {} 's team doesn't have team_id {}".format(result["debater_id"], result["team_id"]))
+	### check if the score is not all zero
+
+def check_results(tournament, raw_results):########
 	regexp = re.compile(r'^[0-9A-Za-z. ¥-]+$')
 
 	results_lists = []
 
-	positions = len(style["score_weight"])
-	team_num = style["team_num"]
-	debater_num_per_team = style["debater_num_per_team"]
+	positions = len(tournament.style["score_weight"])
+	team_num = tournament.style["team_num"]
+	debater_num_per_team = tournament.style["debater_num_per_team"]
 
-	for row in reader:
-		for ele in row:
-			hit = regexp.search(ele)
-			if hit is None:
-				interaction_modules.warn(("warning: results file is using unknown character(fullwidth forms or other symbols)", ele))
-		results_lists.append([row[0], row[1]]+[float(row[2+i]) for i in range(positions)]+[int(row[2+positions])]+[row[3+positions+j] for j in range(team_num-1)]+[row[2+positions+team_num]])
+	for team in tournament.team_list:
+		if team.code not in [v["team_id"] for v in raw_results.values()]:
+			if team.available:
+				raise Exception("result of team {} is not sent".format(team.name))
 
-	if team_num == 4:
-		for i in range(int(len(results_lists)/debater_num_per_team)):
-			team_names = [results_lists[debater_num_per_team*i+j][0] for j in range(debater_num_per_team)]
-			teams_name_pairs = list(itertools.combinations(team_names, 2))
-			for teams_name_pair in teams_name_pairs:
-				if teams_name_pair[0] != teams_name_pair[1]:
-					interaction_modules.warn(("error in team name column, row:"+str(debater_num_per_team*i+3)))
-					return True
+	for debater in tournament.debater_list:
+		if debater.code not in [v["debater_id"] for v in raw_results.values()]:
+			if debater.team.available:
+				raise Exception("result of debater {} is not sent".format(debater.name))
 
-		multi2 = {results_list[1]:0 for results_list in results_lists}
+	"""
+	raw_results['32'::debater_id] = [{
+			"team_id": '3',
+			"scores": [0, 0, 10],
+			"win_point": 1,
+			"opponent_ids": 33,
+			"position": 'gov'
+			}]
+	"""
 
-		for results_list in results_lists:
-			multi2[results_list[1]] += 1
+	### check same team has same wins/sides
+	### us for the opponent is the oppnent for them
+	### collected all results?
 
+def get_weighted_score(score_list, score_weights):
+	score = 0
+	sum_weight = 0
+	for sc, weight in zip(score_list, score_weights):
+		if sc != 0:
+			score += sc
+			sum_weight += weight
 
-		wins = [0 for i in range(team_num)]
-		try:
-			for i, results_list in enumerate(results_lists):
-				wins[results_list[2+positions]] += 1
-		except:
-			interaction_modules.warn(("error in win column, unexpected value, row:")+str(i+3))
-			interaction_modules.warn("Unexpected error:", sys.exc_info()[0])
-			return True
+	score = 0 if sum_weight == 0 else score / sum_weight
+	return score
 
-		wins_pairs = list(itertools.combinations(wins, 2))
-		for wins_pair in wins_pairs:
-			if wins_pair[0] != wins_pair[1]:
-				interaction_modules.warn("error in win column")
-				return True
-
-		if team_num == 4:
-			sides = {"og":0, "oo":0, "cg":0, "co":0}
+def get_score_list_averaged(result_dicts):
+	score_list = []#array for scores [8(pm), 0(mg), 4(gr)]
+	num_sources = len(result_dicts)
+	for result_dict in result_dicts:
+		if score_list == []:
+			score_list = result_dict["scores"]
 		else:
-			sides = {"gov":0, "opp":0}
+			score_list = [score_list[i] + result_dict["scores"][i] for i in range(len(result_dict["scores"]))]
 
-		try:
-			for i, results_list in enumerate(results_lists):
-				sides[results_list[2+positions+team_num]] += 1
-		except:
-			interaction_modules.warn(("error in side column, unexpected value, row:")+str(i+3))
-			interaction_modules.warn("Unexpected error:", sys.exc_info()[0])
-			return True
+	return [score/num_sources for score in score_list]
 
-		sides_pairs = list(itertools.combinations(list(sides.values()), 2))
-		for sides_pair in sides_pairs:
-			if sides_pair[0] != sides_pair[1]:
-				interaction_modules.warn("error in side column")
-				return True
+def check_result_of_adj(tournament, result):
+	if result["from"] == 'chair' or result["from"] == 'panel':
+		from_adj = find_element_by_id(tournament.adjudicator_list, result["from_id"])
+		if result["from_name"] != from_adj.name:
+			raise Exception("sender's id and name doesn't match")
 
-		if team_num == 4:
-			opponents1, opponents2, opponents3, opponents4 = [], [], [], []
-			for results_list in results_lists:
-				opponents1.extend([results_list[3+positions], results_list[4+positions], results_list[5+positions]])
-				opponents2.extend([results_list[0], results_list[4+positions], results_list[5+positions]])
-				opponents3.extend([results_list[0], results_list[3+positions], results_list[5+positions]])
-				opponents4.extend([results_list[0], results_list[3+positions], results_list[4+positions]])
-			if set(opponents1) != set(opponents2) or set(opponents1) != set(opponents3) or set(opponents1) != set(opponents4) or set(opponents2) != set(opponents3) or set(opponents2) != set(opponents4) or set(opponents3) != set(opponents4):
-				interaction_modules.warn("error in team and the opponent column")
-				return Trueaa
-		else:
-			opponents = {results_list[0]:results_list[3+positions] for results_list in results_lists}
-			opponents2 = {results_list[3+positions]:results_list[0] for results_list in results_lists}
+def check_results_of_adj(tournament, raw_results):
+	pass
 
-			if opponents != opponents2:
-				interaction_modules.warn("error in team and the opponent column")
-				return True
 
-		return False

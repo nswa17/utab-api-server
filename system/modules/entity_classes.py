@@ -1,3 +1,5 @@
+from tools import *
+
 class Team:
 	def __init__(self, code, name, url, debater_names, institutions):
 		self.code = code
@@ -16,6 +18,15 @@ class Team:
 		self.margin = 0
 		self.ranking = 0
 		self.available = True
+
+	def get_debater_of_id(self, code):
+		return find_element_by_id(self.debaters, code)
+
+	def is_belonging(self, debater_or_code):
+		if type(debater_or_code) == 'int':
+			return debater_or_code in [d.code for d in self.debaters]
+		else:
+			return debater_or_code in self.debaters
 
 	def average(self):
 		if len(self.scores) == 0:
@@ -48,15 +59,15 @@ class Team:
 	def __str__(self):
 		return self.name
 
-	def finishing_process(self, opponent, score, side, win, margin):
-		self.past_opponents.extend(opponent)
-		self.past_sides.append(side)
-		self.past_sides_sub.append(side)
+	def finishing_process(self, opponents, score, position, win_point, margin):
+		self.past_opponents.extend(opponents)
+		self.past_sides.append(position)
+		self.past_sides_sub.append(position)
 		self.scores.append(score)
 		self.score = score
 		self.wins.append(win)
 		self.scores_sub.append(score)
-		self.wins_sub.append(win)
+		self.wins_sub.append(win_point)
 		self.margin += margin
 
 	def dummy_finishing_process(self):
@@ -89,6 +100,7 @@ class Adjudicator:
 		self.active = False
 		self.evaluation = 0
 		self.conflict_teams = [conflict_team for conflict_team in conflict_teams if conflict_team != '']
+		self.comments_list = []
 
 	def __hash__(self):
 		return self.code
@@ -109,7 +121,7 @@ class Adjudicator:
 			avrg = self.average()
 			return math.sqrt(sum([(score - avrg)**2 for score in self.scores])/len(self.scores))
 
-	def finishing_process(self, score, teams, watched_debate_score, chair):
+	def finishing_process(self, score, teams, watched_debate_score, chair, comments):
 		self.score = score
 		self.scores.append(score)
 		self.scores_sub.append(score)
@@ -122,6 +134,7 @@ class Adjudicator:
 		self.watched_debate_score = watched_debate_score
 		self.watched_debate_scores.append(watched_debate_score)
 		self.watched_debate_scores_sub.append(watched_debate_score)
+		self.comments_list.append(comments)
 
 	def dummy_finishing_process(self, team_num):
 		self.scores_sub.append('n/a')
@@ -166,16 +179,15 @@ class Institution:
 		return self.name
 
 class Debater:
-	def __init__(self, code, name, url):
+	def __init__(self, code, name, team, url):
 		self.code = code
 		self.name = name
 		self.url = url
+		self.team = team
 		self.score_lists = []
 		self.scores = []
 		self.score_lists_sub = []
 		self.scores_sub = []
-		self.rankings = []
-		self.rankings_sub = []
 
 	def average(self, style_cfg):
 		score_weight = style_cfg["score_weight"]

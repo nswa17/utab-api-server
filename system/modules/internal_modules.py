@@ -14,12 +14,31 @@ except:
 import math
 #from .bit_modules import *
 #from .commandline_modules import *
-from .error_classes import *
-from .property_modules import *
-from .filter_modules import *
-from .select_modules import *
-from .io_modules import *
-from .grid_classes import *
+from error_classes import *
+from property_modules import *
+from filter_modules import *
+from select_modules import *
+from io_modules import *
+from grid_classes import *
+
+def evaluate_adjudicator(adjudicator_list, judge_criterion):
+	for adjudicator in adjudicator_list:
+		adjudicator.evaluation = 0
+		adjudicator.evaluation += adjudicator.reputation * judge_criterion[adjudicator.active_num]["judge_repu_percent"]/100.0
+		adjudicator.evaluation += adjudicator.judge_test * judge_criterion[adjudicator.active_num]["judge_test_percent"]/100.0
+
+		if adjudicator.active_num != 0:
+			adjudicator.evaluation += sum(adjudicator.scores) / adjudicator.active_num * judge_criterion[adjudicator.active_num]["judge_perf_percent"]/100.0
+
+def sort_adjudicator_list_by_score(adjudicator_list):
+	adjudicator_list.sort(key=lambda adjudicator: adjudicator.evaluation, reverse=True)
+	for rank, adjudicator in enumerate(adjudicator_list):
+		adjudicator.ranking = rank+1
+
+def sort_team_list_by_score(team_list):
+	team_list.sort(key=lambda team: (sum(team.wins), sum(team.scores), (team.margin)), reverse=True)
+	for j, team in enumerate(team_list):
+		team.ranking = j + 1
 
 def create_grid_list_by_thread(grid_list, team_list, team_num, flag):
 	try:
@@ -703,3 +722,17 @@ def check_team_list2(team_list, experienced_round_num, team_num):
 		if len(team.wins) != experienced_round_num:
 			if team.available:
 				raise Exception("[warning]{0:15s} : uncertain data in wins, round num != len(wins)    {1}".format(team.name, team.wins))
+
+def create_lattice_list(matchups, adjudicator_list):
+	lattice_list = []
+	for grid in matchups:
+		for chair in adjudicator_list:
+			lattice_list.append(Lattice(grid, chair))
+
+	for lattice in lattice_list:
+		if (False in [t.available for t in lattice.grid.teams]) or lattice.chair.absent:
+			lattice.set_not_available()
+	#interaction_modules.warn(str(len(lattice_list)))#db
+	return lattice_list
+
+

@@ -1,7 +1,8 @@
-from .bit_modules import *
-from .internal_modules import *
-from .io_modules import *
-from .entity_classes import *
+from bit_modules import *
+from internal_modules import *
+from io_modules import *
+from entity_classes import *
+from result_modules import *
 
 import time
 #import re
@@ -11,34 +12,6 @@ import time
 #import os.path
 #import math
 #import shutil
-
-def add_element(target_list, element):
-	if element not in target_list:
-		target_list.append(element)
-	else:
-		raise Exception("id {} already exists".format(element.code))
-
-def delete_element(target_list, element_or_code):
-	if type(element_or_code) == int:
-		element = filter(lambda x: x.code == element_or_code)[0]
-	else:
-		element = element_or_code
-
-	try:
-		target_list.remove(element)
-	except:
-		raise Exception("id {} does not exist".format(element.code))
-
-def find_element_by_code(target_list, code):
-	elements = filter(lambda x: x.code == code, target_list)
-	if len(elements) == 0:
-		raise Exception("Entity id {} does not exist")
-	return elements[0]
-
-def check_name_and_code(target_list, code, name):
-	element = find_element_by_code(target_list, code)
-	if element.name != name:
-		raise Exception("Entity id {} has name {}, not {}".format(code, element.name, name))
 
 class Tournament:
 	def __init__(self, name, code, round_num, style, host = "", url = "", break_team_num = 0):
@@ -54,13 +27,15 @@ class Tournament:
 		self.venue_list = []
 		self.institution_list = []
 		self.rounds = [Round(i+1, self) for i in range(round_num)]
-		self.filter_lists = []#
-		self.constants = []#
+		self.judge_criterion = []
 		self.break_team_num = break_team_num
 		self.now_round = 1
 		self.finished = False
-		self.results = None
+		#self.results = None
 		self.analysis = None
+
+	def set_judge_criterion(self, judge_criterion_dicts):
+		self.judge_criterion = judge_criterion_dicts
 
 	def add_team(self, code, name, debaters, institutions, url=""):
 		team = Team(code, name, debaters, institutions)
@@ -90,8 +65,8 @@ class Tournament:
 	def delete_adjudicator(self, adj_or_code):
 		delete_element(self.adjudicator_list, adj_or_code)
 
-	def add_debater(self, code, name, url=""):
-		debater = Debater(code, name, url)
+	def add_debater(self, code, name, team, url=""):
+		debater = Debater(code, name, team, url)
 		add_element(self.debater_list, debater)
 
 	def delete_debater(self, debater_or_code):
@@ -153,6 +128,8 @@ class Round:
 		self.constants_of_adj = {}
 		self.filter_list = []
 		self.filter_of_adj_list = []
+		self.raw_results = {}
+		self.raw_results_of_adj = {}
 
 	def set_constants(self, v_random_pairing = 4, des_power_pairing = 1, des_w_o_same_a_insti = 2, des_w_o_same_b_insti = 0, des_w_o_same_c_insti = 0, des_with_fair_sides = 3):
 		self.constants["random_pairing"] = v_random_pairing
@@ -203,6 +180,10 @@ class Round:
 		if not force:
 			check_team_list(self.tournament.team_list)
 			check_adjudicator_list(self.tournament.adjudicator_list)
+
+		evaluate_adjudicator(self.tournament.adjudicator_list, self.tournament.judge_criterion)
+		sort_adjudicator_list_by_score(self.tournament.adjudicator_list)
+		sort_team_list_by_score(self.tournament.team_list)
 
 	def compute_matchups(self):
 		grid_flag = threading.Event()
@@ -304,8 +285,43 @@ class Round:
 	def set_panel_allocation(self, panel_allocation):
 		self.panel_allocation = panel_allocation
 
-	def set_result(self, result, override = False):
-		pass
+	def set_result(self, data, override = False):
+		result = data["data"]
+		result_to_set = {
+			"debater_id": data["debater_id"],
+			"team_id": result["team_id"],
+			"scores": result["scores"],
+			"win_point": result["win_point"],
+			"opponent_ids": result["opponent_ids"],
+			"position": result["position"]
+			}
+
+		check_result(tournament, result_to_set)
+
+		if data['debater_id'] in self.raw_results:
+			self.raw_results[data["debater_id"]].append(result_to_set)
+		else:
+			self.raw_results[data["debater_id"]] = [result_to_set]
+
+	def set_result_of_adj(self, data, override = False):
+		result = data["data"]
+		result_to_set = {
+			"adj_id": data["adj_id"],
+			"from": result["from"],
+			"from_id": result["from_id"],
+			"from_name": result["from_name"],
+			"chair": result["chair"],
+			"point": result["point"],
+			"team_ids": result["team_ids"],
+			"comment": result["comment"],
+			}
+
+		check_result_of_adj(tournament, result_to_set)
+
+		if data['adj_id'] in self.raw_results:
+			self.raw_results[data["adj_id"]].append(result_to_set)
+		else:
+			self.raw_results[data["adj_id"]] = [result_to_set]
 
 	def end(self, force = False):
 		if not force:
@@ -313,96 +329,127 @@ class Round:
 
 		self.tournament.now_round += 1
 
+	def process_result(self, force=False):
+		team_num = self.tournament.style["team_num"]
 
-	def process_result(self):
-		if "processable":###
-			pass
-			"""
-	        position_num = len(self.tournament.style["score_weights"])
-	       	team_num = self.tournament.style["team_num"]
-	        debater_num_per_team = self.tournament.style["debater_num_per_team"]
-	        score_weights = self.tournament.style["score_weights"]
-
-			if len(result["points"]) != position_num:
-				raise Exception("Length of points is incorrect")
-			if result["points"].count(0) == 0:
-				raise Exception("Debater id {} has fields with all 0".format(result["id"]))######### When in typical style?
-			elif result["points"].count(0) == positions:
-				raise Exception("points of Debater id {} has all fields non zero".format(result["id"]))
-			"""
-
-			"""	
-
-	        "team_id": team_id,
-	        "id": ,
-	        "points": ::[Float], /* 0 if he/she has no role */
-	        "win": ::Bool /* True if win else False */,
-	        "opponent_team_id": opponent_team_name,
-	        "side": ::String /* in BP, "og", "oo", "cg", "co". in 2side game, "gov", "opp"
-
-	        for i in range(int(len(results_list)/debater_num_per_team)):#results=>[team name, name, R[i] 1st, R[i] 2nd, R[i] rep, win?lose?, opponent name, gov?opp?]
-					for team in tournament["team_list"]:
-						if team.name == results_list[debater_num_per_team*i][0]:
-							member_names = [results_list[debater_num_per_team*i+j][1] for j in range(debater_num_per_team)]
-							member_score_lists = [results_list[debater_num_per_team*i+j][2:2+positions] for j in range(debater_num_per_team)]
-							side = results_list[debater_num_per_team*i][2+positions+team_num]
-							win = results_list[debater_num_per_team*i][2+positions]
-							for debater in team.debaters:
-								for member_name, member_score_list in zip(member_names, member_score_lists):
-									if debater.name == member_name:
-										score = 0
-										sum_weight = 0
-										for sc, weight in zip(member_score_list, score_weight):
-											score += sc
-											sum_weight += weight
-										if sum_weight == 0:
-											interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
-										else:
-											score = score/float(sum_weight)
-											debater.finishing_process(member_score_list, score)
-											debater_list_temp.append(debater)
-											break
-								else:
-									interaction_modules.warn("error: Results file(Results"+str(round_num)+".csv) broken")
+		if not force:
+			check_results(self.tournament, self.raw_results)
 		
-							if team_num == 4:
-								margin = 0
-							else:
-								opp_team_score = 0
-								for results in results_list:
-									if results[0] == results_list[debater_num_per_team*i][3+positions]:
-										opp_team_score += sum(results[2:2+positions])
-								margin = sum([sum(member_score_list) for member_score_list in member_score_lists])-opp_team_score
-							team.finishing_process(opponent=[results_list[debater_num_per_team*i][3+positions+j] for j in range(team_num-1)], score=sum([sum(member_score_list) for member_score_list in member_score_lists]), side=side, win=win, margin=margin)
-							team_list_temp.append(team)
-		
-				all_debater_list = [d for t in tournament["team_list"] for d in t.debaters]
-				ranking = 1
-				for debater in all_debater_list:
-					debater.rankings.append(ranking)
-					debater.rankings_sub.append(ranking)
-					ranking += 1
-				rest_debater_list = [d for d in all_debater_list if d not in debater_list_temp]
-				for debater in rest_debater_list:
-					debater.score_lists_sub.append(['n/a']*positions)
-					debater.scores_sub.append('n/a')
-					debater.rankings_sub.append('n/a')
-		
-				for team in tournament["team_list"]:
-					if team.name not in [results[0] for results in results_list]:
-						if team.available:
-							interaction_modules.warn("team: {0:15s} not in results: {1}".format(team.name, filename_results))
-		
-				for team in tournament["team_list"]:
-					for debater in team.debaters:
-						if debater.name not in [results[1] for results in results_list]:
-							if team.available:
-								interaction_modules.warn("debater: {0:15s} not in results: {1}".format(debater.name, filename_results))
-		
-				rest_team_list = [t for t in tournament["team_list"] if t not in team_list_temp]
-				for team in rest_team_list:
-					team.dummy_finishing_process()
-					for debater in team.debaters:
-						debater.dummy_finishing_process(style_cfg)
-			"""
+		team_list_temp = []
+		debater_list_temp = []
 
+		debater_num_per_team = self.tournament.style["debater_num_per_team"]
+		positions = len(self.tournament.style["score_weights"])
+		score_weights = self.tournament.style["score_weights"]
+		team_num = self.tournament.style["team_num"]
+
+		"""
+		raw_results['32'::debater_id] = [
+			{
+				"team_id": '3',
+				"scores": [0, 0, 10],	#differ by each source
+				"win_point": 1,
+				"opponent_ids": 33,
+				"position": 'gov'
+			}
+		]
+		"""
+
+		results_by_teams = {}
+
+		for k, v in self.raw_results.items():#all data of each debater
+			team = find_element_by_id(self.tournament.team_list, v[0]["team_id"])
+			debater = find_element_by_id(team.debaters, k)
+			opponent_ids = v[0]["opponent_ids"]
+			opponents = [get_name_from_id(self.tournament.team_list, opponent_id) for opponent_id in v[0]["opponent_ids"]]
+			win_point = v[0]["win_point"]
+			position = v[0]["position"]
+			score_list = get_score_list_averaged(v)
+			score = get_weighted_score(score_list, score_weights)
+
+			debater.finishing_process(score_list, score)
+
+			if team in results_by_teams:
+				results_by_teams[team]["score_lists"].append(score_list)
+			else:
+				results_by_teams[team] = {
+					"opponent_ids": opponent_ids,
+					"score_lists": [score_list],
+					"position": position,
+					"win_point": win_point
+				}
+
+		for k, v in results_by_teams.items():# calculate team score
+			v["team_score"] = sum([sum(score_list) for score_list in v["score_lists"]])
+
+		for k, v in results_by_teams.items():#calculate margin
+			if team_num == 2:
+				v["margin"] = 0
+			else:
+				opponent_score = results_by_teams[find_element_by_id(self.tournament.team_list, v["opponent_ids"][0])]["team_score"]
+				v["margin"] = v["team_score"] - opponent_score
+
+		for team, v in results_by_teams.items():
+			team.finishing_process(opponents=v["opponents"], score=v["team_score"], position=v["position"], win_point=v["win_point"], margin=v["margin"])
+
+		rest_debater_list = [d for d in self.debater_list if d.code not in self.raw_results.keys()]
+		for debater in rest_debater_list:
+			debater.score_lists_sub.append(['n/a']*positions)
+			debater.scores_sub.append('n/a')
+			debater.rankings_sub.append('n/a')
+
+		rest_team_list = [t for t in tournament.team_list if t not in results_by_teams.keys()]
+		for team in rest_team_list:
+			team.dummy_finishing_process()
+			for debater in team.debaters:
+				debater.dummy_finishing_process(style_cfg)
+
+	def process_result_of_adj(self, force=False):
+		if not force:
+			check_results_of_adj(self.tournament, self.raw_results)
+
+		"""
+		raw_results_of_adj[adj_id] = [
+			{
+				"adj_id": data["adj_id"],
+				"from": result["from"],	#differ in each result
+				"from_id": result["from_id"],	#differ in each result
+				"from_name": result["from_name"],	#differ in each result
+				"chair": true if chair
+				"point": result["point"],	#differ in each result
+				"team_ids": result["team_ids"],
+				"comment": result["comment"], #differ in each result
+			}
+		]
+		"""
+		adjudicator_temp = []
+
+		for k, v in raw_results_of_adj.items():
+			if len(v) == 0:
+				score = 0
+			else:
+				score = sum([d["point"] for d in v])/len(v)
+
+			comments = [d["comment"] for d in v]
+			adjudicator = find_element_by_id(self.tournament.adjudicator_list, k)
+			adjudicator_temp.append(adjudicator)
+			teams = [find_element_by_id(self.tournament.team_list, team_id) for team_id in v[0]["team_ids"]]
+			chair = v[0]["chair"] 
+			watched_debate_score = [t.score for t in teams]
+
+			adjudicator.finishing_process(score=score, teams=teams, watched_debate_score=watched_debate_score, chair=chair, comment=comment)
+
+
+		adjudicator_temp.sort(key=lambda adjudicator: adjudicator.watched_debate_score, reverse=True)
+		for k, adjudicator in enumerate(adjudicator_temp):
+			adjudicator.watched_debate_ranks.append(k+1)
+			adjudicator.watched_debate_ranks_sub.append(k+1)
+
+		rest_adjudicator_list = [adjudicator for adjudicator in self.tournament.adjudicator_list if adjudicator not in adjudicator_temp]
+
+		for adj in rest_adjudicator_list:
+			adj.watched_debate_ranks_sub.append('n/a')
+
+		for adjudicator in rest_adjudicator_list:
+			adjudicator.dummy_finishing_process(teamnum)
+		

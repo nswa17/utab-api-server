@@ -10,9 +10,11 @@ import numpy as np
 #    : don't consider breaknum when breaknum = 0
 #	 : complete model, define controller/view, define exceptions, set logger
 #    : round herasu ni taiou
-#    : blocking for api server
+#    : blocking for api server#single thread is much better?
 #    : set status
 #    : algorithm selection
+#    : teamnum and team_num_per_round
+#    : deal with comments
 
 #################### ROLE OF EACH MODULE ####################
 # main: model
@@ -120,7 +122,8 @@ if __name__ == "__main__":
 			#	  COLLECTING RESULTS	#
 			#							#
 
-			tournament.round[i].set_result()##########belowと統合?
+			tournament.round[i].process_result_of_adj(force=False)##########belowと統合?
+			tournament.round[i].process_result(force=False)##########belowと統合?
 			tournament.round[i].end(force=False) && break
 		
 	tournament.end()

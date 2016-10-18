@@ -50,6 +50,10 @@ def delete_tournament_callback():
 def fetch_tournament_data_callback(tournament_name):
 	return ""
 
+@route('/'+API_VERSION+'/<tournament_name>', method='PUT')
+def set_adjudicator_config_callback(tournament_name):
+	return ""
+
 @route('/'+API_VERSION+'/<tournament_name>', method='PATCH')
 def revise_tournament_data_callback(tournament_name):
 	return ""

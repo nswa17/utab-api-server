@@ -106,34 +106,7 @@ def addpriority(grid_list):
 		interaction_modules.progress_bar2(p+1, all_len)
 	interaction_modules.progress("")
 
-def initial_check(tournament, filter_lists, filter_of_adj_lists, constants, constants_of_adj, style_cfg):
-	teamnum = style_cfg["team_num"]
-	if len(constants) != len(constants_of_adj):
-		interaction_modules.warn("error : settings of adjudicators and tournament don't match")
-		time.sleep(1)
-	if len(tournament["venue_list"]) < len(tournament["team_list"])/float(teamnum):
-		interaction_modules.warn("error : few rooms")
-		time.sleep(1)
-	if len(tournament["team_list"])/float(teamnum) > len(tournament["adjudicator_list"]):
-		interaction_modules.warn("error : few adjudicators")
-		time.sleep(1)
 
-def sort_adjudicator_list_by_score(adjudicator_list):
-	adjudicator_list.sort(key=lambda adjudicator: adjudicator.evaluation, reverse=True)
-	for rank, adjudicator in enumerate(adjudicator_list):
-		adjudicator.ranking = rank+1
-
-def create_lattice_list(matchups, adjudicator_list):
-	lattice_list = []
-	for grid in matchups:
-		for chair in adjudicator_list:
-			lattice_list.append(Lattice(grid, chair))
-
-	for lattice in lattice_list:
-		if (False in [t.available for t in lattice.grid.teams]) or lattice.chair.absent:
-			lattice.set_not_available()
-	#interaction_modules.warn(str(len(lattice_list)))#db
-	return lattice_list
 
 
 def add_grid_by_team(grid_list, team_list, team, teamnum):
@@ -633,20 +606,6 @@ def revise_selected_grid_list(selected_grid_list, grid_list):
 			elif is_one_sided(selected_grid_list[selected_grid_list.index(grid)+1].teams[1], False) < 0:
 				new_grid = find_grid_from_grid_list(grid_list, [grid.teams[0], selected_grid_list[selected_grid_list.index(grid)+1].teams[1]])
 	"""
-
-def sort_team_list_by_score(team_list):
-	team_list.sort(key=lambda team: (sum(team.wins), sum(team.scores), (team.margin)), reverse=True)
-	for j, team in enumerate(team_list):
-		team.ranking = j + 1
-
-def evaluate_adjudicator(adjudicator_list, constants_of_adj):
-	for adjudicator in adjudicator_list:
-		adjudicator.evaluation = 0
-		adjudicator.evaluation += adjudicator.reputation * constants_of_adj[adjudicator.active_num]["judge_repu_percent"]/100.0
-		adjudicator.evaluation += adjudicator.judge_test * constants_of_adj[adjudicator.active_num]["judge_test_percent"]/100.0
-
-		if adjudicator.active_num != 0:
-			adjudicator.evaluation += sum(adjudicator.scores) / adjudicator.active_num * constants_of_adj[adjudicator.active_num]["judge_perf_percent"]/100.0
 
 def refresh_grids(grid_list):
 	for grid in grid_list:
