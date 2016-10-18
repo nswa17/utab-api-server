@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from property_modules import *
+from .property_modules import *
+from .grid_classes import *
 #from . import interaction_modules
 import copy
 import random
@@ -32,7 +33,7 @@ def disavail_grids(grid_list, grid1, pid):
 		if grid1.related(grid2):
 			grid2.set_not_available(pid)
 	"""#faster
-	if grid1.grid_type() == "Grid":
+	if grid_list.grid_type == "Grid":
 		teams_names = [team.name for team in grid1.teams]
 		for grid2 in grid_list:
 			for team2 in grid2.teams:

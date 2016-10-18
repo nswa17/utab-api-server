@@ -345,8 +345,6 @@ def export_institutions(filename_institutions, institution_list):
 		for institution in institution_list:
 			export_row = [institution.name, institution.scale]
 			writer.writerow(export_row)
-			
-
 
 def save(tournament, fnames, style_cfg):
 	export_filename_aj = fnames["export_filename_aj"]

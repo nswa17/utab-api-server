@@ -1,12 +1,12 @@
-from tools import *
+from .tools import *
 
 class Team:
-	def __init__(self, code, name, url, debater_names, institutions):
+	def __init__(self, code, name, url, debaters, institutions):
 		self.code = code
 		self.name = name
 		self.url = url
 		self.institutions = institutions
-		self.debaters = [Debater(self.code*len(debater_names)+j, debater_name) for j, debater_name in enumerate(debater_names)]
+		self.debaters = debaters
 		self.past_opponents = []
 		self.past_sides = []
 		self.past_sides_sub = []
@@ -18,6 +18,8 @@ class Team:
 		self.margin = 0
 		self.ranking = 0
 		self.available = True
+		for debater in self.debaters:
+			debater.team = self
 
 	def get_debater_of_id(self, code):
 		return find_element_by_id(self.debaters, code)
@@ -179,11 +181,11 @@ class Institution:
 		return self.name
 
 class Debater:
-	def __init__(self, code, name, team, url):
+	def __init__(self, code, name, url):
 		self.code = code
 		self.name = name
 		self.url = url
-		self.team = team
+		self.team = None
 		self.score_lists = []
 		self.scores = []
 		self.score_lists_sub = []

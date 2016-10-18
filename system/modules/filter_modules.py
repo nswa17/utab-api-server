@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from bit_modules import *
-from property_modules import *
+from .bit_modules import *
+from .property_modules import *
 import copy
 import math
 import random

@@ -1,3 +1,4 @@
+from .bit_modules import *
 
 class GL:
 	def __init__(self):
@@ -203,6 +204,7 @@ class Grid_list(list):
 		self.large_warnings = []
 		self.comment = ""
 		self.grid_type = "Grid"
+		self.internal_algorithm = ""
 
 class Lattice_list(list):
 	def __init__(self, *args):
@@ -213,5 +215,6 @@ class Lattice_list(list):
 		self.allocation_no = None
 		self.comment = ""
 		self.grid_type = "Lattice"
+		self.internal_algorithm = ""
 
 		

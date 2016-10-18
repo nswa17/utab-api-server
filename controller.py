@@ -22,14 +22,12 @@ def set_json_error_response(status_code, status_text, message):
 """
 
 def set_error(status_code, status_text, message):
-	data = {}
-	errors = []
-
+	error = {}
 	error["statusCode"] = status_code
 	error["statusText"] = status_text
 	error["message"] = message
-	errors.append(error)
-	return data, errors
+
+	return error
 
 def create_tournament(req):
 	errors = []

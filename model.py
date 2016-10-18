@@ -14,7 +14,6 @@ import numpy as np
 #    : set status
 #    : algorithm selection
 #    : teamnum and team_num_per_round
-#    : deal with comments
 
 #################### ROLE OF EACH MODULE ####################
 # main: model
@@ -100,7 +99,7 @@ if __name__ == "__main__":
 
 			#	 						#
 			#	 ARRANGING TOURNAMENT	#
-			#							#
+			#	   						#
 
 			tournament.round[i].set(force=False) && break # check data
 
@@ -128,3 +127,59 @@ if __name__ == "__main__":
 		
 	tournament.end()
 	"""
+
+	"""
+	Example code
+	"""
+
+	t = Tournament(1, "test", 1, styles["NA"])
+	
+	t.set_judge_criterion(
+		[
+            {
+                "judge_test_percent":100,
+                "judge_repu_percent":0,
+                "judge_perf_percent":0
+            },
+            {
+                "judge_test_percent":100,
+                "judge_repu_percent":0,
+                "judge_perf_percent":0
+            }
+        ]
+    )
+
+	t.add_institution(1, "insti1")
+	t.add_institution(2, "insti2")
+	t.add_debater(1, "deb1")
+	t.add_debater(2, "deb2")
+	t.add_debater(3, "deb3")
+	t.add_debater(4, "deb4")
+	#t.add_debater(5, "deb5")
+	#t.add_debater(6, "deb6")
+	#t.add_debater(7, "deb7")
+	#t.add_debater(8, "deb8")
+	t.add_team(1, "team1", [t.debater_list[0], t.debater_list[1]], [t.institution_list[0]])
+	t.add_team(2, "team2", [t.debater_list[2], t.debater_list[3]], [t.institution_list[1]])
+	#t.add_team(3, "team3", [t.debater_list[4], t.debater_list[5]], [t.institution_list[0]])
+	#t.add_team(4, "team4", [t.debater_list[6], t.debater_list[7]], [t.institution_list[1]])
+	t.add_adjudicator(1, "adj1", 10, 10, [t.institution_list[0]], [])
+	#t.add_adjudicator(3, "adj3", 10, 10, [t.institution_list[0]], [])
+	#t.add_adjudicator(2, "adj2", 8, 10, [t.institution_list[1]], [])
+	t.add_venue(1, "venue1")
+	#t.add_venue(2, "venue2")
+	#t.add_venue(2, "venue2")
+
+	r = t.round()
+	r.set_constants()
+	r.set_constants_of_adj()
+	r.set()
+
+	r.compute_matchups()
+	r.set_matchup(r.candidate_matchups[0])
+	r.compute_allocations()
+	print(r.candidate_allocations)
+	r.set_allocation(r.candidate_allocations[0])
+
+	r.compute_panel_allocation()
+	r.compute_venue_allocation()

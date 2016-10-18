@@ -34,27 +34,27 @@ def create_style_callback(tournament_name):
 @route('/'+API_VERSION+'/tournaments')
 def list_all_tournaments_callback():
 	data, errors = list_all_tournaments()
-	return ""
+	return set_json_response(data=data, errors=errors)
 
 @route('/'+API_VERSION+'/tournaments', method='POST')
 def create_tournament_callback():
 	req = request.json
 	data, errors = create_tournament(req)
-	return ""
+	return set_json_response(data=data, errors=errors)
 
 @route('/'+API_VERSION+'/tournaments', method='DELETE')
 def delete_tournament_callback():
 	return ""
 
-@route('/'+API_VERSION+'/<tournament_name>')
+@route('/'+API_VERSION+'/<tournament_name>')#when available?
 def fetch_tournament_data_callback(tournament_name):
 	return ""
 
-@route('/'+API_VERSION+'/<tournament_name>', method='PUT')
+@route('/'+API_VERSION+'/<tournament_name>', method='PUT')#when available?
 def set_adjudicator_config_callback(tournament_name):
 	return ""
 
-@route('/'+API_VERSION+'/<tournament_name>', method='PATCH')
+@route('/'+API_VERSION+'/<tournament_name>', method='PATCH')#when available?
 def revise_tournament_data_callback(tournament_name):
 	return ""
 
@@ -245,6 +245,6 @@ def save_backup_callback(tournament_name):
 
 if __name__ == "__main__":
 
-	run(host='localhost', port=8080, debug=True, server='cherrypy')#must be False when publicated
+	run(host='localhost', port=8080, debug=True)#, server='cherrypy')#must be False when publicated
 
 

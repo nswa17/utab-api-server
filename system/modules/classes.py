@@ -1,8 +1,7 @@
-from bit_modules import *
-from internal_modules import *
-from io_modules import *
-from entity_classes import *
-from result_modules import *
+from .bit_modules import *
+from .internal_modules import *
+from .entity_classes import *
+from .result_modules import *
 
 import time
 #import re
@@ -14,7 +13,7 @@ import time
 #import shutil
 
 class Tournament:
-	def __init__(self, name, code, round_num, style, host = "", url = "", break_team_num = 0):
+	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):
 		self.name = name
 		self.code = code
 		self.round_num = round_num
@@ -27,18 +26,21 @@ class Tournament:
 		self.venue_list = []
 		self.institution_list = []
 		self.rounds = [Round(i+1, self) for i in range(round_num)]
-		self.judge_criterion = []
+		self.judge_criterion = None
 		self.break_team_num = break_team_num
 		self.now_round = 1
 		self.finished = False
 		#self.results = None
 		self.analysis = None
 
+	def round(self):
+		return self.rounds[self.now_round-1]
+
 	def set_judge_criterion(self, judge_criterion_dicts):
 		self.judge_criterion = judge_criterion_dicts
 
 	def add_team(self, code, name, debaters, institutions, url=""):
-		team = Team(code, name, debaters, institutions)
+		team = Team(code, name, url, debaters,  institutions)
 		add_element(self.team_list, team)
 
 	def modify_team(self, code, name=None, url=None, debaters=None, institutions=None):
@@ -65,15 +67,15 @@ class Tournament:
 	def delete_adjudicator(self, adj_or_code):
 		delete_element(self.adjudicator_list, adj_or_code)
 
-	def add_debater(self, code, name, team, url=""):
-		debater = Debater(code, name, team, url)
+	def add_debater(self, code, name, url=""):
+		debater = Debater(code, name, url)
 		add_element(self.debater_list, debater)
 
 	def delete_debater(self, debater_or_code):
 		delete_element(self.debater_list, debater_or_code)
 
 	def add_venue(self, code, name, url="", available = True, priority = 1):
-		venue = Venue(code, name)
+		venue = Venue(code, name, url, available, priority)
 		add_element(self.venue_list, venue)
 
 	def delete_venue(self, venue_or_code):
@@ -113,7 +115,7 @@ class Round:
 		self.r = r    #	round No. ex) Round 1 => 1
 		self.tournament = tournament
 		self.prepared = False    #	True if round preparation has finished
-		self.grid_list = []
+		self.grid_list = Grid_list()
 		self.lattice_list = None
 		self.candidate_matchups = None
 		self.candidate_allocations = None
@@ -123,7 +125,25 @@ class Round:
 		self.allocation = None
 		self.panel_allocation = None
 		self.venue_allocation = None
-		self.round_status = 0 ################### need docs
+		self.round_status = 0
+		"""
+		0: before starting round(adding adjudicators, etc...)
+		1: computing matchups
+		2: finished computing matchups
+		3: computing allocations
+		4: finished computing matchups
+		5: computing panel allocation
+		6: finished computing panel allocation
+		7: computing venue allocation
+		8: finished computing venue allocation
+		9: collecting results
+		10: team results processing
+		11: team results processed
+		12: adj results processing
+		13: adj results processed
+		14: results processed, prepared to proceed to next round
+		"""
+		self.normal = True # False if an error occur
 		self.constants = {}
 		self.constants_of_adj = {}
 		self.filter_list = []
@@ -131,7 +151,7 @@ class Round:
 		self.raw_results = {}
 		self.raw_results_of_adj = {}
 
-	def set_constants(self, v_random_pairing = 4, des_power_pairing = 1, des_w_o_same_a_insti = 2, des_w_o_same_b_insti = 0, des_w_o_same_c_insti = 0, des_with_fair_sides = 3):
+	def set_constants(self, v_random_pairing = 4, des_power_pairing = 1, des_w_o_same_a_insti = 2, des_w_o_same_b_insti = 0, des_w_o_same_c_insti = 0, des_w_o_same_opp = 5, des_with_fair_sides = 3):
 		self.constants["random_pairing"] = v_random_pairing
 		self.constants["des_power_pairing"] = des_power_pairing
 		self.constants["des_w_o_same_a_insti"] = des_w_o_same_a_insti
@@ -146,7 +166,7 @@ class Round:
 			if i+1 in order:
 				self.filter_list.append(functions[order.index(i+1)])
 
-	def set_constants_of_adj(self, v_random_allocation = 4, des_strong_strong = 2, des_with_fair_sides = 3, des_avoiding_conflicts = 1, des_avoiding_past = 0, des_priori_bubble = 0, des_chair_rotation = 0, judge_test = 0, judge_repu_percent = 0, judge_perf_percent = 0):
+	def set_constants_of_adj(self, v_random_allocation = 4, des_strong_strong = 2, des_with_fair_times = 3, des_avoiding_conflicts = 1, des_avoiding_past = 0, des_priori_bubble = 0, des_chair_rotation = 0):
 		self.constants_of_adj["random_allocation"] = v_random_allocation
 		self.constants_of_adj["des_strong_strong"] = des_strong_strong
 		self.constants_of_adj["des_with_fair_times"] = des_with_fair_times
@@ -154,21 +174,23 @@ class Round:
 		self.constants_of_adj["des_avoiding_past"] = des_avoiding_past
 		self.constants_of_adj["des_priori_bubble"] = des_priori_bubble
 		self.constants_of_adj["des_chair_rotation"] = des_chair_rotation
-		self.constants_of_adj["judge_test_percent"] = judge_test_percent
-		self.constants_of_adj["judge_repu_percent"] = judge_repu_percent
-		self.constants_of_adj["judge_perf_percent"] = judge_perf_percent
 		functions = [random_allocation, prevent_str_wek_round, prevent_unfair_adjudicators, prevent_conflicts, avoid_watched_teams, prioritize_bubble_round, rotation_allocation]
 
-		order = [v_random_allocation, des_strong_strong, des_with_fair_sides, des_avoiding_conflicts, des_avoiding_past, des_priori_bubble, des_chair_rotation, judge_test, judge_repu_percent, judge_perf_percent]
+		order = [v_random_allocation, des_strong_strong, des_with_fair_times, des_avoiding_conflicts, des_avoiding_past, des_priori_bubble, des_chair_rotation]
 		for i in range(len(functions)):
 			if i+1 in order:
 				self.filter_of_adj_list.append(functions[order.index(i+1)])
 
 	def set(self, force = False):
+		if self.r == 1:
+			if len(self.tournament.judge_criterion) < self.tournament.round_num:
+				raise Exception('need to set judge criterion!')
+			if self.tournament.style is None:
+				raise Exception('need to set up style')
+
 		adj_available_num = len([adj for adj in self.tournament.adjudicator_list if not adj.absent])
-		venue_available_num = len([venue for venue in tournament.venue_list if venue.available])
-		team_available_num = len([team for team in tournament.team_list if team.available])
-		#interaction_modules.progress("Available Adjudicators: {0:d}, Available Venues: {1:d}, Available Teams: {2:d}".format(adj_available_num, venue_available_num, team_available_num))
+		venue_available_num = len([venue for venue in self.tournament.venue_list if venue.available])
+		team_available_num = len([team for team in self.tournament.team_list if team.available])
 
 		if adj_available_num < team_available_num/self.tournament.style["team_num"]:
 			raise Exception("More adjudicators needed")
@@ -177,43 +199,48 @@ class Round:
 		if team_available_num % self.tournament.style["team_num"] != 0 and not force:
 			raise Exception("{} teams cannot take part in the next round. {} more teams needed".format(team_available_num % self.tournament.style["team_num"], self.tournament.style["team_num"] - (team_available_num % self.tournament.style["team_num"])))
 
+		if self.constants == {}:
+			raise Exception("constants in round {} is not set".format(self.r))
+		if self.constants_of_adj == {}:
+			raise Exception("constants of adj in round {} is not set".format(self.r))
+
 		if not force:
 			check_team_list(self.tournament.team_list)
 			check_adjudicator_list(self.tournament.adjudicator_list)
+
+	def compute_matchups(self):
+		self.round_status = 1
+		grid_flag = threading.Event()
+
+		create_grid_list_by_thread(self.grid_list, self.tournament.team_list, self.tournament.style["team_num"], grid_flag)
 
 		evaluate_adjudicator(self.tournament.adjudicator_list, self.tournament.judge_criterion)
 		sort_adjudicator_list_by_score(self.tournament.adjudicator_list)
 		sort_team_list_by_score(self.tournament.team_list)
 
-	def compute_matchups(self):
-		grid_flag = threading.Event()
-		create_grid_list_by_thread(self.grid_list, self.tournament.team_list, self.tournament.style["team_num"], grid_flag)
-		evaluate_adjudicator(self.tournament.adjudicator_list, self.constants_of_adj)
-		sort_adjudicator_list_by_score(self.tournament.adjudicator_list)
-		sort_team_list_by_score(self.tournament.team_list)
 		while True:
 			if grid_flag.isSet():
 				break
 			else:
 				time.sleep(0.5)
 
-		self.matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=filter_list, team_num=self.tournament.style["team_num"], workfolder_name=fnames["workfolder"])
-		self.matchups_processed = True########
-		raise Exception("")
+		self.candidate_matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=self.filter_list, team_num=self.tournament.style["team_num"])
+		self.round_status = 2
 
 	def set_matchup(self, matchup):
 		self.matchup = matchup
 
 	def compute_allocations(self):
-		lattice_list = create_lattice_list(matchups[0], tournament["adjudicator_list"])
-		self.allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list, constants_of_adj=self.constants_of_adj, workfolder_name=fnames["workfolder"])
-		self.allocations_processed = True
-		raise Exception("")
+		self.round_status = 3
+		self.lattice_list = create_lattice_list(self.matchup, self.tournament.adjudicator_list)
+		self.candidate_allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=self.lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list)
+		self.round_status = 4
 
 	def set_allocation(self, allocation):
 		self.allocation = allocation
 
 	def compute_venue_allocation(self):
+		self.round_status = 7
 		available_venue_list = [venue for venue in self.tournament.venue_list if venue.available]
 		random.shuffle(available_venue_list)
 		available_venue_list.sort(key=lambda venue:venue.priority)
@@ -222,25 +249,25 @@ class Round:
 		#print(len(available_venue_list))
 		#print(len(allocations))
 		self.allocation.sort(key=lambda lattice: lattice.venue.name)
-		self.venue_allocation_processed = True
-		raise Exception("")
+		self.round_status = 8
 
 	def set_venue_allocation(self, venue_allocation):
 		self.venue_allocation = venue_allocation
 
 	def compute_panel_allocation(self):
+		self.round_status = 5
 		for lattice in self.allocation:
 			for adjudicator in self.tournament.adjudicator_list:
 				if adjudicator.name == lattice.chair.name:
 					adjudicator.active = True
 					break
 
-		allocation.large_warnings = []
+		self.allocation.large_warnings = []
 
 		inactive_adjudicator_list = [adjudicator for adjudicator in self.tournament.adjudicator_list if (not(adjudicator.active) and not(adjudicator.absent))]
 		inactive_adjudicator_list.sort(key=lambda adjudicator:adjudicator.evaluation, reverse=True)
 
-		if len(self.tournament.style["team_num"]) == 2:
+		if self.tournament.style["team_num"] == 2:
 			for lattice in self.allocation:
 				may_be_panels = []
 				for panel in inactive_adjudicator_list:
@@ -279,13 +306,13 @@ class Round:
 					lattice.panel[0].active = True
 					lattice.panel[1].active = True
 
-		self.panel_allocation_processed = True
-		raise Exception("")
+		self.round_status = 6
 
 	def set_panel_allocation(self, panel_allocation):
 		self.panel_allocation = panel_allocation
 
 	def set_result(self, data, override = False):
+		self.round_status = 9
 		result = data["data"]
 		result_to_set = {
 			"debater_id": data["debater_id"],
@@ -304,6 +331,7 @@ class Round:
 			self.raw_results[data["debater_id"]] = [result_to_set]
 
 	def set_result_of_adj(self, data, override = False):
+		self.round_status = 9
 		result = data["data"]
 		result_to_set = {
 			"adj_id": data["adj_id"],
@@ -328,8 +356,10 @@ class Round:
 			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
 
 		self.tournament.now_round += 1
+		self.round_status = 14
 
 	def process_result(self, force=False):
+		self.round_status = 10
 		team_num = self.tournament.style["team_num"]
 
 		if not force:
@@ -403,13 +433,15 @@ class Round:
 			team.dummy_finishing_process()
 			for debater in team.debaters:
 				debater.dummy_finishing_process(style_cfg)
+		self.round_status = 11
 
 	def process_result_of_adj(self, force=False):
+		self.round_status = 12
 		if not force:
 			check_results_of_adj(self.tournament, self.raw_results)
 
 		"""
-		raw_results_of_adj[adj_id] = [
+		raw_results_of_adj = {adj_id:[
 			{
 				"adj_id": data["adj_id"],
 				"from": result["from"],	#differ in each result
@@ -420,7 +452,7 @@ class Round:
 				"team_ids": result["team_ids"],
 				"comment": result["comment"], #differ in each result
 			}
-		]
+		]}
 		"""
 		adjudicator_temp = []
 
@@ -430,17 +462,17 @@ class Round:
 			else:
 				score = sum([d["point"] for d in v])/len(v)
 
-			comments = [d["comment"] for d in v]
+			comments = [{"comment": d["comment"], "from": d["from"], "from_id": d["from_id"], "from_name": d["from_name"]} for d in v]
 			adjudicator = find_element_by_id(self.tournament.adjudicator_list, k)
 			adjudicator_temp.append(adjudicator)
 			teams = [find_element_by_id(self.tournament.team_list, team_id) for team_id in v[0]["team_ids"]]
 			chair = v[0]["chair"] 
 			watched_debate_score = [t.score for t in teams]
 
-			adjudicator.finishing_process(score=score, teams=teams, watched_debate_score=watched_debate_score, chair=chair, comment=comment)
-
+			adjudicator.finishing_process(score=score, teams=teams, watched_debate_score=watched_debate_score, chair=chair, comments=comments)
 
 		adjudicator_temp.sort(key=lambda adjudicator: adjudicator.watched_debate_score, reverse=True)
+
 		for k, adjudicator in enumerate(adjudicator_temp):
 			adjudicator.watched_debate_ranks.append(k+1)
 			adjudicator.watched_debate_ranks_sub.append(k+1)
@@ -452,4 +484,5 @@ class Round:
 
 		for adjudicator in rest_adjudicator_list:
 			adjudicator.dummy_finishing_process(teamnum)
-		
+	
+		self.round_status = 13
