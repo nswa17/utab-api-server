@@ -44,18 +44,15 @@ class Tournament:
 		add_element(self.team_list, team)
 
 	def modify_team(self, code, name=None, url=None, debaters=None, institutions=None):
-		if code in [t.code for t in self.team_list]:
-			team = filter(lambda x: x.code == code)[0]
-			if name is not None:
-				team.name = name
-			if debaters is not None:
-				team.debaters = debaters
-			if institutions is not None:
-				team.institutions = institutions
-			if url is not None:
-				team.url = url
-		else:
-			raise Exception("team code {} does not exist".format(code))
+		team = find_element_by_id(self.team_list, code)[0]
+		if name is not None:
+			team.name = name
+		if debaters is not None:
+			team.debaters = debaters
+		if institutions is not None:
+			team.institutions = institutions
+		if url is not None:
+			team.url = url
 
 	def delete_team(self, team_or_code):
 		delete_element(self.team_list, team_or_code)
@@ -313,28 +310,30 @@ class Round:
 
 	def set_result(self, data, override = False):
 		self.round_status = 9
-		result = data["data"]
+		result = data["result"]
+		debater_id = data["debater_id"]
 		result_to_set = {
-			"debater_id": data["debater_id"],
+			"debater_id": debater_id,
 			"team_id": result["team_id"],
 			"scores": result["scores"],
 			"win_point": result["win_point"],
 			"opponent_ids": result["opponent_ids"],
 			"position": result["position"]
-			}
+		}
 
-		check_result(tournament, result_to_set)
+		check_result(self.tournament, result_to_set)
 
-		if data['debater_id'] in self.raw_results:
-			self.raw_results[data["debater_id"]].append(result_to_set)
+		if debater_id in self.raw_results:
+			self.raw_results[debater_id].append(result_to_set)
 		else:
-			self.raw_results[data["debater_id"]] = [result_to_set]
+			self.raw_results[debater_id] = [result_to_set]
 
 	def set_result_of_adj(self, data, override = False):
 		self.round_status = 9
-		result = data["data"]
+		result = data["result"]
+		adj_id = data["adj_id"]
 		result_to_set = {
-			"adj_id": data["adj_id"],
+			"adj_id": adj_id,
 			"from": result["from"],
 			"from_id": result["from_id"],
 			"from_name": result["from_name"],
@@ -342,14 +341,14 @@ class Round:
 			"point": result["point"],
 			"team_ids": result["team_ids"],
 			"comment": result["comment"],
-			}
+		}
 
-		check_result_of_adj(tournament, result_to_set)
+		check_result_of_adj(self.tournament, result_to_set)
 
-		if data['adj_id'] in self.raw_results:
-			self.raw_results[data["adj_id"]].append(result_to_set)
+		if adj_id in self.raw_results_of_adj:
+			self.raw_results_of_adj[adj_id].append(result_to_set)
 		else:
-			self.raw_results[data["adj_id"]] = [result_to_set]
+			self.raw_results_of_adj[adj_id] = [result_to_set]
 
 	def end(self, force = False):
 		if not force:
@@ -420,15 +419,15 @@ class Round:
 				v["margin"] = v["team_score"] - opponent_score
 
 		for team, v in results_by_teams.items():
-			team.finishing_process(opponents=v["opponents"], score=v["team_score"], position=v["position"], win_point=v["win_point"], margin=v["margin"])
+			team.finishing_process(opponents=opponents, score=v["team_score"], position=v["position"], win_point=v["win_point"], margin=v["margin"])
 
-		rest_debater_list = [d for d in self.debater_list if d.code not in self.raw_results.keys()]
+		rest_debater_list = [d for d in self.tournament.debater_list if d.code not in self.raw_results.keys()]
 		for debater in rest_debater_list:
 			debater.score_lists_sub.append(['n/a']*positions)
 			debater.scores_sub.append('n/a')
 			debater.rankings_sub.append('n/a')
 
-		rest_team_list = [t for t in tournament.team_list if t not in results_by_teams.keys()]
+		rest_team_list = [t for t in self.tournament.team_list if t not in results_by_teams.keys()]
 		for team in rest_team_list:
 			team.dummy_finishing_process()
 			for debater in team.debaters:
@@ -456,7 +455,7 @@ class Round:
 		"""
 		adjudicator_temp = []
 
-		for k, v in raw_results_of_adj.items():
+		for k, v in self.raw_results_of_adj.items():
 			if len(v) == 0:
 				score = 0
 			else:

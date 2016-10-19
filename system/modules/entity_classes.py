@@ -67,7 +67,7 @@ class Team:
 		self.past_sides_sub.append(position)
 		self.scores.append(score)
 		self.score = score
-		self.wins.append(win)
+		self.wins.append(win_point)
 		self.scores_sub.append(score)
 		self.wins_sub.append(win_point)
 		self.margin += margin

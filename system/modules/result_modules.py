@@ -5,12 +5,13 @@ import os
 import copy
 import itertools
 import re
+from .tools import *
 
 def check_result(tournament, result):
 	### check whether the debater id belongs to the team id in dictionary
 	team = find_element_by_id(tournament.team_list, result["team_id"])
 
-	if team.debaters.is_belonging(result["debater_id"]):
+	if not team.is_belonging(result["debater_id"]):
 		raise Exception("debater_id {} 's team doesn't have team_id {}".format(result["debater_id"], result["team_id"]))
 	### check if the score is not all zero
 
@@ -19,19 +20,24 @@ def check_results(tournament, raw_results):########
 
 	results_lists = []
 
-	positions = len(tournament.style["score_weight"])
+	positions = len(tournament.style["score_weights"])
 	team_num = tournament.style["team_num"]
 	debater_num_per_team = tournament.style["debater_num_per_team"]
 
+	team_codes_posted = []
+	for v in raw_results.values():
+		for d in v:
+			team_codes_posted.append(d["team_id"])
+
 	for team in tournament.team_list:
-		if team.code not in [v["team_id"] for v in raw_results.values()]:
-			if team.available:
-				raise Exception("result of team {} is not sent".format(team.name))
+		if team.code not in team_codes_posted and team.available:
+			raise Exception("result of team {} is not sent".format(team.name))
+
+	debater_codes_posted = [k for k in raw_results.keys()]
 
 	for debater in tournament.debater_list:
-		if debater.code not in [v["debater_id"] for v in raw_results.values()]:
-			if debater.team.available:
-				raise Exception("result of debater {} is not sent".format(debater.name))
+		if debater.code not in debater_codes_posted and debater.team.available:
+			raise Exception("result of debater {} is not sent".format(debater.name))
 
 	"""
 	raw_results['32'::debater_id] = [{

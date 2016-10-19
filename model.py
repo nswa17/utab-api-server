@@ -178,8 +178,126 @@ if __name__ == "__main__":
 	r.compute_matchups()
 	r.set_matchup(r.candidate_matchups[0])
 	r.compute_allocations()
-	print(r.candidate_allocations)
+
 	r.set_allocation(r.candidate_allocations[0])
 
 	r.compute_panel_allocation()
 	r.compute_venue_allocation()
+
+	r.set_result(
+		{
+			"debater_id": 1,
+			"result":
+			{
+				"round": 1,
+				"team_id": 1,
+				"scores": [70, 0, 35],
+				"win_point": 0,
+				"opponent_ids": [2],
+				"position": "gov"
+			}
+		}
+	)
+
+	r.set_result(
+		{
+			"debater_id": 1,
+			"result":
+			{
+				"round": 1,
+				"team_id": 1,
+				"scores": [71, 0, 35.5],
+				"win_point": 0,
+				"opponent_ids": [2],
+				"position": "gov"
+			}
+		}
+	)
+
+	r.set_result(
+		{
+			"debater_id": 2,
+			"result":
+			{
+				"round": 1,
+				"team_id": 1,
+				"scores": [0, 72, 0],
+				"win_point": 0,
+				"opponent_ids": [2],
+				"position": "gov"
+			}
+		}
+	)
+
+	r.set_result(
+		{
+			"debater_id": 3,
+			"result":
+			{
+				"round": 1,
+				"team_id": 2,
+				"scores": [76, 0, 37],
+				"win_point": 1,
+				"opponent_ids": [1],
+				"position": "gov"
+			}
+		}
+	)
+
+
+	r.set_result(
+		{
+			"debater_id": 4,
+			"result":
+			{
+				"round": 1,
+				"team_id": 2,
+				"scores": [0, 75, 0],
+				"win_point": 1,
+				"opponent_ids": [1],
+				"position": "gov"
+			}
+		}
+	)
+
+	r.set_result_of_adj(# from team1
+		{
+			"adj_id": 1,
+			"result":
+			{
+				"round": 1,
+				"from": "team",
+				"from_id": 1,
+				"from_name": "team1",
+				"chair": True,
+				"point": 8,
+				"team_ids": [1, 2],
+				"comment": "good",
+			}
+		}
+	)
+
+	r.set_result_of_adj(#from team2
+		{
+			"adj_id": 1,
+			"result":
+			{
+				"round": 1,
+				"from": "team",
+				"from_id": 2,
+				"from_name": "team2",
+				"chair": True,
+				"point": 9,
+				"team_ids": [1, 2],
+				"comment": "good judge",
+			}
+		}
+	)
+
+	r.process_result()
+	r.process_result_of_adj()
+	r.end()
+	print([(t.score, t.margin, t.wins) for t in t.team_list])
+	print([d.scores for d in t.debater_list])
+
+	

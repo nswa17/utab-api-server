@@ -1,6 +1,7 @@
 def find_element_by_id(target_list, code):
 	try:
-		return filter(lambda x: x.code == code, target_list)[0]
+		elements = list(filter(lambda x: x.code == code, target_list))
+		return elements[0]
 	except:
 		raise Exception('target list has no element of id {}'.format(code))
 
