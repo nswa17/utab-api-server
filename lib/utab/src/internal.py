@@ -7,7 +7,7 @@ import threading
 from error.error_classes import *
 from properties import *
 from filters import *
-from select import *
+from selects import *
 from grid_classes import *
 
 def evaluate_adjudicator(adjudicator_list, judge_criterion):

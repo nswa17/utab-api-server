@@ -6,7 +6,6 @@ from src.internal import *
 from src.entity_classes import *
 from src.result import *
 
-
 class Tournament:
 	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):
 		self.name = name

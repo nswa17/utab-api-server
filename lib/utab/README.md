@@ -30,7 +30,7 @@ main______src.tournament
         |    |_src.entity_classes
         |    |    |_src.tools
         |    |
-        |    |_src.select
+        |    |_src.selects
         |    |    |_src.properties
         |    |    |_src.grid_classes
         |    |    	    |_src.properties
