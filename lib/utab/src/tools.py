@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 def find_element_by_id(target_list, code):
 	try:
 		elements = list(filter(lambda x: x.code == code, target_list))

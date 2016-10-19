@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 class SameInstitution(Exception):
 	def __init__(self, institution):

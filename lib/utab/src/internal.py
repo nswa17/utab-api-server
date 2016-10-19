@@ -5,12 +5,9 @@ import random
 import time
 import itertools
 import threading
-import collections
-import re
 path = os.path.join(os.path.dirname(__file__), '../')
 sys.path.append(path)
 
-import math
 from error.error_classes import *
 from properties import *
 from filters import *

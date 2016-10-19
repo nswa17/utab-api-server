@@ -1,9 +1,4 @@
-import shutil
-import csv
-import sys
-import os
-import copy
-import itertools
+# -*- coding: utf-8 -*-
 import re
 from tools import *
 

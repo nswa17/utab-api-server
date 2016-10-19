@@ -1,19 +1,19 @@
 # TODOs
 
-## need early fix
+## Need early fix
 
-don't consider breaknum when breaknum = 0
+* don't consider breaknum when breaknum = 0
 
-complete model, define controller/view, define exceptions, set logger
+* complete model, define controller/view, define exceptions, set logger
 
-blocking for api server <--! single thread is much better?-->
+* blocking for api server <--! single thread is much better?-->
 
-teamnum and team_num_per_round
+* teamnum and team_num_per_round
 
-## do when above finished
+## Do when above finished
 
-modified gale shapley
+* modified gale shapley
 
-deal with changing round num while tournament
+* deal with changing round num while tournament
 
-choose selection algorithm
+* choose selection algorithm

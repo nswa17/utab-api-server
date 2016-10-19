@@ -3,7 +3,6 @@ from properties import *
 from grid_classes import *
 #from . import interaction_modules
 import copy
-import random
 
 def refresh_grids_for_adopt(grid_list, *args):
 	if grid_list:

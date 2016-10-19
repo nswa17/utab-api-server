@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 from bottle import get, post, request, response, route, run, abort
 import cherrypy
-import sys
 import urllib# for query parse
 #引数気持ち悪い
 #jsonはここで処理, responseもここで作成

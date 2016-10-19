@@ -1,3 +1,5 @@
+# UTab
+
 ## ROLE OF EACH MODULE
 
  * main: model
@@ -13,32 +15,34 @@
  * bit: wrappers for bit calculation on adoptness
  * tools: tools
 
+## Structure
+
 ```
- model____classes
-            |
-            |_internal
-            |    |
-            |    |_properties
-            |    |
-            |    |_grid_classes
-            |    |    |_bit
-            |    |
-            |    |_entity_classes
-            |    |    |_tools
-            |    |
-            |    |_select
-            |    |    |_property
-            |    |    |_grid_classes
-            |    |    	    |_properties
-            |    |
-            |    |_filters
-            |         |_bit
-            |         |_properties
-            |_bit
-            |
-        	|_result
-            |    |_tools
-            |
-        	|_entity_classes
-                 |_tools
+main______src.tournament
+        |
+        |_src.internal
+        |    |
+        |    |_src.properties
+        |    |
+        |    |_src.grid_classes
+        |    |    |_src.bit
+        |    |
+        |    |_src.entity_classes
+        |    |    |_src.tools
+        |    |
+        |    |_src.select
+        |    |    |_src.properties
+        |    |    |_src.grid_classes
+        |    |    	    |_src.properties
+        |    |
+        |    |_src.filters
+        |         |_src.bit
+        |         |_src.properties
+        |_src.bit
+        |
+    	|_src.result
+        |    |_src.tools
+        |
+    	|_src.entity_classes
+             |_src.tools
 ```

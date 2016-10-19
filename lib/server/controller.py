@@ -1,9 +1,8 @@
-#controllers
+# -*- coding: utf-8 -*-
 from bottle import HTTPResponse
 
 import sys
 import os
-import json
 
 path = os.path.join(os.path.dirname(__file__), '../')
 sys.path.insert(0, path)
