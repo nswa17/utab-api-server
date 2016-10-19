@@ -179,6 +179,9 @@ class Round:
 				self.filter_of_adj_list.append(functions[order.index(i+1)])
 
 	def set(self, force = False):
+		if self.tournament.now_round != self.r:
+			raise Exception("prior round is not finished")
+			
 		if self.r == 1:
 			if len(self.tournament.judge_criterion) < self.tournament.round_num:
 				raise Exception('need to set judge criterion!')

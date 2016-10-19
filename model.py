@@ -71,8 +71,6 @@ import numpy as np
 #
 
 tournaments = {
-					#"a1":Tournament("a1", 1, 4, 'BP'),
-					#"a2":Tournament("a2", 2, 4, 'BP')
 			  }
 
 styles = {# => {style name, debater num per team, team num, [score weight], reply indexes}
@@ -93,30 +91,37 @@ styles = {# => {style name, debater num per team, team num, [score weight], repl
 
 if __name__ == "__main__":
 	pass
-	"""
+	"""usage
+
 	tournament = Tournament(tournament_code, tournament_name, round_num, style)
+
+	#	 						#
+	#	 ARRANGING TOURNAMENT	#
+	#	   						#
 
 	for i in range(round_num):
 
+		round = tournament.round()
+
 		while True:
 
-			#	 						#
-			#	 ARRANGING TOURNAMENT	#
-			#	   						#
+			#	 					#
+			#	 ARRANGING ROUND	#
+			#	   					#
 
-			tournament.round[i].set(force=False) && break # check data
+			round.set(force=False) && break # check data
 
-		tournament.round[i].compute_matchups()
-		tournament.round[i].set_matchup(matchup)
+		round.compute_matchups()
+		round.set_matchup(matchup)
 
-		tournament.round[i].compute_allocations()
-		tournament.round[i].set_allocation(allocation)
+		round.compute_allocations()
+		round.set_allocation(allocation)
 
-		tournament.round[i].compute_panel_allocation()
-		tournament.round[i].set_panel_allocation(panel_allocation)
+		round.compute_panel_allocation()
+		round.set_panel_allocation(panel_allocation)
 
-		tournament.round[i].compute_venue_allocation()
-		tournament.round[i].set_venue_allocation(venue_allocation)
+		round.compute_venue_allocation()
+		round.set_venue_allocation(venue_allocation)
 
 		while True:
 
@@ -124,15 +129,16 @@ if __name__ == "__main__":
 			#	  COLLECTING RESULTS	#
 			#							#
 
-			tournament.round[i].process_result_of_adj(force=False)##########belowと統合?
-			tournament.round[i].process_result(force=False)##########belowと統合?
-			tournament.round[i].end(force=False) && break
+			round.process_result(force=False)##########belowと統合?
+			round.process_result_of_adj(force=False)##########belowと統合?
+			round.end(force=False) && break
 		
 	tournament.end()
+
 	"""
 
 	"""
-	Example code
+	Test code
 	"""
 
 	t = Tournament(1, "test", 2, styles["NA"])
@@ -305,4 +311,5 @@ if __name__ == "__main__":
 		print({t.name:(t.score, t.margin, t.wins) for t in t.team_list})
 		print({d.name: d.scores for d in t.debater_list})
 		print({a.name: a.scores for a in t.adjudicator_list})
+		print("sub", {a.name: a.scores_sub for a in t.adjudicator_list})
 
