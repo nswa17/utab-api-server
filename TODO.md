@@ -12,6 +12,8 @@
 
 ## Do when above finished
 
+* use sqlite3
+
 * modified gale shapley
 
 * deal with changing round num while tournament
