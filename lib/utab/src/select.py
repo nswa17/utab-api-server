@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from .property import *
-from .grid_classes import *
+from properties import *
+from grid_classes import *
 #from . import interaction_modules
 import copy
 import random

@@ -1,4 +1,4 @@
-from .bit import *
+from bit import *
 
 class GL:
 	def __init__(self):

@@ -1,4 +1,4 @@
-from .tools import *
+from tools import *
 
 class Team:
 	def __init__(self, code, name, url, debaters, institutions):

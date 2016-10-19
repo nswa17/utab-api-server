@@ -1,8 +1,14 @@
 #controllers
 from bottle import HTTPResponse
 
+import sys
+import os
 import json
-from model import *
+
+path = os.path.join(os.path.dirname(__file__), '../')
+sys.path.insert(0, path)
+
+from utab.main import *
 
 def list_all_teams(team_list):
 	errors = []

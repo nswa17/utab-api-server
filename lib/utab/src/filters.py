@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from .bit import *
-from .property import *
+from bit import *
+from properties import *
 import copy
 import math
 import random

@@ -1,9 +1,15 @@
-from .bit import *
-from .internal import *
-from .entity_classes import *
-from .result import *
-
+import sys
+import os
 import time
+
+path = os.path.join(os.path.dirname(__file__))
+sys.path.insert(0, path)
+
+from bit import *
+from internal import *
+from entity_classes import *
+from result import *
+
 
 class Tournament:
 	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):

@@ -12,10 +12,10 @@ sys.path.append(path)
 
 import math
 from error.error_classes import *
-from .property import *
-from .filter import *
-from .select import *
-from .grid_classes import *
+from properties import *
+from filters import *
+from select import *
+from grid_classes import *
 
 
 

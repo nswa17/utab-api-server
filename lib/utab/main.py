@@ -1,8 +1,13 @@
-from internal.tournament import *
-
+import sys
+import os
 import json
 
-with open('dat/styles.json') as f:
+path = os.path.join(os.path.dirname(__file__))
+sys.path.insert(0, path)
+
+from src.tournament import *
+
+with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
 	styles = json.load(f)
 
 tournaments = {

@@ -5,7 +5,7 @@ import os
 import copy
 import itertools
 import re
-from .tools import *
+from tools import *
 
 def check_result(tournament, result):
 	### check whether the debater id belongs to the team id in dictionary
