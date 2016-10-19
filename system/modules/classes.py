@@ -482,6 +482,6 @@ class Round:
 			adj.watched_debate_ranks_sub.append('n/a')
 
 		for adjudicator in rest_adjudicator_list:
-			adjudicator.dummy_finishing_process(teamnum)
+			adjudicator.dummy_finishing_process(self.tournament.style["team_num"])
 	
 		self.round_status = 13
