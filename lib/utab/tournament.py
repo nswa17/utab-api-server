@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
 import time
 
-path = os.path.join(os.path.dirname(__file__))
-sys.path.insert(0, path)
-
-from bit import *
-from internal import *
-from entity_classes import *
-from result import *
+from src.bit import *
+from src.internal import *
+from src.entity_classes import *
+from src.result import *
 
 
 class Tournament:

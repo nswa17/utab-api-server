@@ -7,7 +7,7 @@ import os
 path = os.path.join(os.path.dirname(__file__), '../')
 sys.path.insert(0, path)
 
-from utab.main import *
+import utab.tournament
 
 def list_all_teams(team_list):
 	errors = []

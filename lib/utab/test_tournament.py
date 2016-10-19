@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
 import json
 
-path = os.path.join(os.path.dirname(__file__))
-sys.path.insert(0, path)
-
-from src.tournament import *
+from tournament import *
 
 with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
 	styles = json.load(f)

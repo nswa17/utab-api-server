@@ -2,7 +2,7 @@
 from bottle import get, post, request, response, route, run, abort
 import cherrypy
 import urllib# for query parse
-#引数気持ち悪い
+import json
 #jsonはここで処理, responseもここで作成
 
 from lib.server.controller import *

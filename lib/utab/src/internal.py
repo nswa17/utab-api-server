@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import random
 import time
 import itertools
 import threading
-path = os.path.join(os.path.dirname(__file__), '../')
-sys.path.append(path)
 
 from error.error_classes import *
 from properties import *
 from filters import *
 from select import *
 from grid_classes import *
-
-
 
 def evaluate_adjudicator(adjudicator_list, judge_criterion):
 	for adjudicator in adjudicator_list:
