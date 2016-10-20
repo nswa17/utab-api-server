@@ -9,6 +9,12 @@ from lib.server.controller import *
 
 API_VERSION = 'v0.1'
 
+def make_json(func):
+	def _(*args):
+		data, errors = func(*args)
+		return set_json_response(data=data, errors=errors)
+	return _
+
 def set_json_response(data={}, status=200, errors=[]):
 	if data == {}:
 		data = None
@@ -21,9 +27,10 @@ def set_json_response(data={}, status=200, errors=[]):
 	return r
 
 @route('/'+API_VERSION+'/styles')
+@make_json
 def list_all_styles_callback():
 	data, errors = list_all_styles()
-	return set_json_response(data=data, errors=errors)
+	return data, errors
 
 @route('/'+API_VERSION+'/styles', method='PUT')
 def create_style_callback(tournament_name):

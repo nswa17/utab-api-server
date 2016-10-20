@@ -2,6 +2,10 @@
 
 ## Need early fix
 
+* solve state dependencies
+
+* define getter and setter, change variables self.* to self.__*
+
 * don't consider breaknum when breaknum = 0
 
 * complete model, define controller/view, define exceptions, set logger

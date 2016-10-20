@@ -5,6 +5,7 @@ from src.bit import *
 from src.internal import *
 from src.entity_classes import *
 from src.result import *
+from src.db import *
 
 class Tournament:
 	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):
@@ -24,7 +25,6 @@ class Tournament:
 		self.break_team_num = break_team_num
 		self.now_round = 1
 		self.finished = False
-		#self.results = None
 		self.analysis = None
 
 	def round(self):
