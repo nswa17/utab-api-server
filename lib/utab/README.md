@@ -58,15 +58,17 @@ tournament
 
     for i in range(round_num):
 
-        round = tournament.round()
-
         while True:
 
             #                       #
             #    ARRANGING ROUND    #
             #                       #
 
-            round.set(force=False) && break # check data
+            try:
+                round = tournament.round(force=False)
+                break
+            except:
+                pass
 
         round.compute_matchups()
         round.set_matchup(matchup)

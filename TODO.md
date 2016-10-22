@@ -2,29 +2,11 @@
 
 ## Need early fix
 
-* adj_name janakute adj_id @apiary
-
-* adjudicator_id comments @apiary
-
-* all adj/speaker results @ apiary
-
-* all -> total @ apiary
-
-* add debater @apiary
-
-* (judge_criteria -> )judge_criterion @ apiary
-
-* tournament code @apiary
-
-* modify candidate allocation ? @apiary @kym
-
-	* remote check allocations (@apiary)
+* resource_url が変数を使えるようにする
 
 * list all information to send @ apiary
 
 * integrate panel allocation and judge allocaion
-
-* matchup -> team allocation
 
 * define exceptions
 
@@ -36,11 +18,13 @@
 
 * check received json format
 
-* create_tournament のところ修正
+* round_num -> current_round
 
-* round_num と num_of_rounds統一
+* random test program
 
 ## Do when above finished
+
+* candidate -> suggested
 
 * thread test
 
@@ -71,3 +55,5 @@
 * gini_index
 
 * rank team every round
+
+* large warnings の efficiency imporove!

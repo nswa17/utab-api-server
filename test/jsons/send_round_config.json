@@ -1,0 +1,22 @@
+{
+	"constants":
+	{
+		"random_pairing": 5,
+		"des_power_pairing": 1,
+		"des_w_o_same_a_insti": 2,
+		"des_w_o_same_b_insti": 0,
+		"des_w_o_same_c_insti": 0,
+		"des_w_o_same_opp": 3,
+		"des_with_fair_sides": 4
+	},
+	"constants_of_adj":
+	{
+		"random_allocation": 4,
+		"des_strong_strong": 2,
+		"des_with_fair_times": 3,
+		"des_avoiding_conflicts": 1,
+		"des_avoiding_past": 0,
+		"des_priori_bubble": 0,
+		"des_chair_rotation": 0
+	}
+}

@@ -71,4 +71,6 @@ if __name__ == '__main__':
 		print(send_data('testtournament/adjudicators/1', json_file_name='add_adjudicator1.json', method='POST'))
 		print(send_data('testtournament/adjudicators/2', json_file_name='add_adjudicator2.json', method='POST'))
 		print(send_data('testtournament/venues/1', json_file_name='add_venue1.json', method='POST'))
-
+		print(send_data('testtournament', json_file_name='set_judge_criterion.json', method='PUT'))
+		print(send_data('testtournament/0', json_file_name='send_round_config.json', method='PUT'))
+		print(send_data('testtournament/0/suggested_team_allocations', json_file_name='get_suggested_team_allocations.json', method='POST'))

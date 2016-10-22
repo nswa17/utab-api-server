@@ -39,7 +39,7 @@ URL_total_team_results = '/'+API_VERSION+'/<tournament_name>/results/teams'
 URL_total_adjudicator_results = '/'+API_VERSION+'/<tournament_name>/results/adjudicators'
 URL_total_speaker_results = '/'+API_VERSION+'/<tournament_name>/results/speakers'
 
-URL_check_allocation = '/'+API_VERSION+'/<tournament_name>/check'
+URL_check_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num>/check'
 
 @route(URL_styles)
 @stools.make_json(URL_styles)
@@ -97,17 +97,19 @@ def fetch_round_callback(tournament_name, round_num):
 @route(URL_round, method='PUT')
 @stools.make_json(URL_round)
 def send_round_config_callback(tournament_name, round_num):
-	return ""
+	req = request.json
+	return send_round_config(tournament_name, round_num, req)
 
 @route(URL_round, method='POST')
 @stools.make_json(URL_round)
-def proceed_round_callback(tournament_name, round_num):
+def finish_round_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_team_allocations)
+@route(URL_team_allocations, method='POST')
 @stools.make_json(URL_team_allocations)
 def get_suggested_team_allocations_callback(tournament_name, round_num):
-	return ""
+	req = request.json
+	return get_suggested_team_allocations(tournament_name, round_num, req)
 
 @route(URL_team_allocation)
 @stools.make_json(URL_team_allocation)
@@ -127,7 +129,8 @@ def confirm_team_allocation_callback(tournament_name, round_num, matchup_id):
 @route(URL_adjudicator_allocations)
 @stools.make_json(URL_adjudicator_allocations)
 def get_suggested_adjudicator_allocations_callback(tournament_name, round_num):
-	return ""
+	req = request.json
+	return get_suggested_adjudicator_allocations(tournament_name, round_num, req)
 
 @route(URL_adjudicator_allocation, method='PATCH')
 @stools.make_json(URL_adjudicator_allocation)

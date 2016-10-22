@@ -4,6 +4,7 @@
     },
     "data": 
     {
+        "url": "",
         "name": "testtournament",
         "style": "NA",
         "host": "Great TD",
@@ -12,6 +13,7 @@
             "judge_test_percent":100,
             "judge_repu_percent":0,
             "judge_perf_percent":0
-        }]
+        }],
+        "break_team_num": 0
     }
 }

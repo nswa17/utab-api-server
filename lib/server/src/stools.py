@@ -44,17 +44,16 @@ def make_json(resource_url):
 		def _(*args, **kwargs):
 			retvals = func(*args, **kwargs)
 			if len(retvals) == 2:
-				retvals[0]["resource_url"] = resource_url
-				return set_json_response(data=retvals[0], errors=retvals[1])
+				return set_json_response(data=retvals[0], errors=retvals[1], resource_url=resource_url)
 			elif len(retvals) == 1:
-				return set_json_response(data=null, errors=[{status_code:1, status_text: 'feature not available', message: 'wait till its impletmented'}])
+				return set_json_response(data=null, errors=[set_error(1, 'feature not available', 'wait till its impletmented')], resource_url=resource_url)
 		return _
 	return make_json
 
-def set_json_response(data={}, status=200, errors=[]):
-	if data == {}:
+def set_json_response(data={}, status=200, errors=[], resource_url=""):
+	if not data:
 		data = None
-	body_json = {"errors":errors, "data":data}
+	body_json = {"errors":errors, "data":data, "resource_url":resource_url}
 	body = json.dumps(body_json)
 	r = HTTPResponse(status = status, body = body)
 	r.set_header('Content-Type', 'application/json')

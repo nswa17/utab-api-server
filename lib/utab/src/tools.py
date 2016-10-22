@@ -46,3 +46,6 @@ def generate_code(target_list):
 		return max([e.code for e in target_list]) + 1
 	else:
 		return 0
+
+def get_ids(target_list):
+	return [t.code for t in target_list]

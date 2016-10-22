@@ -3,7 +3,7 @@ from bit import *
 
 class GL:
 	def __init__(self):
-		seld.code = None
+		self.code = None
 		self.adoptbits = 0
 		self.adoptbitslong = 0
 		self.adoptbits_strict = 0
@@ -202,7 +202,8 @@ class Grid_list(list):
 		self.same_institution_indicator = None
 		self.num_of_warnings = None
 		self.scatter_indicator = None
-		self.matchups_no = None
+		self.allocation_no = None
+		self.gini_index = None ##########################################
 		self.large_warnings = []
 		self.comment = ""
 		self.grid_type = "Grid"

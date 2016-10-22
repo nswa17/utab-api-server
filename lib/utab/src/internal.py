@@ -61,7 +61,7 @@ def create_matchups(grid_list, round_num, tournament, filter_list, team_num):
 
 	for k, selected_grid_list in enumerate(selected_grid_lists):
 	#	export_matchups(selected_grid_list[0], str(k)+"team", round_num, workfolder_name)
-		selected_grid_list.matchups_no = k+1
+		selected_grid_list.allocation_no = k+1
 
 	return selected_grid_lists
 
@@ -70,6 +70,7 @@ def filtration(grid_list, round_num, tournament, filter_list):#max_filters = 20
 	#	filter1(grid_list, i)
 	#function_list = [power_pairing, prevent_same_institution_small, prevent_same_opponent, prevent_same_institution_middle, prevent_unfair_side, prevent_same_institution_large, random_pairing]
 	all_len = len(grid_list)
+
 	if all_len > 4:
 		divided_grid_list_list = [grid_list[:int(all_len/4)], grid_list[int(all_len/4):int(all_len*2/4)], grid_list[int(all_len*2/4):int(all_len*3/4)], grid_list[int(all_len*3/4):]]
 	else:

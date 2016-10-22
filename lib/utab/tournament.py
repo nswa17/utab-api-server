@@ -17,7 +17,7 @@ tournaments = {
 			  }
 
 class Tournament:
-	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):
+	def __init__(self, name, code, round_num, style, host, url, break_team_num = 0):
 		self.name = name
 		self.code = code
 		self.round_num = round_num
@@ -36,11 +36,13 @@ class Tournament:
 		self.finished = False
 		self.analysis = None
 
-	def round(self):
+	def start_round(self, force=False):
+		self.rounds[self.now_round-1].set(force=force)
 		return self.rounds[self.now_round-1]
 
 	def add_judge_criterion(self, judge_criterion_dicts):
 		self.judge_criterion = judge_criterion_dicts
+		return self.judge_criterion
 
 	def add_team(self, name, debater_codes, institution_codes, url, available, code=None):
 		institutions = tools.find_elements_by_ids(self.institution_list, institution_codes)
@@ -213,7 +215,8 @@ class Round:
 	def set(self, force = False):
 		if self.tournament.now_round != self.r:
 			raise Exception("prior round is not finished")
-			
+		if self.tournament.judge_criterion is None:
+			raise Exception('judge criterion is not set')
 		if self.r == 1:
 			if len(self.tournament.judge_criterion) < self.tournament.round_num:
 				raise Exception('need to set judge criterion!')
@@ -255,7 +258,6 @@ class Round:
 				break
 			else:
 				time.sleep(0.5)
-
 		self.candidate_matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=self.filter_list, team_num=self.tournament.style["team_num"])
 		self.round_status = 2
 
