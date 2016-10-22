@@ -48,7 +48,7 @@ def list_all_styles_callback():
 
 @route(URL_styles, method='PUT')
 @stools.make_json(URL_styles)
-def add_style_callback(tournament_name):
+def add_style_callback():
 	req = request.json
 	return add_style(req)
 

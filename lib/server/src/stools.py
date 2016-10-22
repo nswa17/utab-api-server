@@ -2,6 +2,7 @@
 import json
 from bottle import HTTPResponse
 from threading import Lock
+import copy
 
 def lock_with(default_lock=None):#does not call the same function at the same time
 	def _lock(func):
@@ -39,14 +40,28 @@ def lock(func):#does not call the same function at the same time
 
 	return locked_func
 
+def replace_resource_url(resource_url, kwargs):
+	resource_url_rev = copy.copy(resource_url)
+	resource_url_rev = resource_url_rev.replace('<', '')
+	resource_url_rev = resource_url_rev.replace('>', '')
+	resource_url_rev = resource_url_rev.replace(':int', '')
+	resource_url_rev = resource_url_rev.replace(':float', '')
+	resource_url_rev = resource_url_rev.replace(':path', '')
+	resource_url_rev = resource_url_rev.replace(':re', '')
+	for k, v in kwargs.items():
+		resource_url_rev = resource_url_rev.replace(k, str(v))
+	return resource_url_rev
+
 def make_json(resource_url):
 	def make_json(func):
 		def _(*args, **kwargs):
 			retvals = func(*args, **kwargs)
+			resource_url_rev = replace_resource_url(resource_url, kwargs)
+
 			if len(retvals) == 2:
-				return set_json_response(data=retvals[0], errors=retvals[1], resource_url=resource_url)
+				return set_json_response(data=retvals[0], errors=retvals[1], resource_url=resource_url_rev)
 			elif len(retvals) == 1:
-				return set_json_response(data=null, errors=[set_error(1, 'feature not available', 'wait till its impletmented')], resource_url=resource_url)
+				return set_json_response(data=null, errors=[set_error(1, 'feature not available', 'wait till its impletmented')], resource_url=resource_url_rev)
 		return _
 	return make_json
 

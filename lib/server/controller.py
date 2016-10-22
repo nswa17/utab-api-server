@@ -95,7 +95,7 @@ def create_tournament(req):######################
 		style = tn.styles[req["data"]["style"]]
 		url = req["data"]["url"]
 		host = req["data"]["host"]
-		break_team_num = req["dat"]["break_team_num"]
+		break_team_num = req["data"]["break_team_num"]
 		new_tournament = tn.Tournament(name=name, code=len(tn.tournaments), round_num=round_num, style=style, host=host, url=url, break_team_num=break_team_num)
 		tn.tournaments[name] = new_tournament
 

@@ -2,8 +2,6 @@
 
 ## Need early fix
 
-* resource_url が変数を使えるようにする
-
 * list all information to send @ apiary
 
 * integrate panel allocation and judge allocaion
