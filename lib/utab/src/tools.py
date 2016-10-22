@@ -7,6 +7,14 @@ def find_element_by_id(target_list, code):
 	except:
 		raise Exception('target list has no element of id {}'.format(code))
 
+def find_elements_by_ids(target_list, codes):
+	elements = list(filter(lambda x: x.code in codes, target_list))
+	element_codes = [e.code for e in elements]
+	for code in codes:
+		if code not in element_codes:
+			raise Exception('target list has no element of id {}'.format(code))
+	return elements
+
 def get_name_from_id(target_list, code):
 	target = find_element_by_id(target_list, code)
 	return target.name
@@ -32,3 +40,9 @@ def check_name_and_code(target_list, code, name):
 	element = find_element_by_id(target_list, code)
 	if element.name != name:
 		raise Exception("Entity id {} has name {}, not {}".format(code, element.name, name))
+
+def generate_code(target_list):
+	if target_list:
+		return max([e.code for e in target_list]) + 1
+	else:
+		return 0

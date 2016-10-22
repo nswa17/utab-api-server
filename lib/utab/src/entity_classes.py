@@ -2,7 +2,7 @@
 from tools import *
 
 class Team:
-	def __init__(self, code, name, url, debaters, institutions):
+	def __init__(self, code, name, url, debaters, institutions, available):
 		self.code = code
 		self.name = name
 		self.url = url
@@ -18,7 +18,7 @@ class Team:
 		self.score = 0
 		self.margin = 0
 		self.ranking = 0
-		self.available = True
+		self.available = available
 		for debater in self.debaters:
 			debater.team = self
 
@@ -79,14 +79,14 @@ class Team:
 		self.past_sides_sub.append('n/a')
 
 class Adjudicator:
-	def __init__(self, code, name, url, reputation, judge_test, institutions, conflict_teams):
+	def __init__(self, code, name, url, reputation, judge_test, institutions, conflict_teams, available):
 		self.code = code
 		self.name = name
 		self.url = url
 		self.reputation = reputation
 		self.judge_test = judge_test
 		self.institutions = [institution for institution in institutions if institution != '']
-		self.absent = False#absent?
+		self.absent = not available#absent?
 		self.score = 0
 		self.scores = []
 		self.scores_sub = []

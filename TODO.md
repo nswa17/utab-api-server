@@ -2,24 +2,72 @@
 
 ## Need early fix
 
-* solve state dependencies
+* adj_name janakute adj_id @apiary
 
-* define getter and setter, change variables self.* to self.__*
+* adjudicator_id comments @apiary
 
-* don't consider breaknum when breaknum = 0
+* all adj/speaker results @ apiary
 
-* complete model, define controller/view, define exceptions, set logger
+* all -> total @ apiary
 
-* blocking for api server <--! single thread is much better?-->
+* add debater @apiary
+
+* (judge_criteria -> )judge_criterion @ apiary
+
+* tournament code @apiary
+
+* modify candidate allocation ? @apiary @kym
+
+	* remote check allocations (@apiary)
+
+* list all information to send @ apiary
+
+* integrate panel allocation and judge allocaion
+
+* matchup -> team allocation
+
+* define exceptions
+
+* Lock for api server <--! single thread is much better?-->
 
 * teamnum and team_num_per_round
 
+* what if an error occurs when controller is caled
+
+* check received json format
+
+* create_tournament のところ修正
+
+* round_num と num_of_rounds統一
+
 ## Do when above finished
 
-* use sqlite3
+* thread test
+
+* speaker と team 登録の順番を交換可能にする
+
+* don't consider breaknum when breaknum == 0
+
+* multiple judges
+
+* modify result
+
+* authentication
+
+* solve state dependencies(make it possible to interrupt allocation selection phase)
+
+* use database(mongodb?)
+
+	* back up data instead of db?
+
+	* define getter and setter, change variables self.* to self.__*
 
 * modified gale shapley
 
 * deal with changing round num while tournament
 
 * choose selection algorithm
+
+* gini_index
+
+* rank team every round

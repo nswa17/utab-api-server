@@ -18,31 +18,77 @@
 ## Structure
 
 ```
-main______src.tournament
-        |
-        |_src.internal
-        |    |
-        |    |_src.properties
-        |    |
-        |    |_src.grid_classes
-        |    |    |_src.bit
-        |    |
-        |    |_src.entity_classes
-        |    |    |_src.tools
-        |    |
-        |    |_src.selects
-        |    |    |_src.properties
-        |    |    |_src.grid_classes
-        |    |    	    |_src.properties
-        |    |
-        |    |_src.filters
-        |         |_src.bit
-        |         |_src.properties
-        |_src.bit
-        |
-    	|_src.result
-        |    |_src.tools
-        |
-    	|_src.entity_classes
-             |_src.tools
+tournament
+    |
+    |_src.internal
+    |    |
+    |    |_src.properties
+    |    |
+    |    |_src.grid_classes
+    |    |    |_src.bit
+    |    |
+    |    |_src.entity_classes
+    |    |    |_src.tools
+    |    |
+    |    |_src.selects
+    |    |    |_src.properties
+    |    |    |_src.grid_classes
+    |    |    	    |_src.properties
+    |    |
+    |    |_src.filters
+    |         |_src.bit
+    |         |_src.properties
+    |_src.bit
+    |
+	|_src.result
+    |    |_src.tools
+    |
+	|_src.entity_classes
+         |_src.tools
+```
+
+## Usage
+
+```python
+    tournament = Tournament(tournament_code, tournament_name, round_num, style)
+
+    #                           #
+    #    ARRANGING TOURNAMENT   #
+    #                           #
+
+    for i in range(round_num):
+
+        round = tournament.round()
+
+        while True:
+
+            #                       #
+            #    ARRANGING ROUND    #
+            #                       #
+
+            round.set(force=False) && break # check data
+
+        round.compute_matchups()
+        round.set_matchup(matchup)
+
+        round.compute_allocations()
+        round.set_allocation(allocation)
+
+        round.compute_panel_allocation()
+        round.set_panel_allocation(panel_allocation)
+
+        round.compute_venue_allocation()
+        round.set_venue_allocation(venue_allocation)
+
+        while True:
+
+            #                           #
+            #     COLLECTING RESULTS    #
+            #                           #
+
+            round.process_result(force=False)##########belowと統合?
+            round.process_result_of_adj(force=False)##########belowと統合?
+            round.end(force=False) && break
+        
+    tournament.end()
 ```

@@ -4,11 +4,6 @@ import os
 
 from tournament import *
 
-with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
-	styles = json.load(f)
-
-tournaments = {
-			  }
 
 
 #round_num
@@ -18,51 +13,6 @@ tournaments = {
 
 if __name__ == "__main__":
 
-	"""usage
-
-	tournament = Tournament(tournament_code, tournament_name, round_num, style)
-
-	#	 						#
-	#	 ARRANGING TOURNAMENT	#
-	#	   						#
-
-	for i in range(round_num):
-
-		round = tournament.round()
-
-		while True:
-
-			#	 					#
-			#	 ARRANGING ROUND	#
-			#	   					#
-
-			round.set(force=False) && break # check data
-
-		round.compute_matchups()
-		round.set_matchup(matchup)
-
-		round.compute_allocations()
-		round.set_allocation(allocation)
-
-		round.compute_panel_allocation()
-		round.set_panel_allocation(panel_allocation)
-
-		round.compute_venue_allocation()
-		round.set_venue_allocation(venue_allocation)
-
-		while True:
-
-			#							#
-			#	  COLLECTING RESULTS	#
-			#							#
-
-			round.process_result(force=False)##########belowと統合?
-			round.process_result_of_adj(force=False)##########belowと統合?
-			round.end(force=False) && break
-		
-	tournament.end()
-
-	"""
 
 	"""
 	Test code
@@ -70,7 +20,7 @@ if __name__ == "__main__":
 
 	t = Tournament(1, "test", 2, styles["NA"])
 	
-	t.set_judge_criterion(
+	t.add_judge_criterion(
 		[
             {
                 "judge_test_percent":100,

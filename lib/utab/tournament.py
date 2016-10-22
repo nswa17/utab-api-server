@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 import time
+import os
+import json
 
 from src.bit import *
 from src.internal import *
 from src.entity_classes import *
 from src.result import *
 from src.db import *
+import src.tools as tools
+
+with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
+	styles = json.load(f)
+
+tournaments = {
+			  }
 
 class Tournament:
 	def __init__(self, name, code, round_num, style=None, host = "", url = "", break_team_num = 0):
@@ -30,12 +39,19 @@ class Tournament:
 	def round(self):
 		return self.rounds[self.now_round-1]
 
-	def set_judge_criterion(self, judge_criterion_dicts):
+	def add_judge_criterion(self, judge_criterion_dicts):
 		self.judge_criterion = judge_criterion_dicts
 
-	def add_team(self, code, name, debaters, institutions, url=""):
-		team = Team(code, name, url, debaters,  institutions)
+	def add_team(self, name, debater_codes, institution_codes, url, available, code=None):
+		institutions = tools.find_elements_by_ids(self.institution_list, institution_codes)
+		debaters = tools.find_elements_by_ids(self.debater_list, debater_codes)
+		if code is None:
+			team = Team(tools.generate_code(self.team_list), name, url, debaters, institutions, available)
+		else:
+			team = Team(code, name, url, debaters, institutions, available)
 		add_element(self.team_list, team)
+
+		return team
 
 	def modify_team(self, code, name=None, url=None, debaters=None, institutions=None):
 		team = find_element_by_id(self.team_list, code)[0]
@@ -51,23 +67,40 @@ class Tournament:
 	def delete_team(self, team_or_code):
 		delete_element(self.team_list, team_or_code)
 
-	def add_adjudicator(self, code, name, reputation, judge_test, institutions, conflict_teams, url=""):
-		adj = Adjudicator(code, name, url, reputation, judge_test, institutions, conflict_teams)
+	def add_adjudicator(self, name, reputation, judge_test, institution_codes, conflict_team_codes, url, available, code=None):
+		institutions = tools.find_elements_by_ids(self.institution_list, institution_codes)
+		conflict_teams = tools.find_elements_by_ids(self.team_list, conflict_team_codes)
+		if code is None:
+			adj = Adjudicator(tools.generate_code(self.adjudicator_list), name, url, reputation, judge_test, institutions, conflict_teams, available)
+		else:
+			adj = Adjudicator(code, name, url, reputation, judge_test, institutions, conflict_teams, available)
 		add_element(self.adjudicator_list, adj)
+
+		return adj
 
 	def delete_adjudicator(self, adj_or_code):
 		delete_element(self.adjudicator_list, adj_or_code)
 
-	def add_debater(self, code, name, url=""):
-		debater = Debater(code, name, url)
+	def add_debater(self, name, url, code=None):
+		if code is None:
+			debater = Debater(tools.generate_code(self.debater_list), name, url)
+		else:
+			debater = Debater(code, name, url)
 		add_element(self.debater_list, debater)
+
+		return debater
 
 	def delete_debater(self, debater_or_code):
 		delete_element(self.debater_list, debater_or_code)
 
-	def add_venue(self, code, name, url="", available = True, priority = 1):
-		venue = Venue(code, name, url, available, priority)
+	def add_venue(self, name, url, available, priority, code=None):
+		if code is None:
+			venue = Venue(tools.generate_code(self.venue_list), name, url, available, priority)
+		else:
+			venue = Venue(code, name, url, available, priority)
+
 		add_element(self.venue_list, venue)
+		return venue
 
 	def delete_venue(self, venue_or_code):
 		delete_element(self.venue_list, venue_or_code)
@@ -75,9 +108,14 @@ class Tournament:
 	def modify_venue_status(self):
 		pass
 
-	def add_institution(self, code, name, url="", scale="a"):
-		institution = Institution(code, name, url, scale)
+	def add_institution(self, name, url, scale, code=None):
+		if code is None:
+			institution = Institution(tools.generate_code(self.institution_list), name, url, scale)
+		else:
+			institution = Institution(code, name, url, scale)
 		add_element(self.institution_list, institution)
+
+		return institution
 
 	def delete_institution(self, institution_or_code):
 		delete_element(self.institution_list, institution_or_code)

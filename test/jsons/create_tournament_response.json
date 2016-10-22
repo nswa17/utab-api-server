@@ -1,0 +1,16 @@
+{
+    "args": {
+      "force": false
+    },
+    "data": 
+    {
+        "name": "test%20tournament",
+        "style": "PDA",
+        "host": "Great TD",
+        "judge_criteria": {
+            "judge_test_percent":100,
+            "judge_repu_percent":0,
+            "judge_perf_percent":0
+        }
+    }
+}

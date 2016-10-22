@@ -3,6 +3,7 @@ from bit import *
 
 class GL:
 	def __init__(self):
+		seld.code = None
 		self.adoptbits = 0
 		self.adoptbitslong = 0
 		self.adoptbits_strict = 0
