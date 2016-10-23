@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from tools import *
+import math
 
 class Team:
 	def __init__(self, code, name, url, debaters, institutions, available):

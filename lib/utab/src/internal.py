@@ -10,6 +10,7 @@ from filters import *
 from selects import *
 from grid_classes import *
 import tools
+from collections import OrderedDict
 
 def evaluate_adjudicator(adjudicator_list, judge_criterion):
 	for adjudicator in adjudicator_list:
@@ -727,9 +728,11 @@ def check_team_list2(team_list, experienced_round_num, team_num):
 
 def create_lattice_list(matchups, adjudicator_list):
 	lattice_list = Lattice_list()
+	i = 0
 	for grid in matchups:
 		for chair in adjudicator_list:
-			lattice_list.append(Lattice(grid, chair))
+			lattice_list.append(Lattice(grid, chair, i))
+			i += 1
 
 	for lattice in lattice_list:
 		if (False in [t.available for t in lattice.grid.teams]) or lattice.chair.absent:
@@ -934,7 +937,7 @@ def create_grids_by_combinations_list(team_combinations_list):
 	grid_list = []
 	for team_combinations in team_combinations_list:
 		team_permutations_list = list(itertools.permutations(team_combinations))
-		related_grids = [Grid(list(team_permutations)) for team_permutations in team_permutations_list]
+		related_grids = [Grid(list(team_permutations), i) for i, team_permutations in enumerate(team_permutations_list)]
 		for grid in related_grids:
 			grid.related_grids = related_grids
 			if True in [not(team.available) for team in grid.teams]:
@@ -1068,3 +1071,42 @@ def set_panel_allocation(allocation, tournament):
 				lattice.panels = may_be_panels
 				lattice.panels[0].active = True
 				lattice.panels[1].active = True
+
+def round_str2float(ele, m):
+	if ele == 'n/a':
+		return 'n/a'
+	else:
+		return round(ele, m)
+
+def insert_ranking(result_dicts, f):
+	ranking = 1
+	stay = 0
+	for i, result_dict in enumerate(result_dicts):
+		result_dict["ranking"] = ranking
+		result_dict.move_to_end("ranking", last=False)
+		if i < len(result_dicts) - 1 and f(result_dicts[i+1], result_dict):
+			ranking += 1 + stay
+			stay = 0
+		else:
+			stay += 1
+
+	result_dicts[-1]["ranking"] = ranking
+	result_dict.move_to_end("ranking", last=False)
+
+	return order_dict(result_dicts)
+
+def order_dict(result_dicts):
+	result_dicts.sort(key=lambda d: d["ranking"])
+	results_dict = OrderedDict()
+	for result_dict in result_dicts:
+		results_dict[result_dict["code"]] = result_dict
+
+	return results_dict
+
+def get_dict_by_id(target_dicts, code):
+	for target_dict in target_dicts:
+		if target_dict["code"] == code:
+			return target_dict
+
+	raise Exception('dictionary with code {} was not found in target dictionaries')
+			

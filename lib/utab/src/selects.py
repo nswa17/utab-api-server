@@ -33,10 +33,10 @@ def disavail_grids(grid_list, grid1, pid):
 			grid2.set_not_available(pid)
 	"""#faster
 	if grid_list.grid_type == "Grid":
-		teams_names = [team.name for team in grid1.teams]
+		teams_codes = [team.code for team in grid1.teams]
 		for grid2 in grid_list:
 			for team2 in grid2.teams:
-				if team2.name in teams_names:
+				if team2.code in teams_codes:
 					grid2.set_not_available(pid)
 					break
 
@@ -174,8 +174,8 @@ def select_alg4(pid, grid_list, round_num, team_list, cp_pair):#picking up by di
 			if grid is None:
 				break
 			grid = find_min_grid(grid_list, cp_pair, pid)
-			grid_list_team2s = [grid1 for grid1 in grid_list if grid1.teams[0].name == grid.teams[0].name]
-			grid_list_team1s = [grid1 for grid1 in grid_list if grid1.teams[1].name == grid.teams[1].name]
+			grid_list_team2s = [grid1 for grid1 in grid_list if grid1.teams[0].code == grid.teams[0].code]
+			grid_list_team1s = [grid1 for grid1 in grid_list if grid1.teams[1].code == grid.teams[1].code]
 			max_in_row, grid_row = find_max_grid(grid_list_team2s, cp_pair, pid)
 			max_in_column, grid_column = find_max_grid(grid_list_team1s, cp_pair, pid)
 

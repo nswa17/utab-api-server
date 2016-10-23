@@ -290,15 +290,15 @@ def download_adjudicator_comments_callback(tournament_name):
 
 @stools.route_json(URL_total_team_results)
 def download_total_team_results_callback(tournament_name):
-	return ""
+	return download_total_team_results(tournament_name)
 
 @stools.route_json(URL_total_speaker_results)
 def download_total_speaker_results_callback(tournament_name):
-	return ""
+	return download_total_speaker_results(tournament_name)
 
 @stools.route_json(URL_total_adjudicator_results)
 def download_total_adjudicator_results_callback(tournament_name):
-	return ""
+	return download_total_adjudicator_results(tournament_name)
 
 if __name__ == "__main__":
 

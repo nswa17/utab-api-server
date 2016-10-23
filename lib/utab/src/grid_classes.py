@@ -2,7 +2,7 @@
 from bit import *
 
 class GL:
-	def __init__(self):
+	def __init__(self, code):
 		self.code = None
 		self.adoptbits = 0
 		self.adoptbitslong = 0
@@ -18,6 +18,9 @@ class GL:
 		self.availables = [True]*49
 		self.warnings = []
 		self.large_warnings = []
+
+	def __hash__(self):
+		return self.code
 
 	def get_available(self, pid):
 		return self.availables[pid]
@@ -98,8 +101,8 @@ class GL:
 		self.set_adoptness_weight2()
 
 class Grid(GL):
-	def __init__(self, teams):
-		GL.__init__(self)
+	def __init__(self, teams, code):
+		GL.__init__(self, code)
 		self.teams = teams
 		self.past_match = 0
 		self.power_pairing = None
@@ -133,12 +136,6 @@ class Grid(GL):
 		else:
 			return False
 
-	def __hash__(self):
-		hash_value = 0
-		for k, team in enumerate(self.teams):
-			hash_value += team.code<<10*k
-		return hash_value
-
 	def __str__(self):
 		string = ""
 		for team in self.teams:
@@ -146,8 +143,8 @@ class Grid(GL):
 		return string
 
 class Lattice(GL):
-	def __init__(self, grid, chair):
-		GL.__init__(self)
+	def __init__(self, grid, chair, code):
+		GL.__init__(self, code)
 		self.grid = grid
 		self.chair = chair
 		self.panels = []
@@ -176,12 +173,6 @@ class Lattice(GL):
 			return True
 		else:
 			return False
-
-	def __hash__(self):
-		hash_value = ord(self.chair.name[0])
-		for k, team in enumerate(self.grid.teams):
-			hash_value += team.code<<10*k
-		return hash_value
 
 	def __str__(self):
 		string = self.chair.name + ":" if self.chair else ""

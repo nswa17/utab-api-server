@@ -206,7 +206,7 @@ def random_pairing(grid_list, round_num, team_list, shift):
 def prevent_same_opponent(grid_list, round_num, team_list, shift):
 	if len(grid_list[0].teams) == 2:
 		for grid in grid_list:
-			grid.past_match = grid.teams[1].past_opponents.count(grid.teams[0].name)
+			grid.past_match = grid.teams[1].past_opponents.count(grid.teams[0])
 		grid_list_cp = copy.copy(grid_list)
 		grid_list_cp.sort(key=lambda grid: grid.past_match, reverse = True)
 
@@ -252,7 +252,7 @@ def prevent_same_opponent(grid_list, round_num, team_list, shift):
 			grid.past_match = 0
 			pair_list = list(itertools.combinations(grid.teams, 2))
 			for pair in pair_list:
-				grid.past_match += pair[0].past_opponents.count(pair[1].name)
+				grid.past_match += pair[0].past_opponents.count(pair[1])
 
 		grid_list_cp = copy.copy(grid_list)
 		grid_list_cp.sort(key=lambda grid: grid.past_match, reverse = True)
@@ -618,7 +618,7 @@ def prevent_str_wek_round(round_num, tournament, selected_grid_list, lattice_lis
 def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, shift):
 	if len(lattice_list[0].grid.teams) == 2:
 		for lattice in lattice_list:
-			if lattice.grid.teams[0].name in lattice.chair.conflict_teams or lattice.grid.teams[1].name in lattice.chair.conflict_teams:#personal conflict
+			if lattice.grid.teams[0] in lattice.chair.conflict_teams or lattice.grid.teams[1] in lattice.chair.conflict_teams:#personal conflict
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3)
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3+1)
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3+2)
@@ -734,8 +734,7 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 		#lattice_check_conflict(lattice_list)
 	else:
 		for lattice in lattice_list:
-			team_names = [team.name for team in lattice.grid.teams]
-			if list(set(team_names) & set(lattice.chair.conflict_teams)):#personal conflict
+			if list(set(lattice.grid.teams) & set(lattice.chair.conflict_teams)):#personal conflict
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3)
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3+1)
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3+2)

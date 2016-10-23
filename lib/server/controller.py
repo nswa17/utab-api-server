@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from bottle import HTTPResponse
 from threading import Lock
+import json
 
 import sys
 import os
+
+with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
+	styles = json.load(f)
 
 path = os.path.join(os.path.dirname(__file__), '../')
 sys.path.insert(0, path)
@@ -12,12 +16,26 @@ import utab.tournament as tn
 import utab.src.tools as tools
 import server.src.stools as stools
 
+tournaments = {
+}
+
+"""
+tournaments_backups = {
+	"code":
+	{
+		"date": None,
+		"comment": "",
+		"filename": ""
+	}
+}
+"""
+
 common_lock = Lock()
 
 def list_all_styles():
 	data = []
 	errors = []
-	for v in tn.styles.values():
+	for v in styles.values():
 		data.append(
 			{"style_name": v["style_name"],
 			"debater_num_per_team": v["debater_num_per_team"],
@@ -34,10 +52,10 @@ def add_style(req):
 	data = {}
 	errors = []
 
-	if req["style_name"] not in tn.styles:
+	if req["style_name"] not in styles:
 		errors.append(stools.set_error(200, "style already exists", ""))
 	else:
-		tn.styles[req["style_name"]] = {
+		styles[req["style_name"]] = {
 			"style_name": req["style_name"],
 			"debater_num_per_team": req["debater_num_per_team"],
 			"team_num": req["team_num"],
@@ -52,7 +70,7 @@ def list_all_tournaments():
 	data = []
 	errors = []
 	data["tournaments"] = []
-	for tournament in tn.tournaments:
+	for tournament in tournaments:
 		data.append(
 		{
 			"name": tournament.name,
@@ -68,16 +86,16 @@ def list_all_tournaments():
 def fetch_tournament(tournament_name):
 	errors = []
 	data = []
-	if tournament_name not in tn.tournaments:
+	if tournament_name not in tournaments:
 		errors.append(stools.set_error(500, "tournament not found"))
 	else:
 		data = {
-			"url": tn.tournaments[data["tournament"]].url,
-			"id": tn.tournaments[data["tournament"]].code,
-			"name": tn.tournaments[data["tournament"]].name,
-			"style": tn.tournaments[data["tournament"]].style,
-			"host": tn.tournaments[data["tournament"]].host,
-			"judge_criterion": tn.tournaments[data["tournament"]].judge_criterion
+			"url": tournaments[data["tournament"]].url,
+			"id": tournaments[data["tournament"]].code,
+			"name": tournaments[data["tournament"]].name,
+			"style": tournaments[data["tournament"]].style,
+			"host": tournaments[data["tournament"]].host,
+			"judge_criterion": tournaments[data["tournament"]].judge_criterion
 		}		
 
 	return data, errors
@@ -87,17 +105,17 @@ def create_tournament(req):######################
 	errors = []
 	data = {}
 
-	if req["data"]["name"] in tn.tournaments.keys():
+	if req["data"]["name"] in tournaments.keys():
 		errors.append(stools.set_error(0, "AlreadyExists", "The tournament name is already used."))#set_json_error_response(0, "AlreadyExists", "The tournament name is already used.") 
 	else:
 		name = req["data"]["name"]
 		round_num = req["data"]["num_of_rounds"]
-		style = tn.styles[req["data"]["style"]]
+		style = styles[req["data"]["style"]]
 		url = req["data"]["url"]
 		host = req["data"]["host"]
 		break_team_num = req["data"]["break_team_num"]
-		new_tournament = tn.Tournament(name=name, code=len(tn.tournaments), round_num=round_num, style=style, host=host, url=url, break_team_num=break_team_num)
-		tn.tournaments[name] = new_tournament
+		new_tournament = tn.Tournament(name=name, code=len(tournaments), round_num=round_num, style=style, host=host, url=url, break_team_num=break_team_num)
+		tournaments[name] = new_tournament
 
 		data["id"] = new_tournament.code
 		data["name"] = new_tournament.name
@@ -112,12 +130,12 @@ def create_tournament(req):######################
 def fetch_round(tournament_name, round_num):
 	data = {}
 	errors = []
-	if round_num not in range(1, len(tn.tournaments[tournament_name].round_num)+1):
+	if round_num not in range(1, len(tournaments[tournament_name].round_num)+1):
 		errors.append(stools.set_error(500, "round num not found", ""))########################
 	else:
-		_round = tn.tournaments[tournament_name].rounds[round_num-1]
+		_round = tournaments[tournament_name].rounds[round_num-1]
 		data = {
-	        "num_of_rounds": tn.tournaments[tournament_name].round_num,
+	        "num_of_rounds": tournaments[tournament_name].round_num,
 	        "status": _round.round_status,
 	        "constants": _round.constants,
 	        "constants_of_adj": _round.constants_of_adj
@@ -129,7 +147,7 @@ def fetch_round(tournament_name, round_num):
 def send_round_config(tournament_name, round_num, req):
 	data = {}
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	constants = req["constants"]
 	constants_of_adj = req["constants_of_adj"]
 	r.set_constants(constants["random_pairing"], constants["des_power_pairing"], constants["des_w_o_same_a_insti"], constants["des_w_o_same_b_insti"], constants["des_w_o_same_c_insti"], constants["des_w_o_same_opp"], constants["des_with_fair_sides"])
@@ -144,7 +162,7 @@ def send_round_config(tournament_name, round_num, req):
 def finish_round(tournament_name, round_num, req):
 	errors = []
 	data = {}
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	r.end(force=req["args"]["force"])
 
 	return data, errors
@@ -153,23 +171,23 @@ def finish_round(tournament_name, round_num, req):
 def create_style(req):
 	data = {}
 	errors = []
-	tn.styles[data["style_name"]] = {"style_name": data["style_name"], "style_name": data["debater_num_per_team"], "team_num": data["team_num"], "score_weights": data["score_weights"], "replies": data["replies"], "num_of_replies": data["num_of_replies_per_team"]}
-	data["style_name"] = tn.styles["style_name"]
-	data["debater_num_per_team"] = tn.styles["debater_num_per_team"]
-	data["team_num"] = tn.styles["team_num"]
-	data["score_weights"] = tn.styles["score_weights"]
-	data["replies"] = tn.styles["replies"]
-	data["num_of_replies"] = tn.styles["num_of_replies"]
+	styles[data["style_name"]] = {"style_name": data["style_name"], "style_name": data["debater_num_per_team"], "team_num": data["team_num"], "score_weights": data["score_weights"], "replies": data["replies"], "num_of_replies": data["num_of_replies_per_team"]}
+	data["style_name"] = styles["style_name"]
+	data["debater_num_per_team"] = styles["debater_num_per_team"]
+	data["team_num"] = styles["team_num"]
+	data["score_weights"] = styles["score_weights"]
+	data["replies"] = styles["replies"]
+	data["num_of_replies"] = styles["num_of_replies"]
 	return data, errors
 
 @stools.lock_with(common_lock)
 def get_suggested_team_allocations(tournament_name, round_num, req):
 	errors = []
 	data = []
-	tournament = tn.tournaments[tournament_name]
+	tournament = tournaments[tournament_name]
 	r = tournament.start_round(force=req["args"]["force"])
 	r.compute_matchups()
-	for matchup in r.candidate_matchups:
+	for matchup in r.suggested_matchups:
 		matchup_dict = r.respond_matchups()
 		data.append(matchup_dict)
 	return data, errors
@@ -178,7 +196,7 @@ def get_suggested_team_allocations(tournament_name, round_num, req):
 def check_team_allocation(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	selected_grid_list, code = r.add_imported_matchup(req)
 	data = r.respond_matchup(code)
 
@@ -188,7 +206,7 @@ def check_team_allocation(tournament_name, round_num, req):
 def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	selected_grid_list, code = r.add_imported_matchup(req)
 
 	r.set_matchup(selected_grid_list)
@@ -200,9 +218,9 @@ def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
 def get_suggested_adjudicator_allocations(tournament_name, round_num):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	r.compute_allocations()
-	for allocation in r.candidate_allocations:
+	for allocation in r.suggested_allocations:
 		allocation_dict = r.respond_allocations()
 		data.append(allocation_dict)
 	return data, errors
@@ -211,7 +229,7 @@ def get_suggested_adjudicator_allocations(tournament_name, round_num):
 def check_adjudicator_allocation(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	data = r.respond_allocation(code)
 
@@ -220,7 +238,7 @@ def check_adjudicator_allocation(tournament_name, round_num, req):
 @stools.lock_with(common_lock)
 def confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, req):
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	r.set_allocation(selected_lattice_list)
 	data = r.respond_allocation()
@@ -230,7 +248,7 @@ def confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, re
 @stools.lock_with(common_lock)
 def get_suggested_venue_allocation(tournament_name, round_num):
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	r.compute_venue_allocation()
 	data = r.respond_allocation()
 
@@ -239,7 +257,7 @@ def get_suggested_venue_allocation(tournament_name, round_num):
 @stools.lock_with(common_lock)
 def confirm_venue_allocation(tournament_name, round_num, req):
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	r.set_allocation(selected_lattice_list)
 	data = r.respond_allocation()
@@ -251,7 +269,7 @@ def add_adjudicator(tournament_name, req):
 	data = {}
 	errors = []
 
-	adj = tn.tournaments[tournament_name].add_adjudicator(name=req["name"], reputation=req["reputation"], judge_test=req["judge_test"], institution_codes=req["institutions"], conflict_team_codes=req["conflicts"], url=req["url"], available=req["available"])
+	adj = tournaments[tournament_name].add_adjudicator(name=req["name"], reputation=req["reputation"], judge_test=req["judge_test"], institution_codes=req["institutions"], conflict_team_codes=req["conflicts"], url=req["url"], available=req["available"])
 	data["name"] = adj.name
 	data["id"] = adj.code
 	data["reputation"] = adj.reputation
@@ -267,7 +285,7 @@ def add_team(tournament_name, req):
 	data = {}
 	errors = []
 
-	team = tn.tournaments[tournament_name].add_team(name=req["name"], institution_codes=req["institution_codes"], debater_codes=req["debater_codes"], url=req["url"], available=req["available"])
+	team = tournaments[tournament_name].add_team(name=req["name"], institution_codes=req["institution_codes"], debater_codes=req["debater_codes"], url=req["url"], available=req["available"])
 	data["id"] = team.code
 	data["name"] = team.name
 	data["institution_ids"] = [i.code for i in team.institutions]
@@ -281,7 +299,7 @@ def add_speaker(tournament_name, req):
 	data = {}
 	errors = []
 
-	debater = tn.tournaments[tournament_name].add_debater(name=req["name"], url=req["url"])
+	debater = tournaments[tournament_name].add_debater(name=req["name"], url=req["url"])
 	data["id"] = debater.code
 	data["name"] = debater.name
 	data["url"] = debater.url
@@ -293,7 +311,7 @@ def add_venue(tournament_name, req):
 	data = {}
 	errors = []
 
-	venue = tn.tournaments[tournament_name].add_venue(name=req["name"], url=req["url"], available=req["available"], priority=req["priority"])
+	venue = tournaments[tournament_name].add_venue(name=req["name"], url=req["url"], available=req["available"], priority=req["priority"])
 	data["id"] = venue.code
 	data["name"] = venue.name
 	data["available"] = venue.available
@@ -306,7 +324,7 @@ def add_institution(tournament_name, req):
 	data = {}
 	errors = []
 
-	institution = tn.tournaments[tournament_name].add_institution(name=req["name"], url=req["url"], scale=req["scale"])
+	institution = tournaments[tournament_name].add_institution(name=req["name"], url=req["url"], scale=req["scale"])
 	data["id"] = institution.code
 	data["name"] = institution.name
 	data["url"] = institution.url
@@ -318,7 +336,7 @@ def set_judge_criterion(tournament_name, req):
 	data = []
 	errors = []
 
-	judge_criterion = tn.tournaments[tournament_name].add_judge_criterion(req["judge_criterion"])
+	judge_criterion = tournaments[tournament_name].add_judge_criterion(req["judge_criterion"])
 	for criteria in judge_criterion:
 		data.append(
 		{
@@ -333,7 +351,7 @@ def set_judge_criterion(tournament_name, req):
 def send_speaker_result(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	req["result"]["opponent_ids"] = req["result"]["opponents"]
 	req["result"]["position"] = req["result"]["side"]
 	uid = req["result"]["from_id"]
@@ -345,10 +363,32 @@ def send_speaker_result(tournament_name, round_num, req):
 def send_adjudicator_result(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].rounds[round_num-1]
 	req["result"]["team_ids"] = req["result"]["teams"]
 
 	uid = req["result"]["from_id"] if req["result"]["from"] == 'team' else -req["result"]["from_id"]
 	data = r.set_result_of_adj(req["result"], uid, override = req["override"])
 
 	return data, errors
+
+def download_total_speaker_results(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.total_debater_results()
+
+	return data, errors
+
+def download_total_team_results(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.total_team_results()
+
+	return data, errors
+
+def download_total_adjudicator_results(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.total_adjudicator_results()
+
+	return data, errors
+

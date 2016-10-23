@@ -86,30 +86,35 @@ if __name__ == '__main__':
 		print(send_data('testtournament/adjudicators/2', json_file_name='add_adjudicator3.json', method='POST'))
 		print(send_data('testtournament/venues/0', json_file_name='add_venue1.json', method='POST'))
 		print(send_data('testtournament', json_file_name='set_judge_criterion.json', method='PUT'))
-		print(send_data('testtournament/0', json_file_name='send_round_config.json', method='PUT'))
-		
-		"""
-		t3 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
-		t4 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
-		t5 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
-		t3.start()
-		t4.start()
-		t5.start()	
-		"""
-		print(send_data(path='testtournament/0/suggested_team_allocations', json_file_name='get_suggested_team_allocations.json', method='POST'))
-		print(send_data(path='testtournament/0/suggested_team_allocations/0', json_file_name='confirm_team_allocation.json', method='POST'))
-		print(send_data(path='testtournament/0/suggested_adjudicator_allocations'))
-		print(send_data(path='testtournament/0/suggested_adjudicator_allocations/0', json_file_name='confirm_adjudicator_allocation.json', method='POST'))
-		print(send_data(path='testtournament/0/suggested_venue_allocation'))
-		print(send_data(path='testtournament/0/suggested_venue_allocation', json_file_name='confirm_venue_allocation.json', method='POST'))
 
-		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result1.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result2.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result3.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result4.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result1.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result2.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result3.json', method='PUT'))
-		print(send_data(path='testtournament/0', json_file_name='finish_round.json', method='POST'))
+		for round_num in range(1, 3):
+			print(send_data('testtournament/'+str(round_num), json_file_name='send_round_config.json', method='PUT'))
+			
+			"""
+			t3 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
+			t4 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
+			t5 = Thread(target=send_data, kwargs={'path':'testtournament/0/suggested_team_allocations', 'json_file_name':'get_suggested_team_allocations.json', 'method':'POST'})
+			t3.start()
+			t4.start()
+			t5.start()	
+			"""
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_team_allocations', json_file_name='get_suggested_team_allocations.json', method='POST'))
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_team_allocations/0', json_file_name='confirm_team_allocation.json', method='POST'))
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_adjudicator_allocations'))
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_adjudicator_allocations/0', json_file_name='confirm_adjudicator_allocation.json', method='POST'))
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_venue_allocation'))
+			print(send_data(path='testtournament/'+str(round_num)+'/suggested_venue_allocation', json_file_name='confirm_venue_allocation.json', method='POST'))
+
+			print(send_data(path='testtournament/'+str(round_num)+'/results/speakers', json_file_name='send_speaker_result1.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/speakers', json_file_name='send_speaker_result2.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/speakers', json_file_name='send_speaker_result3.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/speakers', json_file_name='send_speaker_result4.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/adjudicators', json_file_name='send_adjudicator_result1.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/adjudicators', json_file_name='send_adjudicator_result2.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num)+'/results/adjudicators', json_file_name='send_adjudicator_result3.json', method='PUT'))
+			print(send_data(path='testtournament/'+str(round_num), json_file_name='finish_round.json', method='POST'))
+			print(send_data(path='testtournament/results/teams', json_file_name='finish_round.json'))
+			print(send_data(path='testtournament/results/speakers', json_file_name='finish_round.json'))
+			print(send_data(path='testtournament/results/adjudicators', json_file_name='finish_round.json'))
 
 

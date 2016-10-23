@@ -1,24 +1,10 @@
 # TODOs
 
-## Attention
-
-1. only one chair
-
-1. Trainee 未対応
-
 ## Need early fix
 
-1. matchup受け取った後にactiveかどうか設定されてる?
-
-1. スマホで遅延評価
-
-1. verify sent round num
-
-1. code and name
+1. verify received round num
 
 1. Error to TextJSON
-
-1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
 1. realtime check system -> free from grid_list, lattice_list
 
@@ -36,11 +22,11 @@
 
 1. random test program
 
-1. download total result
-
 1. とりあえずpickleを使ってバックアップを構築
 
 ## Do when above finished
+
+1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
 1. 冗長性をもたせる
 
@@ -48,11 +34,7 @@
 
 1. Implementing DELETE method
 
-1. lock が働いているか.
-
-1. candidate -> suggested
-
-1. thread test
+1. lock が働いているか. (thread test)
 
 1. speaker と team 登録の順番を交換可能にする(Noneで登録してラウンド進むときにチェック)
 
@@ -70,11 +52,11 @@
 
 	* back up data instead of db?
 
-	* define getter and setter, change variables self.* to self.__*
+	* define getter and setter, change variables `self.x` to `self.__x`
 
 1. modified gale shapley
 
-1. deal with changing round num while tournament
+1. deal with changing round num while tournament <!--  unnecessary? -->
 
 1. choose selection algorithm
 
@@ -82,4 +64,6 @@
 
 1. rank team every round
 
-1. large warnings の efficiency imporove!
+1. large warningsをimporove
+
+1. namespace

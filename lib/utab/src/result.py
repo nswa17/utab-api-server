@@ -81,5 +81,3 @@ def check_results_of_adj(tournament, raw_results):
 		if (adj.code not in adjudicator_codes_posted) and adj.active:
 			raise Exception("result of adjudicator {} is not sent".format(adj.code))
 
-
-

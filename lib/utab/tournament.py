@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-import os
-import json
 
 from src.bit import *
 from src.internal import *
@@ -9,12 +7,7 @@ from src.entity_classes import *
 from src.result import *
 from src.db import *
 import src.tools as tools
-
-with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
-	styles = json.load(f)
-
-tournaments = {
-			  }
+from collections import OrderedDict
 
 class Tournament:
 	def __init__(self, name, code, round_num, style, host, url, break_team_num = 0):
@@ -141,6 +134,92 @@ class Tournament:
 		#issue results
 		pass
 
+	def total_debater_results(self):
+		score_weights = self.style["score_weights"]
+		result_dicts = []
+
+		for debater in self.debater_list:
+			result_dict = OrderedDict()
+			result_dict["name"] = debater.name
+			result_dict["code"] = debater.code
+			result_dict["team"] = debater.team.name
+			for i, score_list in enumerate(debater.score_lists_sub):
+				for j, score in enumerate(score_list):
+					result_dict["round"+str(i+1)+"-"+str(j+1)] = round_str2float(score, 2)
+
+				avr = debater.average_in_round(i+1, self.style)
+				if avr == 'n/a':
+					result_dict["average in round "+str(i+1)] = 'n/a'
+				else:
+					result_dict["average"+str(i+1)] = round(avr, 2)
+				
+			result_dict["average"] = round(debater.average(self.style), 2)
+			result_dict["sum"] = round(debater.sum_scores(self.style), 2)
+			result_dict["sd"] = round(debater.sd(self.style))
+
+			result_dicts.append(result_dict)
+
+		result_dicts.sort(key=lambda d: (d["sum"], -d["sd"]), reverse=True)
+
+		f = lambda d1, d2: d1["sum"] != d2["sum"]
+		results_dict = insert_ranking(result_dicts, f)
+
+		return results_dict
+
+	def total_team_results(self):
+		result_dicts = []
+
+		if self.style["team_num"] == 2:
+			win_text = "wins"
+		else:
+			win_text = "win-points"
+
+		for team in self.team_list:
+			result_dict = OrderedDict()
+			result_dict["name"] = team.name
+			result_dict["code"] = team.code
+			result_dict[win_text] = team.sum_wins()
+			result_dict["sum"] = round(team.sum_scores(), 2)
+			result_dict["margin"] = round(team.margin, 2)
+			result_dict["average"] = round(team.average(), 2)
+			result_dict["sd"] = round(team.sd(), 2)
+
+			for i, score in enumerate([round_str2float(score, 2) for score in team.scores_sub]):
+				result_dict["round"+str(i+1)] = score
+
+			result_dicts.append(result_dict)
+
+		team_codes = tools.get_ids(self.team_list)
+
+		result_dicts.sort(key=lambda d: (d[win_text], d["sum"], d["margin"]), reverse=True)
+
+		f = lambda d1, d2: d1[win_text] != d2[win_text] or d1["sum"] != d2["sum"] or d1["margin"] != d2["margin"] 
+		results_dict = insert_ranking(result_dicts, f)
+
+		return results_dict
+
+	def total_adjudicator_results(self):
+		result_dicts = []
+
+		for adjudicator in self.adjudicator_list:
+			result_dict = OrderedDict()
+			result_dict["name"] = adjudicator.name
+			result_dict["code"] = adjudicator.code
+			result_dict["average"] = round(adjudicator.average(), 2)
+			result_dict["sd"] = round(adjudicator.sd(), 2)
+			for i, score in enumerate([round_str2float(ele, 2) for ele in adjudicator.scores_sub]):
+				result_dict["round "+str(i+1)+" average"] = score
+
+			result_dicts.append(result_dict)
+
+		result_dicts.sort(key=lambda d: (d["average"], -d["sd"]), reverse=True)
+
+		f = lambda d1, d2: d1["average"] != d2["average"]
+		
+		results_dict = insert_ranking(result_dicts, f)
+
+		return results_dict
+
 class Round:
 	def __init__(self, r, tournament):
 		self.r = r    #	round No. ex) Round 1 => 1
@@ -148,10 +227,10 @@ class Round:
 		self.prepared = False    #	True if round preparation has finished
 		self.grid_list = Grid_list()
 		self.lattice_list = None
-		self.candidate_matchups = None
-		self.candidate_allocations = None
-		self.candidate_panel_allocation = None
-		self.candidate_venue_allocation = None
+		self.suggested_matchups = None
+		self.suggested_allocations = None
+		self.suggested_panel_allocation = None
+		self.suggested_venue_allocation = None
 		self.matchup = None
 		self.allocation = None
 		self.__round_status = 0
@@ -160,15 +239,13 @@ class Round:
 		1: computing matchups
 		2: finished computing matchups
 		3: computing allocations
-		4: finished computing matchups
 		5: computing panel allocation
-		6: finished computing panel allocation
+		6: finished computing allocation
 		7: computing venue allocation
 		8: finished computing venue allocation
 		9: collecting results
 		10: team results processing
-		11: team results processed
-		12: adj results processing
+		12: team results processed, adj results processing
 		13: adj results processed
 		14: results processed, prepared to proceed to next round
 		"""
@@ -180,7 +257,7 @@ class Round:
 		self.raw_results = {}
 		self.raw_results_of_adj = {}
 
-	def this_round(func):
+	def only_this_round(func):
 		def _(*args, **kwargs):
 			self = args[0]
 			if self.r == self.tournament.now_round:
@@ -190,7 +267,21 @@ class Round:
 				raise Exception('requested round is not available now')
 		return _
 
-	@this_round
+	def callable_at(*status):
+		def _callable_at(func):
+			def _(*args, **kwargs):
+				self = args[0]
+
+				if self.__round_status in status:
+					ret_val = func(*args, **kwargs)
+					return ret_val
+				else:
+					raise Exception('the operation is prohibited')
+			return _
+		return _callable_at
+
+	@callable_at(0)
+	@only_this_round
 	def set_constants(self, v_random_pairing = 4, des_power_pairing = 1, des_w_o_same_a_insti = 2, des_w_o_same_b_insti = 0, des_w_o_same_c_insti = 0, des_w_o_same_opp = 5, des_with_fair_sides = 3):
 		self.constants["random_pairing"] = v_random_pairing
 		self.constants["des_power_pairing"] = des_power_pairing
@@ -206,7 +297,8 @@ class Round:
 			if i+1 in order:
 				self.filter_list.append(functions[order.index(i+1)])
 
-	@this_round
+	@callable_at(0)
+	@only_this_round
 	def set_constants_of_adj(self, v_random_allocation = 4, des_strong_strong = 2, des_with_fair_times = 3, des_avoiding_conflicts = 1, des_avoiding_past = 0, des_priori_bubble = 0, des_chair_rotation = 0):
 		self.constants_of_adj["random_allocation"] = v_random_allocation
 		self.constants_of_adj["des_strong_strong"] = des_strong_strong
@@ -222,7 +314,8 @@ class Round:
 			if i+1 in order:
 				self.filter_of_adj_list.append(functions[order.index(i+1)])
 
-	@this_round
+	@callable_at(0)
+	@only_this_round
 	def set(self, force = False):
 		if self.tournament.now_round != self.r:
 			raise Exception("prior round is not finished")
@@ -254,11 +347,11 @@ class Round:
 			check_team_list(self.tournament.team_list)
 			check_adjudicator_list(self.tournament.adjudicator_list)
 
-	@this_round
 	def get_round_status(self):
 		return self.__round_status
 
-	@this_round
+	@callable_at(0)
+	@only_this_round
 	def compute_matchups(self):
 		self.__round_status = 1
 		grid_flag = threading.Event()
@@ -274,33 +367,37 @@ class Round:
 				break
 			else:
 				time.sleep(0.5)
-		self.candidate_matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=self.filter_list, team_num=self.tournament.style["team_num"])
+		self.suggested_matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=self.filter_list, team_num=self.tournament.style["team_num"])
 		self.__round_status = 2
 
-	@this_round
+	@callable_at(2)
+	@only_this_round
 	def set_matchup(self, matchup):
 		self.matchup = matchup
 
-	@this_round
+	@callable_at(2)
+	@only_this_round
 	def add_imported_matchup(self, matchup_dict):
-		code = tools.generate_code(self.candidate_matchups)
+		code = tools.generate_code(self.suggested_matchups)
 		new_matchup = get_imported_matchup(matchup_dict, self.grid_list, self.tournament, self.r, code)
-		self.candidate_matchups.append(new_matchup)
+		self.suggested_matchups.append(new_matchup)
 
 		return new_matchup, code
 
-	@this_round
+	@callable_at(6, 8, 9)
+	@only_this_round
 	def add_imported_allocation(self, allocation_dict):
-		code = tools.generate_code(self.candidate_allocations)
+		code = tools.generate_code(self.suggested_allocations)
 		new_allocation = get_imported_allocation(allocation_dict, self.lattice_list, self.tournament, self.r, code)
-		self.candidate_allocations.append(new_allocation)
+		self.suggested_allocations.append(new_allocation)
 
 		return new_allocation, code
 
-	@this_round
+	@callable_at(2)
+	@only_this_round
 	def respond_matchup(self, code=None):
 		if code is not None:
-			matchup = find_element_by_id(self.candidate_matchups, code)
+			matchup = find_element_by_id(self.suggested_matchups, code)
 		else:
 			matchup = self.matchup
 		matchup_dict = {}
@@ -325,15 +422,16 @@ class Round:
 		matchup_dict["code"] = matchup.code
 		return matchup_dict
 
-	@this_round
+	@callable_at(2)
+	@only_this_round
 	def respond_matchups(self):
-		codes = [m.code for m in self.candidate_matchups]
+		codes = [m.code for m in self.suggested_matchups]
 		return [self.respond_matchup(code) for code in codes]
 
-	@this_round
+	@callable_at(6, 8, 9, 10, 11, 12, 13, 14)
 	def respond_allocation(self, code=None):
 		if code is not None:
-			allocation = find_element_by_id(self.candidate_allocations, code)
+			allocation = find_element_by_id(self.suggested_allocations, code)
 		else:
 			allocation = self.allocation
 		allocation_dict = {}
@@ -357,23 +455,28 @@ class Round:
 		allocation_dict["code"] = allocation.code
 		return allocation_dict
 
-	@this_round
+	@callable_at(6, 8)
+	@only_this_round
 	def respond_allocations(self):
-		codes = [m.code for m in self.candidate_allocations]
+		codes = [m.code for m in self.suggested_allocations]
 		return [self.respond_allocation(code) for code in codes]
 
-	@this_round
+	@callable_at(2)
+	@only_this_round
 	def compute_allocations(self):
 		if self.matchup is None:
 			raise Exception('you must compute team allocation first')
 		self.__round_status = 3
 		self.lattice_list = create_lattice_list(self.matchup, self.tournament.adjudicator_list)
-		self.candidate_allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=self.lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list)
+		self.suggested_allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=self.lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list)
 		self.__round_status = 5
-		for allocation in self.candidate_allocations:
+		for allocation in self.suggested_allocations:
 			set_panel_allocation(allocation, self.tournament)
 
-	@this_round
+		self.__round_status = 6
+
+	@callable_at(6, 8, 9)
+	@only_this_round
 	def set_allocation(self, allocation):
 		active_adjs = []
 		for lattice in allocation:
@@ -388,7 +491,8 @@ class Round:
 
 		self.allocation = allocation
 
-	@this_round
+	@callable_at(6)
+	@only_this_round
 	def compute_venue_allocation(self):
 		self.__round_status = 7
 		available_venue_list = [venue for venue in self.tournament.venue_list if venue.available]
@@ -401,7 +505,8 @@ class Round:
 		self.allocation.sort(key=lambda lattice: lattice.venue.name)
 		self.__round_status = 8
 
-	@this_round
+	@callable_at(8, 9)
+	@only_this_round
 	def set_result(self, data, uid, override = False):
 		self.__round_status = 9
 		debater_id = data["debater_id"]
@@ -431,7 +536,8 @@ class Round:
 
 		return result_to_set
 
-	@this_round
+	@callable_at(8, 9)
+	@only_this_round
 	def set_result_of_adj(self, data, uid, override = False):
 		self.__round_status = 9
 		adj_id = data["adjudicator_id"]
@@ -461,10 +567,14 @@ class Round:
 
 		return result_to_set
 
-	@this_round
+	@callable_at(9)
+	@only_this_round
 	def end(self, force = False):
+		self.__round_status = 10
 		self.process_result(force=force)
+		self.__round_status = 12
 		self.process_result_of_adj(force=force)
+		self.__round_status = 13
 
 		if not force:
 			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
@@ -472,7 +582,8 @@ class Round:
 		self.tournament.now_round += 1
 		self.__round_status = 14
 
-	@this_round
+	@callable_at(10)
+	@only_this_round
 	def process_result(self, force=False):
 		self.__round_status = 10
 		team_num = self.tournament.style["team_num"]
@@ -530,7 +641,7 @@ class Round:
 			v["team_score"] = sum([sum(score_list) for score_list in v["score_lists"]])
 
 		for k, v in results_by_teams.items():#calculate margin
-			if team_num == 2:
+			if team_num == 4:
 				v["margin"] = 0
 			else:
 				opponent_score = results_by_teams[find_element_by_id(self.tournament.team_list, v["opponent_ids"][0])]["team_score"]
@@ -552,7 +663,8 @@ class Round:
 				debater.dummy_finishing_process(self.tournament.style)
 		self.__round_status = 11
 
-	@this_round
+	@callable_at(12)
+	@only_this_round
 	def process_result_of_adj(self, force=False):
 		self.__round_status = 12
 		if not force:

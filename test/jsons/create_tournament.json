@@ -8,7 +8,7 @@
         "name": "testtournament",
         "style": "NA",
         "host": "Great TD",
-        "num_of_rounds": 1,
+        "num_of_rounds": 2,
         "judge_criteria": [{
             "judge_test_percent":100,
             "judge_repu_percent":0,
