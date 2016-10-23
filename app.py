@@ -16,10 +16,10 @@ URL_backups = '/'+API_VERSION+'/<tournament_name>/backups'
 URL_verification = '/'+API_VERSION+'/<tournament_name>/verify'
 URL_round = '/'+API_VERSION+'/<tournament_name>/<round_num:int>'
 URL_team_allocations = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/suggested_team_allocations'
-URL_team_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/team_allocation'
+URL_team_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/suggested_team_allocations/<allocation_id:int>'
 URL_adjudicator_allocations = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/suggested_adjudicator_allocations'
-URL_adjudicator_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/adjudicator_allocation'
-URL_venue_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/venue_allocation'
+URL_adjudicator_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/suggested_adjudicator_allocations/<allocation_id:int>'
+URL_venue_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num:int>/suggested_venue_allocation'
 URL_adjudicators = '/'+API_VERSION+'/<tournament_name>/adjudicators'
 URL_adjudicator = '/'+API_VERSION+'/<tournament_name>/adjudicators/<adjudicator_id:int>'
 URL_speakers = '/'+API_VERSION+'/<tournament_name>/speakers'
@@ -41,315 +41,261 @@ URL_total_speaker_results = '/'+API_VERSION+'/<tournament_name>/results/speakers
 
 URL_check_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num>/check'
 
-@route(URL_styles)
-@stools.make_json(URL_styles)
+@stools.route_json(URL_styles)
 def list_all_styles_callback():
 	return list_all_styles()
 
-@route(URL_styles, method='PUT')
-@stools.make_json(URL_styles)
+@stools.route_json(URL_styles, method='PUT')
 def add_style_callback():
 	req = request.json
 	return add_style(req)
 
-@route(URL_tournaments)
-@stools.make_json(URL_tournaments)
+@stools.route_json(URL_tournaments)
 def list_all_tournaments_callback():
 	return list_all_tournaments()
 
-@route(URL_tournament)#when available?
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_tournament, method='POST')
 def fetch_tournament_callback(tournament_name):
 	return fetch_tournament(tournament_name)
 
-@route(URL_tournament, method='POST')
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_tournament, method='POST')
 def create_tournament_callback(tournament_name):
 	req = request.json
 	return create_tournament(req)
 
-@route(URL_tournament, method='DELETE')
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_tournament, method='DELETE')
 def delete_tournament_callback():
 	return ""
 
-@route(URL_tournament, method='PUT')
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_tournament, method='PUT')
 def set_judge_criterion_callback(tournament_name):
 	req = request.json
 	return set_judge_criterion(tournament_name, req)
 
-@route(URL_tournament, method='PATCH')#when available?
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_tournament, method='PATCH')#when available?
 def modify_tournament_callback(tournament_name):
 	return ""
 
-@route(URL_verification, method='PUT')
-@stools.make_json(URL_tournament)
+@stools.route_json(URL_verification, method='PUT')
 def verify_callback(tournament_name):
 	return ""
 
-@route(URL_round)
-@stools.make_json(URL_round)
+@stools.route_json(URL_round)
 def fetch_round_callback(tournament_name, round_num):
 	return fetch_round(tournament_name, round_num)
 
-@route(URL_round, method='PUT')
-@stools.make_json(URL_round)
+@stools.route_json(URL_round, method='PUT')
 def send_round_config_callback(tournament_name, round_num):
 	req = request.json
 	return send_round_config(tournament_name, round_num, req)
 
-@route(URL_round, method='POST')
-@stools.make_json(URL_round)
+@stools.route_json(URL_round, method='POST')
 def finish_round_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_team_allocations, method='POST')
-@stools.make_json(URL_team_allocations)
+@stools.route_json(URL_team_allocations, method='POST')
 def get_suggested_team_allocations_callback(tournament_name, round_num):
 	req = request.json
 	return get_suggested_team_allocations(tournament_name, round_num, req)
 
-@route(URL_team_allocation)
-@stools.make_json(URL_team_allocation)
-def get_suggested_team_allocation_callback(tournament_name, round_num, matchup_id):
-	return ""
-
-@route(URL_team_allocation, method='PATCH')
-@stools.make_json(URL_team_allocation)
-def modify_suggested_team_allocation_callback(tournament_name, round_num, matchup_id):
-	return ""
-
-@route(URL_team_allocation, method='POST')
-@stools.make_json(URL_team_allocation)
-def confirm_team_allocation_callback(tournament_name, round_num, matchup_id):
-	return ""
-
-@route(URL_adjudicator_allocations)
-@stools.make_json(URL_adjudicator_allocations)
-def get_suggested_adjudicator_allocations_callback(tournament_name, round_num):
+@stools.route_json(URL_team_allocations, method='PUT')
+def check_team_allocation_callback(tournament_name, round_num):
 	req = request.json
-	return get_suggested_adjudicator_allocations(tournament_name, round_num, req)
+	return check_team_allocation(tournament_name, round_num, req)
 
-@route(URL_adjudicator_allocation, method='PATCH')
-@stools.make_json(URL_adjudicator_allocation)
-def modify_suggested_adjudicator_allocation_callback(tournament_name, round_num):
+@stools.route_json(URL_team_allocation)
+def get_suggested_team_allocation_callback(tournament_name, round_num, allocation_id):
 	return ""
 
-@route(URL_adjudicator_allocation, method='POST')
-@stools.make_json(URL_adjudicator_allocation)
-def confirm_adjudicator_allocation_callback(tournament_name, round_num):
-	return ""
+@stools.route_json(URL_team_allocation, method='POST')
+def confirm_team_allocation_callback(tournament_name, round_num, allocation_id):
+	req = request.json
+	return confirm_team_allocation(tournament_name, round_num, allocation_id, req)
 
-@route(URL_venue_allocation)
-@stools.make_json(URL_venue_allocation)
+@stools.route_json(URL_adjudicator_allocations, method='PUT')
+def check_adjudicator_allocation_callback(tournament_name, round_num):
+	req = request.json
+	return check_adjudicator_allocation(tournament_name, round_num, req)
+
+@stools.route_json(URL_adjudicator_allocations)
+def get_suggested_adjudicator_allocations_callback(tournament_name, round_num):
+	return get_suggested_adjudicator_allocations(tournament_name, round_num)
+
+@stools.route_json(URL_adjudicator_allocation, method='POST')
+def confirm_adjudicator_allocation_callback(tournament_name, round_num, allocation_id):
+	req = request.json
+	return confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, req)
+
+@stools.route_json(URL_venue_allocation)
 def get_suggested_venue_allocation_callback(tournament_name, round_num):
+	return get_suggested_venue_allocation(tournament_name, round_num)
+
+@stools.route_json(URL_venue_allocation, method='PUT')
+def check_venue_allocation_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_venue_allocation, method='PATCH')
-@stools.make_json(URL_venue_allocation)
-def moodify_venue_allocation_callback(tournament_name, round_num):
-	return ""
-
-@route(URL_venue_allocation, method='POST')
-@stools.make_json(URL_venue_allocation)
+@stools.route_json(URL_venue_allocation, method='POST')
 def confirm_venue_allocation_callback(tournament_name, round_num):
-	return ""
+	req = request.json
+	return confirm_venue_allocation(tournament_name, round_num, req)
 
-@route(URL_check_allocation)
-@stools.make_json(URL_check_allocation)
+@stools.route_json(URL_check_allocation)
 def check_allocation_callback(tournament_name):
 	return ""
 
-@route(URL_adjudicators)
-@stools.make_json(URL_adjudicators)
+@stools.route_json(URL_adjudicators)
 def list_all_adjudicators_callback(tournament_name):
 	return ""
 
-@route(URL_adjudicator)
-@stools.make_json(URL_adjudicator)
+@stools.route_json(URL_adjudicator)
 def fetch_adjudicator_callback(tournament_name, adjudicator_id):
 	return ""
 
-@route(URL_adjudicator, method='POST')
-@stools.make_json(URL_adjudicator)
+@stools.route_json(URL_adjudicator, method='POST')
 def add_adjudicator_callback(tournament_name, adjudicator_id):
 	req = request.json
 	return add_adjudicator(tournament_name, req)
 
-@route(URL_adjudicator, method='DELETE')
-@stools.make_json(URL_adjudicator)
+@stools.route_json(URL_adjudicator, method='DELETE')
 def delete_adjudicator_callback(tournament_name, adjudicator_id):
 	return ""
 
-@route(URL_adjudicator, method='PATCH')
-@stools.make_json(URL_adjudicator)
+@stools.route_json(URL_adjudicator, method='PATCH')
 def modify_adjudicator_callback(tournament_name, adjudicator_id):
 	return ""
 
 
-@route(URL_speakers)
-@stools.make_json(URL_speakers)
+@stools.route_json(URL_speakers)
 def list_all_speakers_callback(tournament_name):
 	return ""
 
-@route(URL_speaker)
-@stools.make_json(URL_speaker)
+@stools.route_json(URL_speaker)
 def fetch_speaker_callback(tournament_name, speaker_id):
 	return ""
 
-@route(URL_speaker, method='POST')
-@stools.make_json(URL_speaker)
+@stools.route_json(URL_speaker, method='POST')
 def add_speaker_callback(tournament_name, speaker_id):
 	req = request.json
 	return add_speaker(tournament_name, req)
 
-@route(URL_speaker, method='DELETE')
-@stools.make_json(URL_speaker)
+@stools.route_json(URL_speaker, method='DELETE')
 def delete_speaker_callback(tournament_name, speaker_id):
 	return ""
 
-@route(URL_speaker, method='PATCH')
-@stools.make_json(URL_speaker)
+@stools.route_json(URL_speaker, method='PATCH')
 def modify_speaker_callback(tournament_name, speaker_id):
 	return ""
 
-@route(URL_teams)
-@stools.make_json(URL_teams)
+@stools.route_json(URL_teams)
 def list_all_teams_callback(tournament_name):
 	return ""
 
-@route(URL_team)
-@stools.make_json(URL_team)
+@stools.route_json(URL_team)
 def fetch_team_callback(tournament_name, team_id):
 	return ""
 
-@route(URL_team, method='POST')
-@stools.make_json(URL_team)
+@stools.route_json(URL_team, method='POST')
 def add_team_callback(tournament_name, team_id):
 	req = request.json
 	return add_team(tournament_name, req)
 
-@route(URL_team, method='DELETE')
-@stools.make_json(URL_team)
+@stools.route_json(URL_team, method='DELETE')
 def delete_team_callback(tournament_name, team_id):
 	return ""
 
-@route(URL_team, method='PATCH')
-@stools.make_json(URL_team)
+@stools.route_json(URL_team, method='PATCH')
 def modify_team_callback(tournament_name, team_id):
 	return ""
 
-@route(URL_venues)
-@stools.make_json(URL_venues)
+@stools.route_json(URL_venues)
 def list_all_venues_callback(tournament_name):
 	return ""
 
-@route(URL_venue)
-@stools.make_json(URL_venue)
+@stools.route_json(URL_venue)
 def fetch_venue_callback(tournament_name, venue_id):
 	return ""
 
-@route(URL_venue, method='POST')
-@stools.make_json(URL_venues)
+@stools.route_json(URL_venue, method='POST')
 def add_venue_callback(tournament_name, venue_id):
 	req = request.json
 	return add_venue(tournament_name, req)
 
-@route(URL_venue, method='DELETE')
-@stools.make_json(URL_venues)
+@stools.route_json(URL_venue, method='DELETE')
 def delete_venue_callback(tournament_name, venue_id):
 	return ""
 
-@route(URL_venue, method='PATCH')
-@stools.make_json(URL_venue)
+@stools.route_json(URL_venue, method='PATCH')
 def modify_venue_callback(tournament_name, venue_id):
 	return ""
 
-@route(URL_institutions)
-@stools.make_json(URL_institutions)
+@stools.route_json(URL_institutions)
 def list_all_institutions_callback(tournament_name):
 	return ""
 
-@route(URL_institution)
-@stools.make_json(URL_institution)
+@stools.route_json(URL_institution)
 def fetch_institution_callback(tournament_name, institution_id):
 	return ""
 
-@route(URL_institution, method='POST')
-@stools.make_json(URL_institution)
+@stools.route_json(URL_institution, method='POST')
 def add_institution_callback(tournament_name, institution_id):
 	req = request.json
 	return add_institution(tournament_name, req)
 
-@route(URL_institution, method='DELETE')
-@stools.make_json(URL_institution)
+@stools.route_json(URL_institution, method='DELETE')
 def delete_institution_callback(tournament_name, institution_id):
 	return ""
 
-@route(URL_institution, method='PATCH')
-@stools.make_json(URL_institution)
+@stools.route_json(URL_institution, method='PATCH')
 def modify_institution_callback(tournament_name, institution_id):
 	return ""
 
-@route(URL_team_results)
-@stools.make_json(URL_team_results)
+@stools.route_json(URL_team_results)
 def get_team_results_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_speaker_results)
-@stools.make_json(URL_speaker_results)
+@stools.route_json(URL_speaker_results)
 def get_speaker_results_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_speaker_results, method='PUT')
-@stools.make_json(URL_speaker_results)
-def send_speaker_results_callback(tournament_name, round_num):
-	return ""
+@stools.route_json(URL_speaker_results, method='PUT')
+def send_speaker_result_callback(tournament_name, round_num):
+	req = request.json
+	return send_speaker_result(tournament_name, round_num, req)
 
-@route(URL_adjudicator_results)
-@stools.make_json(URL_adjudicator_results)
+@stools.route_json(URL_adjudicator_results)
 def list_adjudicator_results_callback(tournament_name, round_num):
 	return ""
 
-@route(URL_adjudicator_results, method='PUT')
-@stools.make_json(URL_adjudicator_results)
-def send_adjudicator_results_callback(tournament_name, round_num):
-	return ""
+@stools.route_json(URL_adjudicator_results, method='PUT')
+def send_adjudicator_result_callback(tournament_name, round_num):
+	req = request.json
+	return send_adjudicator_result(tournament_name, round_num, req)
 
-@route(URL_backups)
-@stools.make_json(URL_backups)
+@stools.route_json(URL_backups)
 def list_backups_callback(tournament_name):
 	return ""
 
-@route(URL_backups, method='PUT')
-@stools.make_json(URL_backups)
+@stools.route_json(URL_backups, method='PUT')
 def import_backup_callback(tournament_name):
 	return ""
 
-@route(URL_backups, method='POST')
-@stools.make_json(URL_backups)
+@stools.route_json(URL_backups, method='POST')
 def save_backup_callback(tournament_name):
 	return ""
 
-@route(URL_adjudicator_comments)
-@stools.make_json(URL_adjudicator_comments)
+@stools.route_json(URL_adjudicator_comments)
 def download_adjudicator_comments_callback(tournament_name):
 	return ""
 
-@route(URL_total_team_results)
-@stools.make_json(URL_total_team_results)
+@stools.route_json(URL_total_team_results)
 def download_total_team_results_callback(tournament_name):
 	return ""
 
-@route(URL_total_speaker_results)
-@stools.make_json(URL_total_speaker_results)
+@stools.route_json(URL_total_speaker_results)
 def download_total_speaker_results_callback(tournament_name):
 	return ""
 
-@route(URL_total_adjudicator_results)
-@stools.make_json(URL_total_adjudicator_results)
+@stools.route_json(URL_total_adjudicator_results)
 def download_total_adjudicator_results_callback(tournament_name):
 	return ""
 

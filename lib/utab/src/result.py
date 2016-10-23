@@ -71,10 +71,7 @@ def get_score_list_averaged(result_dicts):
 	return [score/num_sources for score in score_list]
 
 def check_result_of_adj(tournament, result):
-	if result["from"] == 'chair' or result["from"] == 'panel':
-		from_adj = find_element_by_id(tournament.adjudicator_list, result["from_id"])
-		if result["from_name"] != from_adj.name:
-			raise Exception("sender's id and name doesn't match")
+	pass
 
 def check_results_of_adj(tournament, raw_results):
 	pass

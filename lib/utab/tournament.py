@@ -154,9 +154,7 @@ class Round:
 		self.candidate_venue_allocation = None
 		self.matchup = None
 		self.allocation = None
-		self.panel_allocation = None
-		self.venue_allocation = None
-		self.round_status = 0
+		self.__round_status = 0
 		"""
 		0: before starting round(adding adjudicators, etc...)
 		1: computing matchups
@@ -182,6 +180,17 @@ class Round:
 		self.raw_results = {}
 		self.raw_results_of_adj = {}
 
+	def this_round(func):
+		def _(*args, **kwargs):
+			self = args[0]
+			if self.r == self.tournament.now_round:
+				ret_val = func(*args, **kwargs)
+				return ret_val
+			else:
+				raise Exception('requested round is not available now')
+		return _
+
+	@this_round
 	def set_constants(self, v_random_pairing = 4, des_power_pairing = 1, des_w_o_same_a_insti = 2, des_w_o_same_b_insti = 0, des_w_o_same_c_insti = 0, des_w_o_same_opp = 5, des_with_fair_sides = 3):
 		self.constants["random_pairing"] = v_random_pairing
 		self.constants["des_power_pairing"] = des_power_pairing
@@ -197,6 +206,7 @@ class Round:
 			if i+1 in order:
 				self.filter_list.append(functions[order.index(i+1)])
 
+	@this_round
 	def set_constants_of_adj(self, v_random_allocation = 4, des_strong_strong = 2, des_with_fair_times = 3, des_avoiding_conflicts = 1, des_avoiding_past = 0, des_priori_bubble = 0, des_chair_rotation = 0):
 		self.constants_of_adj["random_allocation"] = v_random_allocation
 		self.constants_of_adj["des_strong_strong"] = des_strong_strong
@@ -212,6 +222,7 @@ class Round:
 			if i+1 in order:
 				self.filter_of_adj_list.append(functions[order.index(i+1)])
 
+	@this_round
 	def set(self, force = False):
 		if self.tournament.now_round != self.r:
 			raise Exception("prior round is not finished")
@@ -243,8 +254,13 @@ class Round:
 			check_team_list(self.tournament.team_list)
 			check_adjudicator_list(self.tournament.adjudicator_list)
 
+	@this_round
+	def get_round_status(self):
+		return self.__round_status
+
+	@this_round
 	def compute_matchups(self):
-		self.round_status = 1
+		self.__round_status = 1
 		grid_flag = threading.Event()
 
 		create_grid_list_by_thread(self.grid_list, self.tournament.team_list, self.tournament.style["team_num"], grid_flag)
@@ -259,22 +275,111 @@ class Round:
 			else:
 				time.sleep(0.5)
 		self.candidate_matchups = create_matchups(grid_list=self.grid_list, round_num=self.r, tournament=self.tournament, filter_list=self.filter_list, team_num=self.tournament.style["team_num"])
-		self.round_status = 2
+		self.__round_status = 2
 
+	@this_round
 	def set_matchup(self, matchup):
 		self.matchup = matchup
 
+	@this_round
+	def add_imported_matchup(self, matchup_dict):
+		code = tools.generate_code(self.candidate_matchups)
+		new_matchup = get_imported_matchup(matchup_dict, self.grid_list, self.tournament, self.r, code)
+		self.candidate_matchups.append(new_matchup)
+
+		return new_matchup, code
+
+	@this_round
+	def add_imported_allocation(self, allocation_dict):
+		code = tools.generate_code(self.candidate_allocations)
+		new_allocation = get_imported_allocation(allocation_dict, self.lattice_list, self.tournament, self.r, code)
+		self.candidate_allocations.append(new_allocation)
+
+		return new_allocation, code
+
+	@this_round
+	def respond_matchup(self, code=None):
+		if code is not None:
+			matchup = find_element_by_id(self.candidate_matchups, code)
+		else:
+			matchup = self.matchup
+		matchup_dict = {}
+		matchup_dict["algorithm"] = matchup.internal_algorithm
+		matchup_dict["indices"] = {
+		    "power_pairing_indicator": matchup.power_pairing_indicator,
+		    "adopt_indicator": matchup.adopt_indicator,
+		    "adopt_indicator2": matchup.adopt_indicator2,
+		    "adopt_indicator_sd": matchup.adopt_indicator_sd,
+		    "gini_index": matchup.gini_index,
+		    "scatter_indicator": matchup.scatter_indicator
+		}
+		matchup_dict["large_warings"] = matchup.large_warnings
+		matchup_conv = []
+		for grid in matchup:
+			matchup_conv.append({
+				"team_ids": tools.get_ids(grid.teams),
+				"warnings": [w.status for w in grid.warnings]
+			})
+		matchup_dict["allocation"] = matchup_conv
+
+		matchup_dict["code"] = matchup.code
+		return matchup_dict
+
+	@this_round
+	def respond_matchups(self):
+		codes = [m.code for m in self.candidate_matchups]
+		return [self.respond_matchup(code) for code in codes]
+
+	@this_round
+	def respond_allocation(self, code=None):
+		if code is not None:
+			allocation = find_element_by_id(self.candidate_allocations, code)
+		else:
+			allocation = self.allocation
+		allocation_dict = {}
+		allocation_dict["algorithm"] = allocation.internal_algorithm
+		allocation_dict["indices"] = {
+		    "strong_strong_indicator": allocation.strong_strong_indicator
+		}
+		allocation_dict["large_warings"] = allocation.large_warnings
+		allocation_conv = []
+		for lattice in allocation:
+			allocation_conv.append(
+				{
+					"teams": tools.get_ids(lattice.grid.teams),
+					"warnings": [w.status for w in lattice.warnings],#############################################################
+					"chairs": [lattice.chair.code],##############fix in next version
+					"venue": lattice.venue.code if lattice.venue is not None else None,
+					"panels": tools.get_ids(lattice.panels)
+				})
+		allocation_dict["allocation"] = allocation_conv
+
+		allocation_dict["code"] = allocation.code
+		return allocation_dict
+
+	@this_round
+	def respond_allocations(self):
+		codes = [m.code for m in self.candidate_allocations]
+		return [self.respond_allocation(code) for code in codes]
+
+	@this_round
 	def compute_allocations(self):
-		self.round_status = 3
+		if self.matchup is None:
+			raise Exception('you must compute team allocation first')
+		self.__round_status = 3
 		self.lattice_list = create_lattice_list(self.matchup, self.tournament.adjudicator_list)
 		self.candidate_allocations = create_allocations(tournament=self.tournament, selected_grid_list=self.matchup, lattice_list=self.lattice_list, round_num=self.r, filter_list=self.filter_of_adj_list)
-		self.round_status = 4
+		self.__round_status = 5
+		for allocation in self.candidate_allocations:
+			set_panel_allocation(allocation, self.tournament)
 
+	@this_round
 	def set_allocation(self, allocation):
 		self.allocation = allocation
 
+	@this_round
 	def compute_venue_allocation(self):
-		self.round_status = 7
+		self.__round_status = 7
 		available_venue_list = [venue for venue in self.tournament.venue_list if venue.available]
 		random.shuffle(available_venue_list)
 		available_venue_list.sort(key=lambda venue:venue.priority)
@@ -283,119 +388,80 @@ class Round:
 		#print(len(available_venue_list))
 		#print(len(allocations))
 		self.allocation.sort(key=lambda lattice: lattice.venue.name)
-		self.round_status = 8
+		self.__round_status = 8
 
-	def set_venue_allocation(self, venue_allocation):
-		self.venue_allocation = venue_allocation
-
-	def compute_panel_allocation(self):
-		self.round_status = 5
-		for lattice in self.allocation:
-			for adjudicator in self.tournament.adjudicator_list:
-				if adjudicator.name == lattice.chair.name:
-					adjudicator.active = True
-					break
-
-		self.allocation.large_warnings = []
-
-		inactive_adjudicator_list = [adjudicator for adjudicator in self.tournament.adjudicator_list if (not(adjudicator.active) and not(adjudicator.absent))]
-		inactive_adjudicator_list.sort(key=lambda adjudicator:adjudicator.evaluation, reverse=True)
-
-		if self.tournament.style["team_num"] == 2:
-			for lattice in self.allocation:
-				may_be_panels = []
-				for panel in inactive_adjudicator_list:
-					conflicting_insti1 = set(lattice.grid.teams[0].institutions) & set(panel.institutions)
-					conflicting_insti2 = set(lattice.grid.teams[1].institutions) & set(panel.institutions)
-					if list(conflicting_insti1 | conflicting_insti2) or panel.active:
-						continue
-					else:
-						may_be_panels.append(panel)
-					if len(may_be_panels) == 2:
-						break
-				if len(may_be_panels) < 2:
-					continue
-				else:
-					lattice.panel = may_be_panels
-					lattice.panel[0].active = True
-					lattice.panel[1].active = True
-		else:
-			for lattice in self.allocation:
-				may_be_panels = []
-				for panel in inactive_adjudicator_list:
-					conflicting_insti1 = set(lattice.grid.teams[0].institutions) & set(panel.institutions)
-					conflicting_insti2 = set(lattice.grid.teams[1].institutions) & set(panel.institutions)
-					conflicting_insti3 = set(lattice.grid.teams[2].institutions) & set(panel.institutions)
-					conflicting_insti4 = set(lattice.grid.teams[3].institutions) & set(panel.institutions)
-					if list(conflicting_insti1 | conflicting_insti2 | conflicting_insti3 | conflicting_insti4) or panel.active:
-						continue
-					else:
-						may_be_panels.append(panel)
-					if len(may_be_panels) == 2:
-						break
-				if len(may_be_panels) < 2:
-					continue
-				else:
-					lattice.panel = may_be_panels
-					lattice.panel[0].active = True
-					lattice.panel[1].active = True
-
-		self.round_status = 6
-
-	def set_panel_allocation(self, panel_allocation):
-		self.panel_allocation = panel_allocation
-
-	def set_result(self, data, override = False):
-		self.round_status = 9
-		result = data["result"]
+	@this_round
+	def set_result(self, data, meta, override = False):
+		self.__round_status = 9
 		debater_id = data["debater_id"]
 		result_to_set = {
-			"debater_id": debater_id,
-			"team_id": result["team_id"],
-			"scores": result["scores"],
-			"win_point": result["win_point"],
-			"opponent_ids": result["opponent_ids"],
-			"position": result["position"]
+			"debater_id": data["debater_id"],
+			"team_id": data["team_id"],
+			"scores": data["scores"],
+			"win_point": data["win_point"],
+			"opponent_ids": data["opponent_ids"],
+			"position": data["position"]
 		}
 
-		check_result(self.tournament, result_to_set)
+		uid = meta["from_id"]
+
+		#check_result(self.tournament, meta)####################################
 
 		if debater_id in self.raw_results:
-			self.raw_results[debater_id].append(result_to_set)
-		else:
-			self.raw_results[debater_id] = [result_to_set]
+			if override:
+				self.raw_results[debater_id][uid] = result_to_set
+			else:
+				if self.raw_results[debater_id][uid]:
+					raise Exception('already sent')
+				else:
+					self.raw_results[debater_id][uid] = result_to_set
 
-	def set_result_of_adj(self, data, override = False):
-		self.round_status = 9
-		result = data["result"]
-		adj_id = data["adj_id"]
+		else:
+			self.raw_results[debater_id] = {uid: result_to_set}
+
+		return result_to_set
+
+	@this_round
+	def set_result_of_adj(self, data, meta, override = False):
+		self.__round_status = 9
+		adj_id = data["adjudicator_id"]
 		result_to_set = {
-			"adj_id": adj_id,
-			"from": result["from"],
-			"from_id": result["from_id"],
-			"from_name": result["from_name"],
-			"chair": result["chair"],
-			"point": result["point"],
-			"team_ids": result["team_ids"],
-			"comment": result["comment"],
+			"adjudicator_id": data["adjudicator_id"],
+			"chair": data["chair"],
+			"score": data["score"],
+			"teams": data["teams"],
+			"comment": data["comment"]
 		}
 
-		check_result_of_adj(self.tournament, result_to_set)
+		uid = meta["from_id"] if meta["from"] == 'team' else -meta["from_id"]
+
+		#check_result_of_adj(self.tournament, meta)####################################
 
 		if adj_id in self.raw_results_of_adj:
-			self.raw_results_of_adj[adj_id].append(result_to_set)
-		else:
-			self.raw_results_of_adj[adj_id] = [result_to_set]
+			if override:
+				self.raw_results_of_adj[adj_id][uid] = result_to_set
+			else:
+				if self.raw_results_of_adj[adj_id][uid]:
+					raise Exception('already sent')
+				else:
+					self.raw_results_of_adj[adj_id][uid] = result_to_set
 
+		else:
+			self.raw_results_of_adj[adj_id] = {uid: result_to_set}
+
+		return result_to_set
+
+	@this_round
 	def end(self, force = False):
 		if not force:
 			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
 
 		self.tournament.now_round += 1
-		self.round_status = 14
+		self.__round_status = 14
 
+	@this_round
 	def process_result(self, force=False):
-		self.round_status = 10
+		self.__round_status = 10
 		team_num = self.tournament.style["team_num"]
 
 		if not force:
@@ -411,6 +477,7 @@ class Round:
 
 		"""
 		raw_results['32'::debater_id] = [
+			23: # uid of sender
 			{
 				"team_id": '3',
 				"scores": [0, 0, 10],	#differ by each source
@@ -423,11 +490,12 @@ class Round:
 
 		results_by_teams = {}
 
-		for k, v in self.raw_results.items():#all data of each debater
+		for k, d in self.raw_results.items():#all data of each debater
+			v = d.values()
 			team = find_element_by_id(self.tournament.team_list, v[0]["team_id"])
 			debater = find_element_by_id(team.debaters, k)
 			opponent_ids = v[0]["opponent_ids"]
-			opponents = [get_name_from_id(self.tournament.team_list, opponent_id) for opponent_id in v[0]["opponent_ids"]]
+			opponents = tools.find_elements_by_ids(self.team_list, v[0]["opponent_ids"])
 			win_point = v[0]["win_point"]
 			position = v[0]["position"]
 			score_list = get_score_list_averaged(v)
@@ -469,15 +537,17 @@ class Round:
 			team.dummy_finishing_process()
 			for debater in team.debaters:
 				debater.dummy_finishing_process(style_cfg)
-		self.round_status = 11
+		self.__round_status = 11
 
+	@this_round
 	def process_result_of_adj(self, force=False):
-		self.round_status = 12
+		self.__round_status = 12
 		if not force:
 			check_results_of_adj(self.tournament, self.raw_results)
 
 		"""
 		raw_results_of_adj = {adj_id:[
+			-24: #uid of result sender
 			{
 				"adj_id": data["adj_id"],
 				"from": result["from"],	#differ in each result
@@ -492,11 +562,12 @@ class Round:
 		"""
 		adjudicator_temp = []
 
-		for k, v in self.raw_results_of_adj.items():
+		for k, d in self.raw_results_of_adj.items():
+			v = d.values()
 			if len(v) == 0:
 				score = 0
 			else:
-				score = sum([d["point"] for d in v])/len(v)
+				score = sum([d["score"] for d in v])/len(v)
 
 			comments = [{"comment": d["comment"], "from": d["from"], "from_id": d["from_id"], "from_name": d["from_name"]} for d in v]
 			adjudicator = find_element_by_id(self.tournament.adjudicator_list, k)
@@ -521,4 +592,4 @@ class Round:
 		for adjudicator in rest_adjudicator_list:
 			adjudicator.dummy_finishing_process(self.tournament.style["team_num"])
 	
-		self.round_status = 13
+		self.__round_status = 13

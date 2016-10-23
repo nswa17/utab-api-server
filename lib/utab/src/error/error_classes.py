@@ -3,6 +3,7 @@
 class SameInstitution(Exception):
 	def __init__(self, institution):
 		self.institution = institution
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -17,6 +18,7 @@ class PastOpponent(Exception):
 	def __init__(self, team1, team2):
 		self.team1 = team1
 		self.team2 = team2
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -32,6 +34,7 @@ class Sided(Exception):
 		self.team = team
 		self.side = side
 		self.side_counts = side_counts
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -48,6 +51,7 @@ class AllSided(Exception):
 		self.team = team
 		self.side = side
 		self.side_count = side_count
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -63,6 +67,7 @@ class PowerPairing(Exception):
 		self.team1 = team1
 		self.team2 = team2
 		self.difference = difference
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -77,6 +82,7 @@ class PersonalConflict(Exception):
 	def __init__(self, adjudicator, teams):
 		self.adjudicator = adjudicator
 		self.teams = teams
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -91,6 +97,7 @@ class InstitutionConflict(Exception):
 	def __init__(self, adjudicator, teams):
 		self.adjudicator = adjudicator
 		self.teams = teams
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -104,6 +111,7 @@ class InstitutionConflict(Exception):
 class BubbleRound(Exception):
 	def __init__(self, teams):
 		self.teams = teams
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()
@@ -118,6 +126,7 @@ class WatchingAgain(Exception):
 	def __init__(self, adjudicator, teams):
 		self.adjudicator = adjudicator
 		self.teams = teams
+		self.status = 500
 
 	def __str__(self):
 		return self.shortwarning()

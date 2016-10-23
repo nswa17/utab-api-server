@@ -1,0 +1,14 @@
+{
+    "override": false,
+    "from_id": 2,
+    "result":
+    {
+        "debater_id": 1,
+        "current_round": 1,
+        "team_id": 0,
+        "scores": [76, 0, 38.5],
+        "win_point": 1,
+        "opponents": [1],
+        "side": "gov"
+    }
+}

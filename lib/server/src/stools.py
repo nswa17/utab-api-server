@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-from bottle import HTTPResponse
-from threading import Lock
+from bottle import HTTPResponse, route
+from threading import Lock, Thread
 import copy
 
 def lock_with(default_lock=None):#does not call the same function at the same time
@@ -53,7 +53,7 @@ def replace_resource_url(resource_url, kwargs):
 	return resource_url_rev
 
 def make_json(resource_url):
-	def make_json(func):
+	def _make_json(func):
 		def _(*args, **kwargs):
 			retvals = func(*args, **kwargs)
 			resource_url_rev = replace_resource_url(resource_url, kwargs)
@@ -63,7 +63,7 @@ def make_json(resource_url):
 			elif len(retvals) == 1:
 				return set_json_response(data=null, errors=[set_error(1, 'feature not available', 'wait till its impletmented')], resource_url=resource_url_rev)
 		return _
-	return make_json
+	return _make_json
 
 def set_json_response(data={}, status=200, errors=[], resource_url=""):
 	if not data:
@@ -73,3 +73,29 @@ def set_json_response(data={}, status=200, errors=[], resource_url=""):
 	r = HTTPResponse(status = status, body = body)
 	r.set_header('Content-Type', 'application/json')
 	return r
+
+def route_json(url, method='GET'):
+	def _(func):
+		@route(url, method=method)
+		@make_json(url)
+		def _2(*args, **kwargs):
+			return func(*args, **kwargs)
+		return _2
+	return _
+
+if __name__ == '__main__':
+	import time
+	lock = Lock()
+	@lock_with(lock)
+	def test(a):
+		print(a)
+
+	t3 = Thread(target=test, args=[1])
+	t4 = Thread(target=test, args=[2])
+	t5 = Thread(target=test, args=[3])
+	t6 = Thread(target=test, args=[4])
+	t3.start()
+	t4.start()
+	t5.start()
+	t6.start()
+	test(5)

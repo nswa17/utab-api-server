@@ -150,7 +150,7 @@ class Lattice(GL):
 		GL.__init__(self)
 		self.grid = grid
 		self.chair = chair
-		self.panel = []
+		self.panels = []
 		self.venue = None
 		#self.avoid_by_conflict = False
 		#self.adj_unfair = False
@@ -202,7 +202,7 @@ class Grid_list(list):
 		self.same_institution_indicator = None
 		self.num_of_warnings = None
 		self.scatter_indicator = None
-		self.allocation_no = None
+		self.code = None
 		self.gini_index = None ##########################################
 		self.large_warnings = []
 		self.comment = ""
@@ -215,7 +215,7 @@ class Lattice_list(list):
 		self.strong_strong_indicator = None
 		self.num_of_warnings = None
 		self.large_warnings = []
-		self.allocation_no = None
+		self.code = None
 		self.comment = ""
 		self.grid_type = "Lattice"
 		self.internal_algorithm = ""

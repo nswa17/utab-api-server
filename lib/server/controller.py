@@ -129,76 +129,112 @@ def fetch_round(tournament_name, round_num):
 def send_round_config(tournament_name, round_num, req):
 	data = {}
 	errors = []
-	t = tn.tournaments[tournament_name].rounds[round_num-1]
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
 	constants = req["constants"]
 	constants_of_adj = req["constants_of_adj"]
-	t.set_constants(constants["random_pairing"], constants["des_power_pairing"], constants["des_w_o_same_a_insti"], constants["des_w_o_same_b_insti"], constants["des_w_o_same_c_insti"], constants["des_w_o_same_opp"], constants["des_with_fair_sides"])
-	t.set_constants_of_adj(constants_of_adj["random_allocation"], constants_of_adj["des_strong_strong"], constants_of_adj["des_with_fair_times"], constants_of_adj["des_avoiding_conflicts"], constants_of_adj["des_avoiding_past"], constants_of_adj["des_priori_bubble"], constants_of_adj["des_chair_rotation"])
+	r.set_constants(constants["random_pairing"], constants["des_power_pairing"], constants["des_w_o_same_a_insti"], constants["des_w_o_same_b_insti"], constants["des_w_o_same_c_insti"], constants["des_w_o_same_opp"], constants["des_with_fair_sides"])
+	r.set_constants_of_adj(constants_of_adj["random_allocation"], constants_of_adj["des_strong_strong"], constants_of_adj["des_with_fair_times"], constants_of_adj["des_avoiding_conflicts"], constants_of_adj["des_avoiding_past"], constants_of_adj["des_priori_bubble"], constants_of_adj["des_chair_rotation"])
+
+	data["constants"] = r.constants
+	data["constants_of_adj"] = r.constants_of_adj
 
 	return data, errors
 
 @stools.lock_with(common_lock)
 def create_style(req):
-	data = req
+	data = {}
 	errors = []
 	tn.styles[data["style_name"]] = {"style_name": data["style_name"], "style_name": data["debater_num_per_team"], "team_num": data["team_num"], "score_weights": data["score_weights"], "replies": data["replies"], "num_of_replies": data["num_of_replies_per_team"]}
-
+	data["style_name"] = tn.styles["style_name"]
+	data["debater_num_per_team"] = tn.styles["debater_num_per_team"]
+	data["team_num"] = tn.styles["team_num"]
+	data["score_weights"] = tn.styles["score_weights"]
+	data["replies"] = tn.styles["replies"]
+	data["num_of_replies"] = tn.styles["num_of_replies"]
 	return data, errors
 
 @stools.lock_with(common_lock)
 def get_suggested_team_allocations(tournament_name, round_num, req):
-	data = []
 	errors = []
+	data = []
 	tournament = tn.tournaments[tournament_name]
 	r = tournament.start_round(force=req["args"]["force"])
 	r.compute_matchups()
 	for matchup in r.candidate_matchups:
-		matchup_dict = {}
-		matchup_dict["algorithm"] = matchup.internal_algorithm
-		matchup_dict["indices"] = {
-		    "power_pairing_indicator": matchup.power_pairing_indicator,
-		    "adopt_indicator": matchup.adopt_indicator,
-		    "adopt_indicator2": matchup.adopt_indicator2,
-		    "adopt_indicator_sd": matchup.adopt_indicator_sd,
-		    "gini_index": matchup.gini_index,
-		    "scatter_indicator": matchup.scatter_indicator
-		}
-		matchup_dict["large_warings"] = matchup.large_warnings
-		allocation = []
-		for grid in matchup:
-			allocation.append({"team_ids": tools.get_ids(grid.teams), "warnings": grid.warnings})
-		matchup_dict["allocation"] = allocation
-
-		matchup_dict["allocation_no"] = matchup.allocation_no
+		matchup_dict = r.respond_matchups()
 		data.append(matchup_dict)
 	return data, errors
 
 @stools.lock_with(common_lock)
-def get_suggested_adjudicator_allocations(tournament_name, round_num, req):
+def check_team_allocation(tournament_name, round_num, req):
 	data = []
 	errors = []
-	tournament = tn.tournaments[tournament_name]
-	r = tournament.start_round(force=req["args"]["force"])
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	selected_grid_list, code = r.add_imported_matchup(req)
+	data = r.respond_matchup(code)
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
+	data = []
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	selected_grid_list, code = r.add_imported_matchup(req)
+
+	r.set_matchup(selected_grid_list)
+	data = r.respond_matchup()
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def get_suggested_adjudicator_allocations(tournament_name, round_num):
+	data = []
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
 	r.compute_allocations()
 	for allocation in r.candidate_allocations:
-		allocation_dict = {}
-		allocation_dict["algorithm"] = allocation.internal_algorithm
-		allocation_dict["indices"] = {
-		    "power_pairing_indicator": allocation.power_pairing_indicator,
-		    "adopt_indicator": allocation.adopt_indicator,
-		    "adopt_indicator2": allocation.adopt_indicator2,
-		    "adopt_indicator_sd": allocation.adopt_indicator_sd,
-		    "gini_index": allocation.gini_index,
-		    "scatter_indicator": allocation.scatter_indicator
-		}
-		allocation_dict["large_warings"] = allocation.large_warnings
-		allocation_conv = []
-		for lattice in allocation:
-			allocation_conv.append({"team_ids": tools.get_ids(lattice.teams), "warnings": lattice.warnings})
-		allocation_dict["allocation"] = allocation_conv
-
-		allocation_dict["allocation_no"] = allocation.allocation_no
+		allocation_dict = r.respond_allocations()
 		data.append(allocation_dict)
+	return data, errors
+
+@stools.lock_with(common_lock)
+def check_adjudicator_allocation(tournament_name, round_num, req):
+	data = []
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	selected_lattice_list, code = r.add_imported_allocation(req)
+	data = r.respond_allocation(code)
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, req):
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	selected_lattice_list, code = r.add_imported_allocation(req)
+	r.set_allocation(selected_lattice_list)
+	data = r.respond_allocation()
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def get_suggested_venue_allocation(tournament_name, round_num):
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r.compute_venue_allocation()
+	data = r.respond_allocation()
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def confirm_venue_allocation(tournament_name, round_num, req):
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	selected_lattice_list, code = r.add_imported_allocation(req)
+	r.set_allocation(selected_lattice_list)
+	data = r.respond_allocation()
+
 	return data, errors
 
 @stools.lock_with(common_lock)
@@ -281,5 +317,25 @@ def set_judge_criterion(tournament_name, req):
 		    "judge_repu_percent":criteria["judge_repu_percent"],
 		    "judge_perf_percent":criteria["judge_perf_percent"]
 		})
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def send_speaker_result(tournament_name, round_num, req):
+	data = []
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	req["result"]["opponent_ids"] = req["result"]["opponents"]
+	req["result"]["position"] = req["result"]["side"]
+	data = r.set_result(req["result"], req, override = req["override"])
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def send_adjudicator_result(tournament_name, round_num, req):
+	data = []
+	errors = []
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	data = r.set_result_of_adj(req["result"], req, override = req["override"])
 
 	return data, errors

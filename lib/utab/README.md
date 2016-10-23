@@ -88,8 +88,8 @@ tournament
             #     COLLECTING RESULTS    #
             #                           #
 
-            round.process_result(force=False)##########belowと統合?
-            round.process_result_of_adj(force=False)##########belowと統合?
+            round.process_result(force=False)##########endと統合?
+            round.process_result_of_adj(force=False)##########endと統合?
             round.end(force=False) && break
         
     tournament.end()

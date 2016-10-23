@@ -1,0 +1,14 @@
+{
+    "override": false,
+    "from": "chair",
+    "from_id": 1,
+    "result":
+    {
+        "chair": true,
+        "adjudicator_id": 0,
+        "score": 8,
+        "teams": [0, 1],
+        "comment": "worst judge ever",
+        "round": 1
+    }
+}

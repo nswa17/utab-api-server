@@ -1,57 +1,85 @@
 # TODOs
 
+## Attention
+
+1. only one chair
+
+1. Trainee 未対応
+
 ## Need early fix
 
-* list all information to send @ apiary
+1. verify sent round num
 
-* integrate panel allocation and judge allocaion
+1. code and name
 
-* define exceptions
+1. Error to TextJSON
 
-* Lock for api server <--! single thread is much better?-->
+1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
-* teamnum and team_num_per_round
+1. venue allocation への forceとは?
 
-* what if an error occurs when controller is caled
+1. integrate panel allocation and judge allocaion
 
-* check received json format
+1. realtime check system -> free from grid_list, lattice_list
 
-* round_num -> current_round
+1. list all information to send @ apiary
 
-* random test program
+1. define exceptions
+
+1. teamnum and team_num_per_round
+
+1. what if an error occurs when controller is called
+
+1. check received json format
+
+1. round_num -> current_round
+
+1. random test program
+
+1. download total result
+
+1. とりあえずpickleを使ってバックアップを構築
 
 ## Do when above finished
 
-* candidate -> suggested
+1. 冗長性をもたせる
 
-* thread test
+1. Integrate grid, lattice
 
-* speaker と team 登録の順番を交換可能にする
+1. Implementing DELETE method
 
-* don't consider breaknum when breaknum == 0
+1. lock が働いているか.
 
-* multiple judges
+1. candidate -> suggested
 
-* modify result
+1. thread test
 
-* authentication
+1. speaker と team 登録の順番を交換可能にする(Noneで登録してラウンド進むときにチェック)
 
-* solve state dependencies(make it possible to interrupt allocation selection phase)
+1. don't consider breaknum when breaknum == 0
 
-* use database(mongodb?)
+1. 複数チェアに対応
+
+1. modify result
+
+1. authentication
+
+1. solve state dependencies(make it possible to interrupt allocation selection phase) (チーム配置確定後ジャッジ配置を考えるときにチームを変えられない)
+
+1. use database(mongodb?)
 
 	* back up data instead of db?
 
 	* define getter and setter, change variables self.* to self.__*
 
-* modified gale shapley
+1. modified gale shapley
 
-* deal with changing round num while tournament
+1. deal with changing round num while tournament
 
-* choose selection algorithm
+1. choose selection algorithm
 
-* gini_index
+1. gini_index
 
-* rank team every round
+1. rank team every round
 
-* large warnings の efficiency imporove!
+1. large warnings の efficiency imporove!
