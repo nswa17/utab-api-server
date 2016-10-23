@@ -8,6 +8,10 @@
 
 ## Need early fix
 
+1. matchup受け取った後にactiveかどうか設定されてる?
+
+1. スマホで遅延評価
+
 1. verify sent round num
 
 1. code and name
@@ -15,10 +19,6 @@
 1. Error to TextJSON
 
 1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
-
-1. venue allocation への forceとは?
-
-1. integrate panel allocation and judge allocaion
 
 1. realtime check system -> free from grid_list, lattice_list
 

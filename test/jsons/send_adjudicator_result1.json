@@ -1,9 +1,9 @@
 {
     "override": false,
-    "from": "chair",
-    "from_id": 1,
     "result":
     {
+        "from": "chair",
+        "from_id": 1,
         "chair": true,
         "adjudicator_id": 0,
         "score": 8,

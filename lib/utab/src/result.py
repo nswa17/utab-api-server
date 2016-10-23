@@ -20,7 +20,8 @@ def check_results(tournament, raw_results):########
 	debater_num_per_team = tournament.style["debater_num_per_team"]
 
 	team_codes_posted = []
-	for v in raw_results.values():
+	for d in raw_results.values():
+		v = list(d.values())
 		for d in v:
 			team_codes_posted.append(d["team_id"])
 
@@ -74,6 +75,11 @@ def check_result_of_adj(tournament, result):
 	pass
 
 def check_results_of_adj(tournament, raw_results):
-	pass
+	adjudicator_codes_posted = [k for k in raw_results.keys()]
+
+	for adj in tournament.adjudicator_list:
+		if (adj.code not in adjudicator_codes_posted) and adj.active:
+			raise Exception("result of adjudicator {} is not sent".format(adj.code))
+
 
 

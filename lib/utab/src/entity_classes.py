@@ -139,10 +139,10 @@ class Adjudicator:
 		self.watched_debate_scores_sub.append(watched_debate_score)
 		self.comments_list.append(comments)
 
-	def dummy_finishing_process(self, team_num):
+	def dummy_finishing_process(self, style):
 		self.scores_sub.append('n/a')
 		self.watched_debate_scores_sub.append('n/a')
-		self.watched_teams_sub.extend(['n/a' for i in range(team_num)])
+		self.watched_teams_sub.extend(['n/a' for i in range(style["team_num"])])
 
 	def __eq__(self, other):
 		return self.code == other
@@ -192,11 +192,11 @@ class Debater:
 		self.score_lists_sub = []
 		self.scores_sub = []
 
-	def average(self, style_cfg):
-		score_weight = style_cfg["score_weight"]
+	def average(self, style):
+		score_weights = style["score_weights"]
 		average_list = []
 		for i in range(len(self.score_lists_sub)):
-			avrg_in_r = self.average_in_round(i+1, style_cfg)
+			avrg_in_r = self.average_in_round(i+1, style)
 			if avrg_in_r != 'n/a':
 				average_list.append(avrg_in_r)
 
@@ -205,15 +205,15 @@ class Debater:
 		else:
 			return sum(average_list)/len(average_list)
 
-	def average_in_round(self, round_num, style_cfg):
-		score_weight = style_cfg["score_weight"]
+	def average_in_round(self, round_num, style):
+		score_weights = style["score_weights"]
 		average_list = []
 		weight = 0
 		avrg = 0
 		if 'n/a' in self.score_lists_sub[round_num-1]:
 			return 'n/a'
 		else:
-			for score, w in zip(self.score_lists_sub[round_num-1], score_weight):
+			for score, w in zip(self.score_lists_sub[round_num-1], score_weights):
 				if score != 0:
 					avrg += score
 					weight += w
@@ -222,20 +222,20 @@ class Debater:
 			else:
 				return 0
 
-	def sum_scores(self, style_cfg):
+	def sum_scores(self, style):
 		s = 0
 		for i in range(len(self.score_lists)):
-			avrg_in_r = self.average_in_round(i+1, style_cfg)
+			avrg_in_r = self.average_in_round(i+1, style)
 			if avrg_in_r != 'n/a':
 				s += avrg_in_r
 		return s
 
-	def sd(self, style_cfg):
-		avrg = self.average(style_cfg)
+	def sd(self, style):
+		avrg = self.average(style)
 		sd = 0
 		n = 0
 		for i in range(len(self.score_lists_sub)):
-			avrg_in_r = self.average_in_round(i, style_cfg)
+			avrg_in_r = self.average_in_round(i, style)
 			if avrg_in_r != 'n/a':
 				sd += (avrg_in_r-avrg)**2
 				n += 1
@@ -250,8 +250,8 @@ class Debater:
 		self.scores.append(score)
 		self.scores_sub.append(score)
 
-	def dummy_finishing_process(self, style_cfg):
-		self.score_lists_sub.append(['n/a']*len(style_cfg["score_weight"]))
+	def dummy_finishing_process(self, style):
+		self.score_lists_sub.append(['n/a']*len(style["score_weights"]))
 		self.scores_sub.append('n/a')
 
 	def __eq__(self, other):

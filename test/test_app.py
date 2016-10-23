@@ -103,7 +103,13 @@ if __name__ == '__main__':
 		print(send_data(path='testtournament/0/suggested_venue_allocation'))
 		print(send_data(path='testtournament/0/suggested_venue_allocation', json_file_name='confirm_venue_allocation.json', method='POST'))
 
-		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result.json', method='PUT'))
-		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result1.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result2.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result3.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/speakers', json_file_name='send_speaker_result4.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result1.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result2.json', method='PUT'))
+		print(send_data(path='testtournament/0/results/adjudicators', json_file_name='send_adjudicator_result3.json', method='PUT'))
+		print(send_data(path='testtournament/0', json_file_name='finish_round.json', method='POST'))
 
 

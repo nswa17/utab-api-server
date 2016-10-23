@@ -375,6 +375,17 @@ class Round:
 
 	@this_round
 	def set_allocation(self, allocation):
+		active_adjs = []
+		for lattice in allocation:
+			active_adjs.append(lattice.chair)
+			for panel in lattice.panels:
+				active_adjs.append(panel)
+		for adj in self.tournament.adjudicator_list:
+			if adj in active_adjs:
+				adj.active = True
+			else:
+				adj.active = False
+
 		self.allocation = allocation
 
 	@this_round
@@ -391,10 +402,11 @@ class Round:
 		self.__round_status = 8
 
 	@this_round
-	def set_result(self, data, meta, override = False):
+	def set_result(self, data, uid, override = False):
 		self.__round_status = 9
 		debater_id = data["debater_id"]
 		result_to_set = {
+			"from_id": data["from_id"],
 			"debater_id": data["debater_id"],
 			"team_id": data["team_id"],
 			"scores": data["scores"],
@@ -402,8 +414,6 @@ class Round:
 			"opponent_ids": data["opponent_ids"],
 			"position": data["position"]
 		}
-
-		uid = meta["from_id"]
 
 		#check_result(self.tournament, meta)####################################
 
@@ -422,18 +432,18 @@ class Round:
 		return result_to_set
 
 	@this_round
-	def set_result_of_adj(self, data, meta, override = False):
+	def set_result_of_adj(self, data, uid, override = False):
 		self.__round_status = 9
 		adj_id = data["adjudicator_id"]
 		result_to_set = {
+			"from": data["from"],
+			"from_id": data["from_id"],
 			"adjudicator_id": data["adjudicator_id"],
 			"chair": data["chair"],
 			"score": data["score"],
-			"teams": data["teams"],
+			"team_ids": data["team_ids"],
 			"comment": data["comment"]
 		}
-
-		uid = meta["from_id"] if meta["from"] == 'team' else -meta["from_id"]
 
 		#check_result_of_adj(self.tournament, meta)####################################
 
@@ -453,6 +463,9 @@ class Round:
 
 	@this_round
 	def end(self, force = False):
+		self.process_result(force=force)
+		self.process_result_of_adj(force=force)
+
 		if not force:
 			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
 
@@ -491,11 +504,11 @@ class Round:
 		results_by_teams = {}
 
 		for k, d in self.raw_results.items():#all data of each debater
-			v = d.values()
+			v = list(d.values())
 			team = find_element_by_id(self.tournament.team_list, v[0]["team_id"])
 			debater = find_element_by_id(team.debaters, k)
 			opponent_ids = v[0]["opponent_ids"]
-			opponents = tools.find_elements_by_ids(self.team_list, v[0]["opponent_ids"])
+			opponents = tools.find_elements_by_ids(self.tournament.team_list, v[0]["opponent_ids"])
 			win_point = v[0]["win_point"]
 			position = v[0]["position"]
 			score_list = get_score_list_averaged(v)
@@ -530,20 +543,20 @@ class Round:
 		for debater in rest_debater_list:
 			debater.score_lists_sub.append(['n/a']*positions)
 			debater.scores_sub.append('n/a')
-			debater.rankings_sub.append('n/a')
+			#debater.rankings_sub.append('n/a')# for mstat
 
 		rest_team_list = [t for t in self.tournament.team_list if t not in results_by_teams.keys()]
 		for team in rest_team_list:
 			team.dummy_finishing_process()
 			for debater in team.debaters:
-				debater.dummy_finishing_process(style_cfg)
+				debater.dummy_finishing_process(self.tournament.style)
 		self.__round_status = 11
 
 	@this_round
 	def process_result_of_adj(self, force=False):
 		self.__round_status = 12
 		if not force:
-			check_results_of_adj(self.tournament, self.raw_results)
+			check_results_of_adj(self.tournament, self.raw_results_of_adj)
 
 		"""
 		raw_results_of_adj = {adj_id:[
@@ -563,13 +576,13 @@ class Round:
 		adjudicator_temp = []
 
 		for k, d in self.raw_results_of_adj.items():
-			v = d.values()
+			v = list(d.values())
 			if len(v) == 0:
 				score = 0
 			else:
 				score = sum([d["score"] for d in v])/len(v)
 
-			comments = [{"comment": d["comment"], "from": d["from"], "from_id": d["from_id"], "from_name": d["from_name"]} for d in v]
+			comments = [{"comment": d["comment"], "from": d["from"], "from_id": d["from_id"]} for d in v]
 			adjudicator = find_element_by_id(self.tournament.adjudicator_list, k)
 			adjudicator_temp.append(adjudicator)
 			teams = [find_element_by_id(self.tournament.team_list, team_id) for team_id in v[0]["team_ids"]]
@@ -590,6 +603,6 @@ class Round:
 			adj.watched_debate_ranks_sub.append('n/a')
 
 		for adjudicator in rest_adjudicator_list:
-			adjudicator.dummy_finishing_process(self.tournament.style["team_num"])
+			adjudicator.dummy_finishing_process(self.tournament.style)
 	
 		self.__round_status = 13

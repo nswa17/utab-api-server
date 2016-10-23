@@ -141,6 +141,15 @@ def send_round_config(tournament_name, round_num, req):
 	return data, errors
 
 @stools.lock_with(common_lock)
+def finish_round(tournament_name, round_num, req):
+	errors = []
+	data = {}
+	r = tn.tournaments[tournament_name].rounds[round_num-1]
+	r.end(force=req["args"]["force"])
+
+	return data, errors
+
+@stools.lock_with(common_lock)
 def create_style(req):
 	data = {}
 	errors = []
@@ -327,7 +336,8 @@ def send_speaker_result(tournament_name, round_num, req):
 	r = tn.tournaments[tournament_name].rounds[round_num-1]
 	req["result"]["opponent_ids"] = req["result"]["opponents"]
 	req["result"]["position"] = req["result"]["side"]
-	data = r.set_result(req["result"], req, override = req["override"])
+	uid = req["result"]["from_id"]
+	data = r.set_result(req["result"], uid, override = req["override"])
 
 	return data, errors
 
@@ -336,6 +346,9 @@ def send_adjudicator_result(tournament_name, round_num, req):
 	data = []
 	errors = []
 	r = tn.tournaments[tournament_name].rounds[round_num-1]
-	data = r.set_result_of_adj(req["result"], req, override = req["override"])
+	req["result"]["team_ids"] = req["result"]["teams"]
+
+	uid = req["result"]["from_id"] if req["result"]["from"] == 'team' else -req["result"]["from_id"]
+	data = r.set_result_of_adj(req["result"], uid, override = req["override"])
 
 	return data, errors

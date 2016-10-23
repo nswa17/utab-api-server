@@ -91,7 +91,8 @@ def send_round_config_callback(tournament_name, round_num):
 
 @stools.route_json(URL_round, method='POST')
 def finish_round_callback(tournament_name, round_num):
-	return ""
+	req = request.json
+	return finish_round(tournament_name, round_num, req)
 
 @stools.route_json(URL_team_allocations, method='POST')
 def get_suggested_team_allocations_callback(tournament_name, round_num):
