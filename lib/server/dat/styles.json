@@ -1,6 +1,6 @@
 {
 	"ACADEMIC":{"style_name": "ACADEMIC", "debater_num_per_team":4, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
-	"NA":{"style_name": "NA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 0.5], "replies":[1], "num_of_replies":0},
+	"NA":{"style_name": "NA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 0.5], "replies":[1], "num_of_replies":1},
 	"NAFA":{"style_name": "NAFA", "debater_num_per_team":2, "team_num":2, "score_weights":[1, 1, 1, 1], "replies":[], "num_of_replies":0},
 	"PDA":{"style_name": "PDA", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1], "replies":[], "num_of_replies":0},
 	"ASIAN":{"style_name": "ASIAN", "debater_num_per_team":3, "team_num":2, "score_weights":[1, 1, 1, 0.5], "replies":[0, 1], "num_of_replies":1},

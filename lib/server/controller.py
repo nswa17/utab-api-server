@@ -183,13 +183,11 @@ def create_style(req):
 @stools.lock_with(common_lock)
 def get_suggested_team_allocations(tournament_name, round_num, req):
 	errors = []
-	data = []
 	tournament = tournaments[tournament_name]
 	r = tournament.start_round(force=req["args"]["force"])
 	r.compute_matchups()
-	for matchup in r.suggested_matchups:
-		matchup_dict = r.respond_matchups()
-		data.append(matchup_dict)
+	data = r.respond_matchups()
+
 	return data, errors
 
 @stools.lock_with(common_lock)
@@ -216,13 +214,11 @@ def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
 
 @stools.lock_with(common_lock)
 def get_suggested_adjudicator_allocations(tournament_name, round_num):
-	data = []
 	errors = []
 	r = tournaments[tournament_name].rounds[round_num-1]
 	r.compute_allocations()
-	for allocation in r.suggested_allocations:
-		allocation_dict = r.respond_allocations()
-		data.append(allocation_dict)
+	data = r.respond_allocations()
+
 	return data, errors
 
 @stools.lock_with(common_lock)

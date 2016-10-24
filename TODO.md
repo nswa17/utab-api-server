@@ -2,6 +2,12 @@
 
 ## Need early fix
 
+1. styles中身確認
+
+1. codeを自動化
+
+1. constants揃ってるか確認
+
 1. verify received round num
 
 1. Error to TextJSON

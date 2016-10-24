@@ -728,11 +728,10 @@ def check_team_list2(team_list, experienced_round_num, team_num):
 
 def create_lattice_list(matchups, adjudicator_list):
 	lattice_list = Lattice_list()
-	i = 0
+	
 	for grid in matchups:
 		for chair in adjudicator_list:
-			lattice_list.append(Lattice(grid, chair, i))
-			i += 1
+			lattice_list.append(Lattice(grid, chair))
 
 	for lattice in lattice_list:
 		if (False in [t.available for t in lattice.grid.teams]) or lattice.chair.absent:
@@ -937,7 +936,7 @@ def create_grids_by_combinations_list(team_combinations_list):
 	grid_list = []
 	for team_combinations in team_combinations_list:
 		team_permutations_list = list(itertools.permutations(team_combinations))
-		related_grids = [Grid(list(team_permutations), i) for i, team_permutations in enumerate(team_permutations_list)]
+		related_grids = [Grid(list(team_permutations)) for team_permutations in team_permutations_list]
 		for grid in related_grids:
 			grid.related_grids = related_grids
 			if True in [not(team.available) for team in grid.teams]:

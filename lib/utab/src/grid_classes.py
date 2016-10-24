@@ -2,8 +2,7 @@
 from bit import *
 
 class GL:
-	def __init__(self, code):
-		self.code = None
+	def __init__(self):
 		self.adoptbits = 0
 		self.adoptbitslong = 0
 		self.adoptbits_strict = 0
@@ -18,9 +17,6 @@ class GL:
 		self.availables = [True]*49
 		self.warnings = []
 		self.large_warnings = []
-
-	def __hash__(self):
-		return self.code
 
 	def get_available(self, pid):
 		return self.availables[pid]
@@ -101,14 +97,20 @@ class GL:
 		self.set_adoptness_weight2()
 
 class Grid(GL):
-	def __init__(self, teams, code):
-		GL.__init__(self, code)
+	code = 0
+	def __init__(self, teams):
+		GL.__init__(self)
+		self.code = Grid.code
+		Grid.code += 1
 		self.teams = teams
 		self.past_match = 0
 		self.power_pairing = None
 		self.related_grids = []
 		self.bubble_ranking = 0
 		self.bubble = 10
+
+	def __hash__(self):
+		return self.code
 
 	def initialize(self):
 		GL.__init__(self)
@@ -143,8 +145,11 @@ class Grid(GL):
 		return string
 
 class Lattice(GL):
-	def __init__(self, grid, chair, code):
-		GL.__init__(self, code)
+	code = 0
+	def __init__(self, grid, chair):
+		GL.__init__(self)
+		self.code = Lattice.code
+		Lattice.code += 1
 		self.grid = grid
 		self.chair = chair
 		self.panels = []
@@ -155,6 +160,9 @@ class Lattice(GL):
 		#self.uncoordinateness = 0
 		#self.conflict = False
 		#self.personal_conflict = False
+
+	def __hash__(self):
+		return self.code
 
 	def related(self, lattice2):
 		if self.chair == lattice2.chair:

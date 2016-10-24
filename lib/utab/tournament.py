@@ -414,7 +414,7 @@ class Round:
 		matchup_conv = []
 		for grid in matchup:
 			matchup_conv.append({
-				"team_ids": tools.get_ids(grid.teams),
+				"teams": tools.get_ids(grid.teams),
 				"warnings": [w.status for w in grid.warnings]
 			})
 		matchup_dict["allocation"] = matchup_conv
