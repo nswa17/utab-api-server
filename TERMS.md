@@ -1,5 +1,9 @@
 # 統一用語集
 
+## UTab name
+
+You should use UTab instead utab or Utab.
+
 ## team allocation
 
 * suggested team allocations (list)

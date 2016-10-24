@@ -1,4 +1,4 @@
-# utab API documentations
+# UTab API documentations
 
 ## Files
 
@@ -8,34 +8,36 @@
  + "TERMS.md" - Terms
  + "INSTRUCTIONS.md" - Overview and Interfaces for developers
 
-Documents for Version 1.0 are available at [here](http://utab-api-server.readthedocs.io/en/latest/)
+Documents for UTab API are available at [here](http://UTab-api-server.readthedocs.io/en/latest/)
 
 ## Attention
 
-1. 現在api version 2.0 (Pda update)への対応作業中
+1. 現在api version 2.0 (PDA Official)への対応作業中
 
 1. speaker, institution -> team の順に登録
 
 1. institution -> adjudicator の順に登録
 
-## Code names
+## Code Names
 
-**version 1.0** - Autumn Harvest
+**version 1.0** - Candle Light
 
 **version 2.0** - PDA Official
 
-## Future features
+**version 3.0** - Frosty Night
 
-### Utab api version 2.0 (by 2016/11/20)
+## Future Coming
 
-In the next utab-api version, the following features will be available.
+### UTab api version 2.0 PDA Official (by 2016/11/20)
+
+In the next UTab-api version, the following features will be available.
 
 1. Support DELETE methods
 1. Redundancy of result data
 1. Json format checking on server side
 1. Simple backup system
 
-### Utab api version 3.0 (by 2016/12?)
+### UTab api version 3.0 (by 2016/12?)
 
 1. Authentication
 1. New matching algorithm
@@ -45,7 +47,7 @@ In the next utab-api version, the following features will be available.
 1. Modify result after finishing rounds
 1. Simplify allocation indices
 
-### Utab api version 4.0 (in 2017)
+### UTab api version 4.0 (in 2017)
 
 1. Options for selection algorithm
 1. ラウンド数変更対応(増加含め)
