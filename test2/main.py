@@ -55,4 +55,6 @@ if __name__ == '__main__':
 		print(debater_result)
 		team_result = tt.generate_team_result(final_allocation, STYLE, debater_result, NUM_TEAMS)
 		print(team_result)
+		adjudicator_result = tt.generate_adjudicator_result(final_allocation, STYLE)
+		print(adjudicator_result)
 		break

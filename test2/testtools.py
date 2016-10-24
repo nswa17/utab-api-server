@@ -186,17 +186,20 @@ def send_round_config():
 
 def generate_team_result(d, style, debater_result, num_teams):
 	if style["team_num"] == 4:
-		wins = [0, 1, 2, 3]
+		sides = ["og", "oo", "cg", "co"]
 	else:
-		wins = [0, 1]
+		sides = ["gov", "opp"]
 
 	team_result = {}
 
 	for grid in d:
-		for team_id in grid["teams"]:
+		sides_cp = copy.copy(sides)
+		random.shuffle(sides_cp)
+		for team_id, side in zip(grid["teams"], sides_cp):
 			team_result[team_id] = {}
 			same_team_debaters = [style["debater_num_per_team"]*team_id + j for j in range(style["debater_num_per_team"])]
 			team_result[team_id]["sum"] = sum([sum(debater_result[code]) for code in same_team_debaters])
+			team_result[team_id]["side"] = side
 
 		for team_id in grid["teams"]:
 			if style["team_num"] == 2:
@@ -209,7 +212,7 @@ def generate_team_result(d, style, debater_result, num_teams):
 				team_result[team_id]["margin"] = 0
 
 		teams = copy.copy(grid["teams"])
-		teams.sort(key=lambda code: team_result[code]["sum"], reverse=True)
+		teams.sort(key=lambda code: team_result[code]["sum"])
 		for i,team_id in enumerate(teams):
 			team_result[team_id]["win"] = i
 
@@ -241,6 +244,23 @@ def generate_random_speaker_result(d, style, num_teams):
 			debater_result[debater] = score_list
 
 	return debater_result
+
+def generate_adjudicator_result(d, style):#DONT CONSIDER ROLLING
+	adjudicator_result = {}
+	adj_id = 0
+	for grid in d:
+		watched_teams = grid["teams"]
+		chair_base_score = random.randint(3,8)
+		chair_scores = [chair_base_score + random.randint(-2,+2) for i in range(style["team_num"]+len(grid["panels"]))]
+		adjudicator_result[adj_id] = {"scores": chair_scores, "watched_teams": watched_teams}
+		adj_id += 1
+		for panel in grid["panels"]:
+			panel_base_score = random.randint(3,8)
+			panel_scores = [panel_base_score]
+			adjudicator_result[adj_id] = {"scores": panel_scores, "watched_teams": watched_teams}
+			adj_id += 1
+			
+	return  adjudicator_result
 
 @jsonize
 def send_speaker_result(d, speaker_id, style):
