@@ -11,8 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-    expert_python
-    art
+   expert_python
+   test
+   test/test2   
 
 Indices and tables
 ==================
@@ -20,4 +21,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

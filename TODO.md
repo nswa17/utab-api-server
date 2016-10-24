@@ -32,6 +32,8 @@
 
 ## Do when above finished
 
+1. 無限ラウンド
+
 1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
 1. 冗長性をもたせる
