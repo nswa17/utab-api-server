@@ -1,5 +1,4 @@
-
-# Error Code and Status Code in utab API
+# Error Codes and Status Codes in Utab API
 
 ## Status
 

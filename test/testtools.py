@@ -12,7 +12,7 @@ from subprocess import check_output
 with open(os.path.dirname(__file__)+'/../lib/server/dat/styles.json') as f:
 	styles = json.load(f)
 
-API_VERSION = 'v0.1'
+API_VERSION = 'v1.0'
 JSON_FOLDER = 'jsons'
 TOURNAMENT_NAME = 'testtournament'
 

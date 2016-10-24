@@ -1,4 +1,3 @@
-
 # 統一用語集
 
 ## team allocation
@@ -13,7 +12,7 @@
 
 ## venue allocation
 
-* suggested venue allocation
+* suggested venue allocation (object. not list!)
 * venue allocation (object)
 
 ## modify publicated matchup

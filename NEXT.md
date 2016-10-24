@@ -1,3 +1,7 @@
+# Specific Tournament
+
+[/v1.0/tournament/{tournament_id}]
+
 ### Delete Tournament [DELETE]
 
 + Request (application/json)
@@ -20,7 +24,10 @@
             "resource_url": ""
         }
 ```
-## Available Styles [/v0.1/styles]
+
+# Available Styles
+
+[/v2.0/styles]
 
 ### Add An User Defined Style [PUT]
 
@@ -43,13 +50,10 @@
             "resource_url": ""
         }
 ```
-## All Suggested Team Allocations [/v0.1/{tournament_name}/{round_num}/suggested_team_allocations]
 
-## Team Allocation [/v0.1/{tournament_name}/{round_num}/suggested_team_allocations/{allocation_id}]
+# Team Allocation
 
-+ Parameters
-    + tournament_name (required, string, `test`)
-    + round_num (required, number, `1`)
+[/v2.0/{tournament_name}/{round_num}/suggested_team_allocations/{allocation_id}]
 
 ### Get Team Allocation [GET]
 
@@ -92,8 +96,9 @@
 * `gini_index` 0 <-> 1
 * `scatter_indicator` the lower the better
 
-## Adjudicator Allocation [/v0.1/{tournament_name}/{round_num}/suggested_adjdicator_allocations/{allocation_id}]
+# Adjudicator Allocation
 
+[/v2.0/{tournament_name}/{round_num}/suggested_adjdicator_allocations/{allocation_id}]
 
 ### Get Adudicator Allocation [GET]
 
@@ -123,10 +128,11 @@
             "resource_url": ""
         }
 ```
-## Specific Adjudicator [/v0.1/{tournament_name}/adjudicators/{adjudicator_id}]
+# Specific Adjudicator
 
+[/v2.0/{tournament_name}/adjudicators/{adjudicator_id}]
 
-### Create/Update-if-exist Adjudicator [PUT]
+### Update Adjudicator [PUT] /* if not exist, returns an error */
 
 + Request (application/json)
 
@@ -156,8 +162,9 @@
             }
         }
 ```
-## Specific Speaker [/v0.1/{tournament_name}/speakers/{speaker_id}]
+# Specific Speaker
 
+[/v2.0/{tournament_name}/speakers/{speaker_id}]
 
 ### Create/Update-if-exist Speaker [PUT]
 
@@ -183,7 +190,9 @@
         {
         }
 ```
-## Specific Team [/v0.1/{tournament_name}/teams/{team_id}]
+# Specific Team
+
+[/v2.0/{tournament_name}/teams/{team_id}]
 
 
 ### Create/Update-if-exist Team [PUT]
@@ -221,8 +230,9 @@
         {
         }
 ```
-## Venues [/v0.1/{tournament_name}/venues]
+# Venues 
 
+[/v2.0/{tournament_name}/venues]
 
 ### Create/Update-if-exist Venue [PUT]
 
@@ -261,8 +271,9 @@
         {
         }
 ```
-## Specific Institution [/v0.1/{tournament_name}/institutions/{institution_id}]
+# Specific Institution
 
+[/v2.0/{tournament_name}/institutions/{institution_id}]
 
 ### Create/Update-if-exist Institution [PUT]
 
@@ -302,22 +313,27 @@
         }
 ```
 
-## Speaker Results [/v0.1/{tournament_name}/{round_num}/results/speakers]
+# Total Team Results
 
-
-## Total Team Results [/v0.1/{tournament_name}/results/teams]
-
-### Modify Results [POST]
-
-## Total Adjudicator Results [/v0.1/{tournament_name}/results/adjudicators]
+[/v2.0/{tournament_name}/results/teams]
 
 ### Modify Results [POST]
 
-## Total Speaker Results[/v0.1/{tournament_name}/results/speakers]
+# Total Adjudicator Results
+
+[/v2.0/{tournament_name}/results/adjudicators]
 
 ### Modify Results [POST]
 
-## Backups [/v0.1/{tournament_name}/backups]
+# Total Speaker Results
+
+[/v2.0/{tournament_name}/results/speakers]
+
+### Modify Results [POST]
+
+# Backups
+
+[/v2.0/{tournament_name}/backups]
 
 ### Save Current State [POST]
 
@@ -348,7 +364,9 @@
         }
 ```
 
-## Adjudicator Comments [/v0.1/{tournament_name}/results/adjudicators/comments]
+# Adjudicator Comments
+
+[/v2.0/{tournament_name}/results/adjudicators/comments]
 
 ### Download Comments on Adjudicator [GET]
 

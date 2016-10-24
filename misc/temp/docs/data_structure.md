@@ -1,5 +1,0 @@
-# Data Structure
-
-## Team allocation
-
-##

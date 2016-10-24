@@ -1,7 +1,1 @@
-{
-	"name": "team2",
-	"institution_codes": [1],
-	"debater_codes": [2, 3],
-	"url": "",
-	"available": true
-}
+{"name": "Team2", "url": "", "debater_codes": [4, 5], "available": true, "institution_codes": [3]}

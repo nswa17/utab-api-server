@@ -4,6 +4,17 @@
    contain the root `toctree` directive.
 
 Welcome to utab-api-server's documentation!
+
+By which you can operate UTab!
+
+Version v1.0
+
+* Get -> GET
+* Create -> POST(force=false)
+* Create/Update-if-exist -> PUT
+* Update -> PATCH
+* Delete -> DELETE
+
 ===========================================
 
 Contents:
@@ -11,9 +22,30 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   expert_python
-   test
-   test/test2   
+   apidocs/Adjudicatorresults
+   apidocs/Adjudicators
+   apidocs/Backups
+   apidocs/Institutions
+   apidocs/Round
+   apidocs/Speakerresults
+   apidocs/Speakers
+   apidocs/Specificadjudicator
+   apidocs/Specificinstitution
+   apidocs/Specificspeaker
+   apidocs/Specificteam
+   apidocs/Specifictournament
+   apidocs/Specificvenue
+   apidocs/Styles
+   apidocs/Suggestedadjudicatorallocations
+   apidocs/Suggestedteamallocations
+   apidocs/Suggestedvenueallocation
+   apidocs/Teamresults
+   apidocs/Teams
+   apidocs/Totaladjudicatorresults
+   apidocs/Totalspeakerresults
+   apidocs/Totalteamresults
+   apidocs/Tournaments
+   apidocs/Venues
 
 Indices and tables
 ==================

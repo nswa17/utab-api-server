@@ -1,15 +1,1 @@
-{
-	"judge_criterion":
-	[
-		{
-			"judge_test_percent":100,
-	        "judge_repu_percent":0,
-	        "judge_perf_percent":0
-		},
-		{
-			"judge_test_percent":100,
-	        "judge_repu_percent":0,
-	        "judge_perf_percent":0
-		}
-	]
-}
+{"judge_criterion": [{"judge_test_percent": 100, "judge_repu_percent": 0, "judge_perf_percent": 0}, {"judge_test_percent": 100, "judge_repu_percent": 0, "judge_perf_percent": 0}, {"judge_test_percent": 100, "judge_repu_percent": 0, "judge_perf_percent": 0}, {"judge_test_percent": 100, "judge_repu_percent": 0, "judge_perf_percent": 0}]}

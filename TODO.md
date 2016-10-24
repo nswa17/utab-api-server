@@ -32,7 +32,7 @@
 
 ## Do when above finished
 
-1. 無限ラウンド
+1. 無限ラウンドdeal with changing round num while tournament (unnecessary?)
 
 1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
@@ -64,11 +64,7 @@
 
 1. modified gale shapley
 
-1. deal with changing round num while tournament <!--  unnecessary? -->
-
 1. choose selection algorithm
-
-1. gini_index
 
 1. rank team every round
 

@@ -7,7 +7,7 @@ import json
 from lib.server.controller import *
 import lib.server.src.stools as stools
 
-API_VERSION = 'v0.1'
+API_VERSION = 'v1.0'
 
 URL_styles = '/'+API_VERSION+'/styles'
 URL_tournaments = '/'+API_VERSION+'/tournaments'
