@@ -17,8 +17,6 @@ Create/Update-if-exist -> PUT
 Update -> PATCH
 Delete -> DELETE
 
-## Verification
-
 ## Tournaments [/v0.1/tournaments]
 
 ### List All Tournaments [GET]
@@ -147,27 +145,6 @@ Delete -> DELETE
             "resource_url": "/v0.1/tournaments"
         }
 
-### Delete Tournament [DELETE]
-
-+ Request (application/json)
-
-        {
-            "id": 0,
-            "name": "testtournament"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "errors": null
-            "data":
-            {
-                "id": 0,
-                "name": "testtournament"
-            },
-            "resource_url": ""
-        }
-
 ## Available Styles [/v0.1/styles]
 
 ### List All Styles [GET]
@@ -183,31 +160,10 @@ Delete -> DELETE
                     "debater_num_per_team": 4,
                     "team_num": 2,
                     "score_weights": [1, 1, 1, 0.5],
-                    "replies": [0, 1],/* replier candidates. if 2nd speaker does reply, 1 */
+                    "replies": [0, 1],(replier cnadidates) candidates. if 2nd speaker does reply, 1 */
                     "num_of_replies_per_team": 1
                 }
             ],
-            "resource_url": ""
-        }
-
-### Add An User Defined Style [PUT]
-
-+ Request (application/json)
-
-        {
-            "style_name": "PDA",
-            "debater_num_per_team": 4,
-            "team_num": 2,
-            "score_weights": [1, 1, 1, 0.5],
-            "replies": [0, 1],
-            "num_of_replies_per_team": 1
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "errors": null,
-            "data": same as above,
             "resource_url": ""
         }
 
@@ -337,44 +293,6 @@ Delete -> DELETE
             "resource_url": ""
         }
 
-## Team Allocation [/v0.1/{tournament_name}/{round_num}/suggested_team_allocations/{allocation_id}]
-
-+ Parameters
-    + tournament_name (required, string, `test`)
-    + round_num (required, number, `1`)
-
-### Get Team Allocation [GET]
-
-+ Response 200 (application/json)
-
-        {
-            "errors": [],
-            "data":
-            {
-                "algorithm": "",
-                "indices": {
-                    "power_pairing_indicator": 1.0, /* 1 <-> inf. */
-                    "adopt_indicator": , /* the higher the better */
-                    "adopt_indicator2": , /* the higher the better */
-                    "adopt_indicator_sd": 10, /* Standard Diviation */
-                    "gini_index": 0.0, /* 0 <-> 1 */
-                    "scatter_indicator": 0.0 /* the lower the better */
-                },
-                "large_warings": [""],
-                "allocation": [
-                    {
-                        "teams": [0, 1],
-                        "chairs": []
-                        "panels": [],
-                        "trainees": [],
-                        "venue": null,
-                        "warnings": [""]
-                    }
-                ],
-                "allocation_no": 0
-            },
-            "resource_url": ""
-        }
 
 ### Check Team Allocaiton [PATCH]
 
@@ -472,38 +390,6 @@ Delete -> DELETE
     + tournament_name (required, string, `test`)
     + round_num (required, number, `1`)
 
-### Get Adudicator Allocation [GET]
-
-+ Response 200 (application/json)
-
-        {
-            "errors": [],
-            "data":
-            {
-                "algorithm": "",
-                "indices": {
-                    "power_pairing_indicator": 1.0, /* 1 - inf. */
-                    "adopt_indicator": , /*  */
-                    "adopt_indicator2": , /*  */
-                    "adopt_indicator_sd": 10, /* Standard Diviation */
-                    "gini_index": 0.0, /* 0-1 */
-                    "scatter_indicator": 0.0 /*  */
-                },
-                "large_warings": [""],
-                "allocation":
-                [
-                    {
-                        "warnings": [""],
-                        "teams": [0, 1]
-                        "chairs": [0],
-                        "panels": [1, 2],
-                        "venue": null,
-                        "trainees": []
-                    }
-                ]
-            },
-            "resource_url": ""
-        }
 
 ### Send Adjudicator Allocation [POST]
 
@@ -616,35 +502,6 @@ Delete -> DELETE
             }
         }
 
-### Create/Update-if-exist Adjudicator [PUT]
-
-+ Request (application/json)
-
-        same as create adjudicator
-
-+ Response 200 (application/json)
-
-        same as create adjudicator
-
-### Delete An Adjudicator [DELETE]
-
-+ Request (application/json)
-
-        {
-            "id": 3,
-            "name": "kym"
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "errors": null,
-            "data":
-            {
-                "id": 3,
-                "name": "kym"
-            }
-        }
 
 ## Speakers [/v0.1/{tournament_name}/speakers]
 
@@ -674,30 +531,6 @@ Delete -> DELETE
         }
 
 ### Create Speaker [POST]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
-### Create/Update-if-exist Speaker [PUT]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
-### Delete A Speaker [DELETE]
 
 + Request (application/json)
 
@@ -820,43 +653,6 @@ Delete -> DELETE
         {
         }
 
-### Create/Update-if-exist Venue [PUT]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
-### Update Venue [PATCH]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "hello": adjudicator_id
-        }
-
-### Delete Venue [DELETE]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
 ## Institutions [/v0.1/{tournament_name}/institutions]
 
 ### List All Institutions [GET]
@@ -896,41 +692,6 @@ Delete -> DELETE
         {
         }
 
-### Create/Update-if-exist Institution [PUT]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
-### Update Institution [PATCH]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
-
-### Delete Institution [DELETE]
-
-+ Request (application/json)
-
-        {
-        }
-
-+ Response 200 (application/json)
-
-        {
-        }
 
 ## Team Results [/v0.1/{tournament_name}/{round_num}/results/teams]
 
@@ -1041,8 +802,6 @@ preparing
 
 ## Total Speaker Results[/v0.1/{tournament_name}/results/speakers]
 
-preparing
-
 ## Backups [/v0.1/{tournament_name}/backups]
 
 ### List All Available Backups [GET]
@@ -1080,58 +839,5 @@ preparing
         {
             "errors": null,
             "data": null,
-            "resource_url": ""
-        }
-
-### Save Current State [POST]
-
-+ Request (application/json)
-
-        {
-            "errors": null,
-            "data":
-            {
-                "comment": "backupthis"
-            }
-        }
-
-+ Response 200 (application/json)
-
-        {
-            "errors":null,
-            "data":
-            [
-                {
-                    "date": "2016/01/04-23:59:10",
-                    "comment": "test",
-                    "backup_code": "fda23fds"
-                }
-            ],
-            "resource_url": ""
-        }
-
-## Adjudicator Comments [/v0.1/{tournament_name}/results/adjudicators/comments]
-
-### Download Comments on Adjudicator [GET]
-
-+ Response 200 (application/json)
-
-        {
-            "errors":null,
-            "data":
-            [
-                {
-                    "round": 1,
-                    "comments":
-                    [
-                        {
-                            "comment": "worst judge ever",
-                            "from": "team",
-                            "from_id": 23,
-                            "from_name": "UTK1"
-                        }
-                    ]
-                }
-            ],
             "resource_url": ""
         }
