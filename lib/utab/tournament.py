@@ -519,7 +519,6 @@ class Round:
 			"opponent_ids": data["opponent_ids"],
 			"position": data["position"]
 		}
-
 		#check_result(self.tournament, meta)####################################
 
 		if debater_id in self.raw_results:

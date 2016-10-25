@@ -61,7 +61,7 @@
 + Request (application/json)
 ```
 {
-    "args": {"force": true},
+    "args": {"force": false},
     "data":
     {
         "current_round": 1

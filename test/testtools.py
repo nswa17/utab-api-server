@@ -140,6 +140,20 @@ def confirm_team_allocation(d):
 	return d
 
 @jsonize
+def finish_round(round_num):
+	d = {
+	    "args":
+	    {
+	      "force": False
+	    },
+	    "data": 
+	    {
+	        "current_round": round_num
+	    }
+	}	
+	return d
+
+@jsonize
 def get_suggested_team_allocations():
 	d = {
 	"args": {"force": False}
@@ -184,7 +198,7 @@ def send_round_config():
 
 	return d
 
-def generate_team_result(d, style, debater_result, num_teams):
+def generate_random_team_results(d, style, debater_result, num_teams):
 	if style["team_num"] == 4:
 		sides = ["og", "oo", "cg", "co"]
 	else:
@@ -215,10 +229,13 @@ def generate_team_result(d, style, debater_result, num_teams):
 		teams.sort(key=lambda code: team_result[code]["sum"])
 		for i,team_id in enumerate(teams):
 			team_result[team_id]["win"] = i
+			opponent_ids = copy.copy(teams)
+			opponent_ids.remove(team_id)
+			team_result[team_id]["opponents"] = opponent_ids
 
 	return team_result
 
-def generate_random_speaker_result(d, style, num_teams):
+def generate_random_speaker_results(d, style, num_teams):
 	if style["team_num"] == 4:
 		sides = ["og", "oo", "cg", "co"]
 	else:
@@ -245,43 +262,67 @@ def generate_random_speaker_result(d, style, num_teams):
 
 	return debater_result
 
-def generate_adjudicator_result(d, style):#DONT CONSIDER ROLLING
+def generate_random_adjudicator_results(d, style):#DONT CONSIDER ROLLING
 	adjudicator_result = {}
-	adj_id = 0
 	for grid in d:
-		watched_teams = grid["teams"]
-		chair_base_score = random.randint(3,8)
-		chair_scores = [chair_base_score + random.randint(-2,+2) for i in range(style["team_num"]+len(grid["panels"]))]
-		adjudicator_result[adj_id] = {"scores": chair_scores, "watched_teams": watched_teams}
-		adj_id += 1
-		for panel in grid["panels"]:
-			panel_base_score = random.randint(3,8)
-			panel_scores = [panel_base_score]
-			adjudicator_result[adj_id] = {"scores": panel_scores, "watched_teams": watched_teams}
+		for adj_id in grid["chairs"] + grid["panels"]:
+			watched_teams = grid["teams"]
+			chair_base_score = random.randint(3,8)
+			chair_scores = [chair_base_score + random.randint(-2,+2) for i in range(style["team_num"]+len(grid["panels"]))]
+			adjudicator_result[adj_id] = {"scores": chair_scores, "watched_teams": watched_teams}
 			adj_id += 1
+			for panel in grid["panels"]:
+				panel_base_score = random.randint(3,8)
+				panel_scores = [panel_base_score]
+				adjudicator_result[adj_id] = {"scores": panel_scores, "watched_teams": watched_teams}
 			
 	return  adjudicator_result
 
 @jsonize
-def send_speaker_result(d, speaker_id, style):
+def send_speaker_result(d, style, speaker_result, team_result, debater_id, num_debaters, num_teams):
+	data = {}
+	data["override"] = False
 
-	d = {
-		"override": False,
-		"result":
-		{   
-		    "from_id": 2,
-		    "debater_id": 0,
-		    "current_round": 1,
-		    "team_id": 0,
-	        "scores": [78, 0, 39],
-	        "win_point": 1,
-	        "opponents": [1],
-	        "side": "gov"
-	    }
-	}
+	result = {}
+	result["scores"] = speaker_result[debater_id]
+	team_id = debater_id//style["team_num"]
+	result["team_id"] = team_id
+	result["current_round"] = 1############################NEEDFIX
+	result["debater_id"] = debater_id
+	result["win_point"] = team_result[team_id]["win"]
+	result["opponents"] = team_result[team_id]["opponents"]
+	result["side"] = team_result[team_id]["side"]
+	result["from_id"] = 3###################NEEDFIX
 
 
+	data["result"] = result
 
+	return data
+
+@jsonize
+def send_adjudicator_result(d, style, adjudicator_result, adjudicator_id):
+	data = {}
+	data["override"] = False
+	result = {}
+	for grid in d:
+		if adjudicator_id in grid["chairs"]:
+			result["chair"] = True
+			result["teams"] = grid["teams"]
+			break
+		if adjudicator_id in grid["panels"]:
+			result["chair"] = False
+			result["teams"] = grid["teams"]
+			break
+	result["adjudicator_id"] = adjudicator_id
+	result["score"] = sum(adjudicator_result[adjudicator_id]["scores"])/len(adjudicator_result[adjudicator_id]["scores"])###########NEEDFIX
+	result["from"] = "team"
+	result["from_id"] = 0
+	result["comment"] = ""
+	result["round"] = 1#########################NEEDFIX
+
+	data["result"] = result
+
+	return data
 
 
 def export_and_send(func):
@@ -353,7 +394,7 @@ def add_team_exporter(path, num_teams, num_institutions, style, fname="add_team"
 	return fnames
 
 @export_and_send
-def add_adjudicator_exporter(path, num_adjudicators, num_teams, num_institutions, fname="JSON_FOLDER+add_adjudicator", method='POST'):
+def add_adjudicator_exporter(path, num_adjudicators, num_teams, num_institutions, fname="add_adjudicator", method='POST'):
 	fnames = []
 	for i in range(num_adjudicators):
 		reputation = random.choice(range(1, 10))
@@ -439,6 +480,18 @@ def get_suggested_venue_allocation_exporter(path, fname="", method='GET'):
 	return [""]
 
 @export_and_send
+def download_total_speaker_results_exporter(path, fname="", method='GET'):
+	return [""]
+
+@export_and_send
+def download_total_team_results_exporter(path, fname="", method='GET'):
+	return [""]
+
+@export_and_send
+def download_total_adjudicator_results_exporter(path, fname="", method='GET'):
+	return [""]
+
+@export_and_send
 def confirm_venue_allocation_exporter(path, d, fname="", method='POST'):
 	fnames = []
 	j = confirm_venue_allocation(d)
@@ -448,6 +501,43 @@ def confirm_venue_allocation_exporter(path, d, fname="", method='POST'):
 
 	return fnames
 
+@export_and_send
+def send_speaker_result_exporter(path, d, style, num_debaters, num_teams, fname="send_speaker_result", method='POST'):
+	fnames = []
+	speaker_result = generate_random_speaker_results(d, style, num_teams)
+	team_result = generate_random_team_results(d, style, speaker_result, num_teams)
+	present_debaters = [t_id*style["debater_num_per_team"] + i for i in range(style["debater_num_per_team"]) for grid in d for t_id in grid["teams"]]
+
+	for debater_id in present_debaters:
+		j = send_speaker_result(d, style, speaker_result, team_result, debater_id, num_debaters, num_teams)
+		_fname = fname+str(debater_id)+'.json'
+		export_json(j, _fname)
+		fnames.append(_fname)
+
+	return fnames
+
+@export_and_send
+def send_adjudicator_result_exporter(path, d, style, num_adjudicators, fname="send_adjudicator_result", method='POST'):
+	fnames = []
+	adjudicator_result = generate_random_adjudicator_results(d, style)
+	present_adjudicators = [a for grid in d for a in grid["chairs"]] + [a for grid in d for a in grid["panels"]]
+	for adjudicator_id in present_adjudicators:
+		j = send_adjudicator_result(d, style, adjudicator_result, adjudicator_id)
+		_fname = fname+str(adjudicator_id)+'.json'
+		export_json(j, _fname)
+		fnames.append(_fname)
+
+	return fnames
+
+@export_and_send
+def finish_round_exporter(path, round_num, fname="finish_round", method='POST'):
+	fnames = []
+	j = finish_round(round_num)
+	_fname = fname+'.json'
+	export_json(j, _fname)
+	fnames.append(_fname)
+
+	return fnames
 """
 print(send_data(path='testtournament/'+str(round_num)+'/suggested_team_allocations', json_file_name='get_suggested_team_allocations.json', method='POST'))
 print(send_data(path='testtournament/'+str(round_num)+'/suggested_team_allocations/0', json_file_name='confirm_team_allocation.json', method='POST'))

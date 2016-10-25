@@ -5,9 +5,14 @@
 
 Welcome to utab-api-server's documentation!
 
+Welcome
+=======
+
 By which you can operate UTab!
 
 Version v1.0
+
+==========================================
 
 * Get -> GET
 * Create -> POST(force=false)
@@ -17,7 +22,8 @@ Version v1.0
 
 ===========================================
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
@@ -53,3 +59,16 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Newly Added
+===========
+
+.. toctree::
+   :maxdepth: 2
+
+ 
+   apidocs/Venues
+   apidocs/Tournaments
+
+* :ref:`modindex`
+

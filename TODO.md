@@ -2,6 +2,8 @@
 
 ## Need early fix
 
+1. 変数のprivate化
+
 1. styles中身確認
 
 1. codeを自動化

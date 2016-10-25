@@ -60,7 +60,7 @@
 ```
 + Response 200 (application/json)
 
-### Send Team Allocation [POST] /* この上でも良い?(id不要) */
+### Send Team Allocation [POST]
 
 + Request(application/json)
 ```
