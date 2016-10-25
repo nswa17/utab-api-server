@@ -1,7 +1,7 @@
-﻿# Utab
+﻿# UTab
 
-**Utab** is a online tab software for all debates.
-This document describes Web API interface for utab.
+**UTab** is a online tab software for all debates.
+This document describes Web API interface for UTab.
 
 ## API Version
 

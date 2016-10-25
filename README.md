@@ -1,4 +1,6 @@
-# UTab API documentations
+# UTab API Server
+
+UTab api server provides interfaces to operate UTab.
 
 ## Files
 
@@ -11,6 +13,16 @@
 ## Documents
 
 Documents for UTab API are available at [here](http://UTab-api-server.readthedocs.io/en/latest/)
+
+## Usage
+
+1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-api-server`
+
+2. Install dependencies. `pip install bottle`
+
+3. Move to repository folder. `utab-api-server`
+
+4. Run app.py. `python(3) app.py`.
 
 ## Attention
 
