@@ -20,7 +20,7 @@ Documents for UTab API are available at [here](http://UTab-api-server.readthedoc
 
 2. Install dependencies. `pip install bottle`
 
-3. Move to repository folder. `utab-api-server`
+3. Move to repository folder. `cd utab-api-server`
 
 4. Run app.py. `python(3) app.py`.
 
@@ -44,26 +44,40 @@ Documents for UTab API are available at [here](http://UTab-api-server.readthedoc
 
 ### UTab api version 2.0 PDA Official (by 2016/11/20)
 
-In the next UTab-api version, the following features will be available.
+**To improve safety**
 
-1. Support DELETE methods
+Planning to support
+1. DELETE methods
 1. Redundancy of result data
 1. Json format checking on server side
-1. Simple backup system
+1. Simple backing up system
 1. Logging
 
 ### UTab api version 3.0 (by 2016/12?)
 
+**To have more usability**
+
+Planning to support
 1. Authentication
-1. New matching algorithm
 1. Official backup support
-1. 複数chair対応
-1. Trainee 対応
+1. Multiple chairs
+1. Trainees
 1. Modify result after finishing rounds
 1. Simplify allocation indices
 
 ### UTab api version 4.0 (in 2017)
 
+**To improve internal algorithms**
+
+Planning to support
 1. Options for selection algorithm
-1. ラウンド数変更対応(増加含め)
-1. speaker と team 登録などの順番を交換可能にする
+1. New matching algorithm
+1. Adding rounds during operation
+1. Exchanging order of registration of speakers and teams
+1. Mstat
+
+### UTab api future version
+
+1. Modifying result after rounds
+1. Speaker based institution
+1. Use threading.Lock() only for the same tournament

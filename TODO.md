@@ -1,78 +1,26 @@
-# TODOs
-
-## Need early fix
-
-1. autobackup
-
-1. check allocation
-
-1. 変数のprivate化
-
-1. styles中身確認
-
-1. constants揃ってるか確認
-
-1. verify received round num
-
-1. Error to TextJSON
-
-1. realtime check system -> free from grid_list, lattice_list
-
-1. list all information to send @ apiary
-
-1. define exceptions
-
-1. teamnum and team_num_per_round
-
-1. what if an error occurs when controller is called
-
-1. check received json format
+# FUTURE TODOs
 
 1. round_num -> current_round
 
-1. random test program
-
-## Do when above finished
-
-1. Lockをトーナメントごとにできない?
-
-1. team based institution ではなく speaker based institution
-
-1. 無限ラウンドdeal with changing round num while tournament (unnecessary?)
+1. 変数のprivate化
 
 1. いきなりcheck_allocationが呼ばれた場合, grid_listが完成していない
 
-1. 冗長性をもたせる
-
 1. Integrate grid, lattice
-
-1. Implementing DELETE method
 
 1. lock が働いているか. (thread test)
 
-1. speaker と team 登録の順番を交換可能にする(Noneで登録してラウンド進むときにチェック)
-
 1. don't consider breaknum when breaknum == 0
-
-1. 複数チェアに対応
-
-1. modify result
-
-1. authentication
 
 1. solve state dependencies(make it possible to interrupt allocation selection phase) (チーム配置確定後ジャッジ配置を考えるときにチームを変えられない)
 
+<!--
 1. use database(mongodb?)
 
 	* back up data instead of db?
 
 	* define getter and setter, change variables `self.x` to `self.__x`
-
-1. modified gale shapley
-
-1. choose selection algorithm
-
-1. rank team every round
+-->
 
 1. large warningsをimporove
 

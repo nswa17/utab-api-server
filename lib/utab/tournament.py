@@ -793,3 +793,15 @@ class Round:
 			adjudicator.dummy_finishing_process(self.tournament.style)
 	
 		self.__round_status = 13
+
+	@callable_at(12, 13, 14)
+	def get_team_results(self):
+		pass
+		
+	@callable_at(12, 13, 14)
+	def get_debater_results(self):
+		pass
+
+	@callable_at(13, 14)
+	def get_adjudicator_results(self):
+		pass
