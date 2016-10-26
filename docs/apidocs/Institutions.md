@@ -4,8 +4,20 @@
 
 ### List All Institutions [GET]
 
-+ Response 200 (application/json)
+preparing
+
 ```
 {
+    "errors": null,
+    "data":
+    [
+	    {
+	        "id": 2,
+	        "name": "KYM",
+	        "url": "",
+	        "scale": 'a',
+	    }
+	],
+    "resource_url": ""
 }
 ```

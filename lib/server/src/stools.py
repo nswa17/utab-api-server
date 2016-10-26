@@ -57,7 +57,6 @@ def make_json(resource_url):
 		def _(*args, **kwargs):
 			retvals = func(*args, **kwargs)
 			resource_url_rev = replace_resource_url(resource_url, kwargs)
-
 			if len(retvals) == 2:
 				return set_json_response(data=retvals[0], errors=retvals[1], resource_url=resource_url_rev)
 			elif len(retvals) == 1:

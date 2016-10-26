@@ -4,8 +4,18 @@
 
 ### List All Speakers [GET]
 
-+ Response 200 (application/json)
 ```
 {
+    "errors":
+    "data":
+    [
+	    {
+	        "id": 1,
+	        "name": "kym",
+	        "team": 0,
+	        "url": ""
+	    }
+	],
+	'resource_url' = ''
 }
 ```

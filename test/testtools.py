@@ -165,6 +165,14 @@ def confirm_venue_allocation(d):
 	return d
 
 @jsonize
+def save_backup():
+	d = {
+		"comment": "testbackup"
+	}
+
+	return d
+
+@jsonize
 def send_round_config():
 	d = {
 		"constants":
@@ -455,10 +463,6 @@ def confirm_team_allocation_exporter(path, d, fname="confirm_team_allocation", m
 	return fnames
 
 @export_and_send
-def get_suggested_adjudicator_allocations_exporter(path, fname="", method='GET'):
-	return [""]
-
-@export_and_send
 def confirm_adjudicator_allocation_exporter(path, d, fname="", method='POST'):
 	fnames = []
 	j = confirm_adjudicator_allocations(d)
@@ -469,19 +473,7 @@ def confirm_adjudicator_allocation_exporter(path, d, fname="", method='POST'):
 	return fnames
 
 @export_and_send
-def get_suggested_venue_allocation_exporter(path, fname="", method='GET'):
-	return [""]
-
-@export_and_send
-def download_total_speaker_results_exporter(path, fname="", method='GET'):
-	return [""]
-
-@export_and_send
-def download_total_team_results_exporter(path, fname="", method='GET'):
-	return [""]
-
-@export_and_send
-def download_total_adjudicator_results_exporter(path, fname="", method='GET'):
+def simple_get_exporter(path, fname='', method='GET'):
 	return [""]
 
 @export_and_send
@@ -526,6 +518,16 @@ def send_adjudicator_result_exporter(path, d, style, num_adjudicators, fname="se
 def finish_round_exporter(path, round_num, fname="finish_round", method='POST'):
 	fnames = []
 	j = finish_round(round_num)
+	_fname = fname+'.json'
+	export_json(j, _fname)
+	fnames.append(_fname)
+
+	return fnames
+
+@export_and_send
+def save_backup_exporter(path, fname="save_backup", method='POST'):
+	fnames = []
+	j = save_backup()
 	_fname = fname+'.json'
 	export_json(j, _fname)
 	fnames.append(_fname)

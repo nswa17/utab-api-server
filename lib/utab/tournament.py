@@ -8,6 +8,7 @@ from src.result import *
 from src.db import *
 import src.tools as tools
 from collections import OrderedDict
+import pickle
 
 class Tournament:
 	def __init__(self, name, code, round_num, style, host, url, break_team_num = 0):
@@ -22,16 +23,106 @@ class Tournament:
 		self.debater_list = []
 		self.venue_list = []
 		self.institution_list = []
-		self.rounds = [Round(i+1, self) for i in range(round_num)]
+		self.__rounds = [Round(i+1, self) for i in range(round_num)]
 		self.judge_criterion = None
 		self.break_team_num = break_team_num
-		self.now_round = 1
-		self.finished = False
+		self.__now_round = 1
+		self.__finished = False
 		self.analysis = None
 
+	def fetch_venue(self, code):
+		data = {}
+		venue = tools.find_element_by_id(self.venue_list, code)
+		data['code'] = venue.code
+		data['name'] = venue.name
+		data['available'] = venue.available
+		data['priority'] = venue.priority
+		data['url'] = venue.url
+		return data
+
+	def list_venues(self):
+		data = []
+		for code in tools.get_ids(self.venue_list):
+			data.append(self.fetch_venue(code))
+		return data
+
+	def fetch_debater(self, code):
+		data = {}
+		debater = tools.find_element_by_id(self.debater_list, code)
+		data['code'] = debater.code
+		data['name'] = debater.name
+		data['team'] = debater.team
+		data['url'] = debater.url
+		return data
+
+	def list_debaters(self):
+		data = []
+		for code in tools.get_ids(self.debater_list):
+			data.append(self.fetch_debater(code))
+		return data
+
+	def fetch_institution(self, code):
+		data = {}
+		institution = tools.find_element_by_id(self.institution_list, code)
+		data['code'] = institution.code
+		data['name'] = institution.name
+		data['scale'] = institution.scale
+		data['url'] = institution.url
+		return data
+
+	def list_institutions(self):
+		data = []
+		for code in tools.get_ids(self.institution_list):
+			data.append(self.fetch_institution(code))
+		return data
+
+	def fetch_team(self, code):
+		data = {}
+		team = tools.find_element_by_id(self.team_list, code)
+		data['code'] = team.code
+		data['name'] = team.name
+		data['speakers'] = tools.get_ids(team.debaters)
+		data['available'] = team.available
+		data['url'] = team.url
+		return data
+
+	def list_teams(self):
+		data = []
+		for code in tools.get_ids(self.team_list):
+			data.append(self.fetch_team(code))
+		return data
+
+	def fetch_adjudicator(self, code):
+		data = {}
+		adjudicator = tools.find_element_by_id(self.adjudicator_list, code)
+		data['code'] = adjudicator.code
+		data['name'] = adjudicator.name
+		data['reputation'] = adjudicator.reputation
+		data['judge_test'] = adjudicator.judge_test
+		data['institutions'] = tools.get_ids(adjudicator.institutions)
+		data['conflicts'] = tools.get_ids(adjudicator.conflict_teams)
+		data['url'] = adjudicator.url
+		data['available'] = not adjudicator.absent
+		return data
+
+	def list_adjudicators(self):
+		data = []
+		for code in tools.get_ids(self.adjudicator_list):
+			data.append(self.fetch_adjudicator(code))
+		return data
+
+	def proceed_round(self):
+		self.__now_round += 1
+
+	def now_round_num(self):
+		return self.__now_round
+
+	def now_round(self):
+		return self.__rounds[self.__now_round-1]
+
 	def start_round(self, force=False):
-		self.rounds[self.now_round-1].set(force=force)
-		return self.rounds[self.now_round-1]
+		self.__rounds[self.__now_round-1].set(force=force)
+		return self.__rounds[self.__now_round-1]
 
 	def add_judge_criterion(self, judge_criterion_dicts):
 		self.judge_criterion = judge_criterion_dicts
@@ -115,23 +206,9 @@ class Tournament:
 	def delete_institution(self, institution_or_code):
 		delete_element(self.institution_list, institution_or_code)
 
-	def list_adjudicators(self):
-		pass
-
-	def list_teams(self):
-		pass
-
-	def list_venues(self):
-		pass
-
-	def list_speakers(self):
-		pass
-
-	def list_institutions(self):
-		pass
-
 	def end(self):
-		#issue results
+		self.__finished = True
+		#issue analysis
 		pass
 
 	def total_debater_results(self):
@@ -224,7 +301,6 @@ class Round:
 	def __init__(self, r, tournament):
 		self.r = r    #	round No. ex) Round 1 => 1
 		self.tournament = tournament
-		self.prepared = False    #	True if round preparation has finished
 		self.grid_list = Grid_list()
 		self.lattice_list = None
 		self.suggested_matchups = None
@@ -260,7 +336,7 @@ class Round:
 	def only_this_round(func):
 		def _(*args, **kwargs):
 			self = args[0]
-			if self.r == self.tournament.now_round:
+			if self.r == self.tournament.now_round_num():
 				ret_val = func(*args, **kwargs)
 				return ret_val
 			else:
@@ -317,7 +393,7 @@ class Round:
 	@callable_at(0)
 	@only_this_round
 	def set(self, force = False):
-		if self.tournament.now_round != self.r:
+		if self.tournament.now_round_num() != self.r:
 			raise Exception("prior round is not finished")
 		if self.tournament.judge_criterion is None:
 			raise Exception('judge criterion is not set')
@@ -576,9 +652,9 @@ class Round:
 		self.__round_status = 13
 
 		if not force:
-			check_team_list2(self.tournament.team_list, self.tournament.now_round, self.tournament.style["team_num"])
+			check_team_list2(self.tournament.team_list, self.tournament.now_round_num(), self.tournament.style["team_num"])
 
-		self.tournament.now_round += 1
+		self.tournament.proceed_round()
 		self.__round_status = 14
 
 	@callable_at(10)

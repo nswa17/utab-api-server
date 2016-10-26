@@ -2,9 +2,13 @@
 from bottle import HTTPResponse
 from threading import Lock
 import json
+import datetime
+import pickle
 
 import sys
 import os
+
+BACKUP_FOLDER = 'share'
 
 with open(os.path.dirname(__file__)+'/dat/styles.json') as f:
 	styles = json.load(f)
@@ -19,20 +23,12 @@ import server.src.stools as stools
 tournaments = {
 }
 
-"""
-tournaments_backups = {
-	"code":
-	{
-		"date": None,
-		"comment": "",
-		"filename": ""
-	}
-}
-"""
+
+backups = {}
 
 common_lock = Lock()
 
-def list_all_styles():
+def list_styles():
 	data = []
 	errors = []
 	for v in styles.values():
@@ -66,7 +62,7 @@ def add_style(req):
 
 	return data, errors
 
-def list_all_tournaments():
+def list_tournaments():
 	data = []
 	errors = []
 	data["tournaments"] = []
@@ -100,6 +96,85 @@ def fetch_tournament(tournament_name):
 
 	return data, errors
 
+def create_backup_folder(path):
+	os.makedirs(path)
+
+def read_backup_dict(path):
+	with open(path, 'r') as f:
+		backup_dict = json.load(f)
+
+	return backup_dict
+
+@stools.lock_with(common_lock)
+def initialize_backups():
+	path = './'+BACKUP_FOLDER+'/backup_dict.json'
+	return read_backup_dict(path)
+
+def save_backup_dict(path, backup_dict):
+	with open(path, 'w') as f:
+		json.dump(backup_dict, f)
+
+@stools.lock_with(common_lock)
+def save_backup(tournament_name, req):
+	errors = []
+	t = tournaments[tournament_name]
+	today =  datetime.datetime.today()
+	nowtime = today.strftime("%Y%m%d%H%M%S")
+
+	backup_dict_path = './'+BACKUP_FOLDER+'/backup_dict.json'
+	folder_path = './'+BACKUP_FOLDER+'/'+t.name
+
+	backup_dict = read_backup_dict(backup_dict_path)
+
+	with open(folder_path+'/'+nowtime, 'wb') as f:
+		pickle.dump(t, f)
+
+	data = {
+		"name": t.name,
+		"date": nowtime,
+		"comment": req["comment"],
+		"current_round": t.now_round_num()
+	}
+
+	if t.name not in backups:
+		backups[t.name] = [data]
+	else:
+		backups[t.name].append(data)
+	if t.name not in backup_dict:
+		backup_dict[t.name] = [data]
+	else:
+		backup_dict[t.name].append(data)
+
+	save_backup_dict(backup_dict_path, backup_dict)
+
+	return data, errors
+
+def list_backups(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	if t.name not in backups:
+		data = []
+	else:
+		data = backups[t.name]
+
+	return data, errors
+
+@stools.lock_with(common_lock)
+def import_backup(tournament_name, req):
+	data = []
+	errors = []
+	t = tournaments[tournament_name]
+	date = req['date']
+	name = req['name']
+
+	file_path = './'+BACKUP_FOLDER+'/'+name+'/'+date
+	with open(file_path, 'rb') as f:
+		loaded_tournament = pickle.load(f)
+
+	tournaments[tournament_name] = loaded_tournament
+
+	return data, errors
+
 @stools.lock_with(common_lock)
 def create_tournament(req):######################
 	errors = []
@@ -126,6 +201,10 @@ def create_tournament(req):######################
 		data["judge_criterion"] = new_tournament.judge_criterion
 		data["break_team_num"] = new_tournament.break_team_num
 
+		folder_path = './'+BACKUP_FOLDER+'/'+str(new_tournament.name)
+		if not os.path.isdir(folder_path):
+			create_backup_folder(folder_path)
+
 	return data, errors
 
 def fetch_round(tournament_name, round_num):
@@ -134,7 +213,7 @@ def fetch_round(tournament_name, round_num):
 	if round_num not in range(1, len(tournaments[tournament_name].round_num)+1):
 		errors.append(stools.set_error(500, "round num not found", ""))########################
 	else:
-		_round = tournaments[tournament_name].rounds[round_num-1]
+		_round = tournaments[tournament_name].now_round()
 		data = {
 	        "num_of_rounds": tournaments[tournament_name].round_num,
 	        "status": _round.round_status,
@@ -148,7 +227,7 @@ def fetch_round(tournament_name, round_num):
 def send_round_config(tournament_name, round_num, req):
 	data = {}
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	constants = req["constants"]
 	constants_of_adj = req["constants_of_adj"]
 	r.set_constants(constants["random_pairing"], constants["des_power_pairing"], constants["des_w_o_same_a_insti"], constants["des_w_o_same_b_insti"], constants["des_w_o_same_c_insti"], constants["des_w_o_same_opp"], constants["des_with_fair_sides"])
@@ -163,7 +242,7 @@ def send_round_config(tournament_name, round_num, req):
 def finish_round(tournament_name, round_num, req):
 	errors = []
 	data = {}
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	r.end(force=req["args"]["force"])
 
 	return data, errors
@@ -195,7 +274,7 @@ def get_suggested_team_allocations(tournament_name, round_num, req):
 def check_team_allocation(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	selected_grid_list, code = r.add_imported_matchup(req)
 	data = r.respond_matchup(code)
 
@@ -205,7 +284,7 @@ def check_team_allocation(tournament_name, round_num, req):
 def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
 	data = []
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	selected_grid_list, code = r.add_imported_matchup(req)
 
 	r.set_matchup(selected_grid_list)
@@ -216,7 +295,7 @@ def confirm_team_allocation(tournament_name, round_num, allocation_id, req):
 @stools.lock_with(common_lock)
 def get_suggested_adjudicator_allocations(tournament_name, round_num):
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	r.compute_allocations()
 	data = r.respond_allocations()
 
@@ -226,7 +305,7 @@ def get_suggested_adjudicator_allocations(tournament_name, round_num):
 def check_adjudicator_allocation(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	data = r.respond_allocation(code)
 
@@ -235,7 +314,7 @@ def check_adjudicator_allocation(tournament_name, round_num, req):
 @stools.lock_with(common_lock)
 def confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, req):
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	r.set_allocation(selected_lattice_list)
 	data = r.respond_allocation()
@@ -245,7 +324,7 @@ def confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, re
 @stools.lock_with(common_lock)
 def get_suggested_venue_allocation(tournament_name, round_num):
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	r.compute_venue_allocation()
 	data = r.respond_allocation()
 
@@ -254,7 +333,7 @@ def get_suggested_venue_allocation(tournament_name, round_num):
 @stools.lock_with(common_lock)
 def confirm_venue_allocation(tournament_name, round_num, req):
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	selected_lattice_list, code = r.add_imported_allocation(req)
 	r.set_allocation(selected_lattice_list)
 	data = r.respond_allocation()
@@ -277,6 +356,25 @@ def add_adjudicator(tournament_name, req):
 	data["available"] = not adj.absent
 	return data, errors
 
+def fetch_adjudicator(tournament_name, adjudicator_id):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.fetch_adjudicator(adjudicator_id)
+	data["id"] = data["code"]
+	del data["code"]
+
+	return data, errors
+
+def list_adjudicators(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.list_adjudicators()
+	for ele in data:
+		ele["id"] = ele["code"]
+		del ele["code"]
+
+	return data, errors
+
 @stools.lock_with(common_lock)
 def add_team(tournament_name, req):
 	data = {}
@@ -291,6 +389,25 @@ def add_team(tournament_name, req):
 	data["available"] = team.available
 	return data, errors
 
+def fetch_team(tournament_name, team_id):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.fetch_team(team_id)
+	data["id"] = data["code"]
+	del data["code"]
+
+	return data, errors
+
+def list_teams(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.list_teams()
+	for ele in data:
+		ele["id"] = ele["code"]
+		del ele["code"]
+
+	return data, errors
+
 @stools.lock_with(common_lock)
 def add_speaker(tournament_name, req):
 	data = {}
@@ -300,6 +417,25 @@ def add_speaker(tournament_name, req):
 	data["id"] = debater.code
 	data["name"] = debater.name
 	data["url"] = debater.url
+
+	return data, errors
+
+def fetch_speaker(tournament_name, speaker_id):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.fetch_debater(speaker_id)
+	data["id"] = data["code"]
+	del data["code"]
+
+	return data, errors
+
+def list_speakers(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.list_debaters()
+	for ele in data:
+		ele["id"] = ele["code"]
+		del ele["code"]
 
 	return data, errors
 
@@ -316,6 +452,25 @@ def add_venue(tournament_name, req):
 	data["url"] = venue.url
 	return data, errors
 
+def fetch_venue(tournament_name, venue_id):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.fetch_venue(venue_id)
+	data["id"] = data["code"]
+	del data["code"]
+
+	return data, errors
+
+def list_venues(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.list_venues()
+	for ele in data:
+		ele["id"] = ele["code"]
+		del ele["code"]
+
+	return data, errors
+
 @stools.lock_with(common_lock)
 def add_institution(tournament_name, req):
 	data = {}
@@ -326,6 +481,25 @@ def add_institution(tournament_name, req):
 	data["name"] = institution.name
 	data["url"] = institution.url
 	data["scale"] = institution.scale
+	return data, errors
+
+def fetch_institution(tournament_name, institution_id):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.fetch_institution(institution_id)
+	data["id"] = data["code"]
+	del data["code"]
+
+	return data, errors
+
+def list_institutions(tournament_name):
+	errors = []
+	t = tournaments[tournament_name]
+	data = t.list_institutions()
+	for ele in data:
+		ele["id"] = ele["code"]
+		del ele["code"]
+
 	return data, errors
 
 @stools.lock_with(common_lock)
@@ -348,7 +522,7 @@ def set_judge_criterion(tournament_name, req):
 def send_speaker_result(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	req["result"]["opponent_ids"] = req["result"]["opponents"]
 	req["result"]["position"] = req["result"]["side"]
 	uid = req["result"]["from_id"]
@@ -360,7 +534,7 @@ def send_speaker_result(tournament_name, round_num, req):
 def send_adjudicator_result(tournament_name, round_num, req):
 	data = []
 	errors = []
-	r = tournaments[tournament_name].rounds[round_num-1]
+	r = tournaments[tournament_name].now_round()
 	req["result"]["team_ids"] = req["result"]["teams"]
 
 	uid = req["result"]["from_id"] if req["result"]["from"] == 'team' else -req["result"]["from_id"]

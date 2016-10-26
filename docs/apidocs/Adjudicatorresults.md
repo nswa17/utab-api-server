@@ -15,6 +15,7 @@ preparing
 }
 ```
 -->
+
 ### Send Adjudicator Result [PUT]
 
 + Request (application/json)

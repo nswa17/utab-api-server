@@ -26,11 +26,11 @@ Documents for UTab API are available at [here](http://UTab-api-server.readthedoc
 
 ## Attention
 
-1. 現在api version 2.0 (PDA Official)への対応作業中
-
 1. speaker, institution -> team の順に登録
 
 1. institution -> adjudicator の順に登録
+
+1. トーナメント名に限っては重複不可能. スペースもなし.
 
 ## Code Names
 

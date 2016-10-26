@@ -23,17 +23,30 @@ SEED = 100
 
 
 if __name__ == '__main__':
+
 	th = Thread(target=run, kwargs={"host":'localhost', "port":8080, "debug":True, "server":'cherrypy'})
 	th.setDaemon(True)
 	th.start()
 	tt.set_seed(SEED)
 
 	print(tt.create_tournament_exporter('tournaments', STYLE, TOURNAMENT_NAME, NUM_OF_ROUNDS, method='POST'))
+	print(tt.save_backup_exporter('testtournament/backups', method='POST'))
+	print(tt.simple_get_exporter('testtournament/backups', method='GET'))
 	print(tt.add_institution_exporter(TOURNAMENT_NAME+'/institutions/', NUM_INSTITUTIONS, method='POST'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/institutions', method='GET'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/institutions/0', method='GET'))
 	print(tt.add_debater_exporter(TOURNAMENT_NAME+'/speakers/', NUM_DEBATERS, method='POST'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/speakers', method='GET'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/speakers/0', method='GET'))
 	print(tt.add_team_exporter(TOURNAMENT_NAME+'/teams/', NUM_TEAMS, NUM_INSTITUTIONS, STYLE, method='POST'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/teams/0', method='GET'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/teams', method='GET'))
 	print(tt.add_adjudicator_exporter(TOURNAMENT_NAME+'/adjudicators/', NUM_ADJUDICATORS, NUM_TEAMS, NUM_INSTITUTIONS, method='POST'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/adjudicators', method='GET'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/adjudicators/0', method='GET'))
 	print(tt.add_venue_exporter(TOURNAMENT_NAME+'/venues/', NUM_VENUES, method='POST'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/venues', method='GET'))
+	print(tt.simple_get_exporter(TOURNAMENT_NAME+'/venues/0', method='GET'))
 	print(tt.set_judge_criterion_exporter(TOURNAMENT_NAME, NUM_OF_ROUNDS, method='PUT'))
 
 	for i in range(1, NUM_OF_ROUNDS+1):
@@ -42,11 +55,11 @@ if __name__ == '__main__':
 		print(stas)
 		print(tt.confirm_team_allocation_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_team_allocations/0', stas[0]['data'][0]['allocation'], method='POST'))
 
-		stas2 = tt.get_suggested_adjudicator_allocations_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_adjudicator_allocations', method='GET')
+		stas2 = tt.simple_get_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_adjudicator_allocations', method='GET')
 		print(stas2)
 		print(tt.confirm_team_allocation_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_adjudicator_allocations/0', stas2[0]['data'][0]['allocation'], method='POST'))
 
-		stas3 = tt.get_suggested_venue_allocation_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_venue_allocation', method='GET')
+		stas3 = tt.simple_get_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_venue_allocation', method='GET')
 		final_allocation = stas3[0]['data']['allocation']
 		print(stas3)
 		print(tt.confirm_venue_allocation_exporter(TOURNAMENT_NAME+'/'+str(i)+'/suggested_venue_allocation', final_allocation, method='POST'))
@@ -67,7 +80,7 @@ if __name__ == '__main__':
 		print(stas5)
 		print(tt.finish_round_exporter(TOURNAMENT_NAME+'/'+str(i), i, method='POST'))
 
-		print(tt.download_total_speaker_results_exporter(TOURNAMENT_NAME+'/results/speakers', method='GET'))
-		print(tt.download_total_team_results_exporter(TOURNAMENT_NAME+'/results/teams', method='GET'))
-		print(tt.download_total_adjudicator_results_exporter(TOURNAMENT_NAME+'/results/adjudicators', method='GET'))
+		print(tt.simple_get_exporter(TOURNAMENT_NAME+'/results/speakers', method='GET'))
+		print(tt.simple_get_exporter(TOURNAMENT_NAME+'/results/teams', method='GET'))
+		print(tt.simple_get_exporter(TOURNAMENT_NAME+'/results/adjudicators', method='GET'))
 

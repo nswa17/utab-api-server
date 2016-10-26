@@ -2,15 +2,13 @@
 
 ## Need early fix
 
-1. team based institution ではなく speaker based institution
+1. autobackup
 
 1. check allocation
 
 1. 変数のprivate化
 
 1. styles中身確認
-
-1. codeを自動化
 
 1. constants揃ってるか確認
 
@@ -34,9 +32,11 @@
 
 1. random test program
 
-1. とりあえずpickleを使ってバックアップを構築
-
 ## Do when above finished
+
+1. Lockをトーナメントごとにできない?
+
+1. team based institution ではなく speaker based institution
 
 1. 無限ラウンドdeal with changing round num while tournament (unnecessary?)
 

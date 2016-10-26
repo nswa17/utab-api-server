@@ -228,7 +228,8 @@ def return_selected_lattice_lists(lattice_list, round_num, tournament):
 	return selected_lattice_lists2
 
 def add_lattice_list_info(selected_lattice_list, tournament, round_num, comment):
-	lattice_list_checks(selected_lattice_list, tournament.rounds[round_num-1].constants_of_adj, round_num)
+	r = tournament.now_round()
+	lattice_list_checks(selected_lattice_list, r.constants_of_adj, round_num)
 	errors = lattice_list_errors(selected_lattice_list, tournament, round_num)
 	selected_lattice_list.large_warnings.extend(errors)
 	for lattice in selected_lattice_list:

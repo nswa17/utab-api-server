@@ -42,8 +42,8 @@ URL_total_speaker_results = '/'+API_VERSION+'/<tournament_name>/results/speakers
 URL_check_allocation = '/'+API_VERSION+'/<tournament_name>/<round_num>/check'
 
 @stools.route_json(URL_styles)
-def list_all_styles_callback():
-	return list_all_styles()
+def list_styles_callback():
+	return list_styles()
 
 @stools.route_json(URL_styles, method='PUT')
 def add_style_callback():
@@ -51,8 +51,8 @@ def add_style_callback():
 	return add_style(req)
 
 @stools.route_json(URL_tournaments)
-def list_all_tournaments_callback():
-	return list_all_tournaments()
+def list_tournaments_callback():
+	return list_tournaments()
 
 @stools.route_json(URL_tournament, method='GET')
 def fetch_tournament_callback(tournament_name):
@@ -145,12 +145,12 @@ def check_allocation_callback(tournament_name):
 	return ""
 
 @stools.route_json(URL_adjudicators)
-def list_all_adjudicators_callback(tournament_name):
-	return ""
+def list_adjudicators_callback(tournament_name):
+	return list_adjudicators(tournament_name)
 
 @stools.route_json(URL_adjudicator)
 def fetch_adjudicator_callback(tournament_name, adjudicator_id):
-	return ""
+	return fetch_adjudicator(tournament_name, adjudicator_id)
 
 @stools.route_json(URL_adjudicator, method='POST')
 def add_adjudicator_callback(tournament_name, adjudicator_id):
@@ -165,14 +165,13 @@ def delete_adjudicator_callback(tournament_name, adjudicator_id):
 def modify_adjudicator_callback(tournament_name, adjudicator_id):
 	return ""
 
-
 @stools.route_json(URL_speakers)
-def list_all_speakers_callback(tournament_name):
-	return ""
+def list_speakers_callback(tournament_name):
+	return list_speakers(tournament_name)
 
 @stools.route_json(URL_speaker)
 def fetch_speaker_callback(tournament_name, speaker_id):
-	return ""
+	return fetch_speaker(tournament_name, speaker_id)
 
 @stools.route_json(URL_speaker, method='POST')
 def add_speaker_callback(tournament_name, speaker_id):
@@ -188,12 +187,12 @@ def modify_speaker_callback(tournament_name, speaker_id):
 	return ""
 
 @stools.route_json(URL_teams)
-def list_all_teams_callback(tournament_name):
-	return ""
+def list_teams_callback(tournament_name):
+	return list_teams(tournament_name)
 
 @stools.route_json(URL_team)
 def fetch_team_callback(tournament_name, team_id):
-	return ""
+	return fetch_team(tournament_name, team_id)
 
 @stools.route_json(URL_team, method='POST')
 def add_team_callback(tournament_name, team_id):
@@ -209,12 +208,12 @@ def modify_team_callback(tournament_name, team_id):
 	return ""
 
 @stools.route_json(URL_venues)
-def list_all_venues_callback(tournament_name):
-	return ""
+def list_venues_callback(tournament_name):
+	return list_venues(tournament_name)
 
 @stools.route_json(URL_venue)
 def fetch_venue_callback(tournament_name, venue_id):
-	return ""
+	return fetch_venue(tournament_name, venue_id)
 
 @stools.route_json(URL_venue, method='POST')
 def add_venue_callback(tournament_name, venue_id):
@@ -230,12 +229,12 @@ def modify_venue_callback(tournament_name, venue_id):
 	return ""
 
 @stools.route_json(URL_institutions)
-def list_all_institutions_callback(tournament_name):
-	return ""
+def list_institutions_callback(tournament_name):
+	return list_institutions(tournament_name)
 
 @stools.route_json(URL_institution)
 def fetch_institution_callback(tournament_name, institution_id):
-	return ""
+	return fetch_institution(tournament_name, institution_id)
 
 @stools.route_json(URL_institution, method='POST')
 def add_institution_callback(tournament_name, institution_id):
@@ -274,15 +273,17 @@ def send_adjudicator_result_callback(tournament_name, round_num):
 
 @stools.route_json(URL_backups)
 def list_backups_callback(tournament_name):
-	return ""
+	return list_backups(tournament_name)
 
 @stools.route_json(URL_backups, method='PUT')
 def import_backup_callback(tournament_name):
-	return ""
+	req = request.json
+	return import_backup(tournament_name, req)
 
 @stools.route_json(URL_backups, method='POST')
 def save_backup_callback(tournament_name):
-	return ""
+	data = request.json
+	return save_backup(tournament_name, data)
 
 @stools.route_json(URL_adjudicator_comments)
 def download_adjudicator_comments_callback(tournament_name):
@@ -302,6 +303,7 @@ def download_total_adjudicator_results_callback(tournament_name):
 
 if __name__ == "__main__":
 
+	initialize_backups()
 	run(host='localhost', port=8080, debug=True, server='cherrypy')#must be False when publicated
 
 
