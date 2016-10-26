@@ -53,15 +53,20 @@
 ```
 +Response 200 (application/json)
 ```
-[
-    {
-        "teams": [0, 1],
-        "chairs": [0],
-        "panels": [1, 2],
-        "venue": null,
-        "trainees": []
-    }
-]
+{
+    "errors": null,
+    "data":
+    [
+        {
+            "teams": [0, 1],
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": null,
+            "trainees": []
+        }
+    ],
+    "resource_url": ""
+}
 ```
 
 ### Confirm Adjudicator Allocation [POST]
@@ -91,6 +96,7 @@
             "venue": null,
             "trainees": []
         }
-    ]
+    ],
+    "resource_url": ""
 }
 ```

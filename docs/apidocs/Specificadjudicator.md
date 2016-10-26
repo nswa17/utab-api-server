@@ -50,6 +50,7 @@
         "conflicts": [],
         "url": "",
         "available": true
-    }
+    },
+    "resource_url": ""
 }
 ```

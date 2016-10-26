@@ -60,6 +60,21 @@
 ```
 + Response 200 (application/json)
 
+{
+    "errors": null,
+    "data":
+    [
+        {
+            "teams": [0, 1],
+            "chairs": [],
+            "panels": [],
+            "venue": null,
+            "trainees": []
+        }
+    ],
+    "resource_url": ""
+}
+
 ### Confirm Team Allocation [POST]
 
 + Request(application/json)
@@ -78,6 +93,7 @@
 ```
 {
     "errors": [],
-    "data": null
+    "data": null,
+    "resource_url": ""
 }
 ```

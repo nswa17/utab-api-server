@@ -39,6 +39,7 @@ preparing
 ```
 {
     "errors": null,
-    "data" : null
+    "data" : null,
+    "resource_url": null
 }
 ```

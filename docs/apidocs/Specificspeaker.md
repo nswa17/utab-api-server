@@ -37,6 +37,7 @@
 	    "name": "kym",
 	    "team": 0,
 	    "url": ""
-	}
+	},
+    "resource_url": ""
 }
 ```

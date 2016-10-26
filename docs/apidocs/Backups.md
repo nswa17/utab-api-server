@@ -11,7 +11,7 @@
     "data":
     [
         {
-            "date": "2016/01/04-23:59:10",
+            "date": "20160104235910",
             "comment": "test",
             "name": "testtournament",
             "current_round": 1 /* in which the backup is made */
@@ -35,11 +35,17 @@
 
 ```
 {
-    "date": "2016/01/04-23:59:10",
-    "comment": "test",
-    "name": "testtournament",
-    "current_round": 1 /* in which the backup is made */
+    "errors": null,
+    "data":
+    {
+        "date": "20160104235910",
+        "comment": "test",
+        "name": "testtournament",
+        "current_round": 1 /* in which the backup is made */
+    },
+    "resource_url": ""
 }
+```
 
 ### Back to Particular Point [PUT]
 

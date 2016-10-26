@@ -38,6 +38,7 @@
 	    "name": "KKM",
 	    "url": "",
 	    "scale": 'a',
-	}
+	},
+    "resource_url": ""
 }
 ```

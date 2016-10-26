@@ -33,10 +33,14 @@
 + Response 200 (application/json)
 ```
 {
-    "id": 3,
-    "name": '383',
-    "available": true,
-    "priority": 1,
-    "url": "www.google.com"
-}
+    "errors": null,
+    "data":
+    {
+        "id": 3,
+        "name": '383',
+        "available": true,
+        "priority": 1,
+        "url": "www.google.com"
+    },
+    "resource_url": ""
 ```

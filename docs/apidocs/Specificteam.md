@@ -42,6 +42,7 @@
         "speakers": [speaker],
         "available": team_available,
         "url": team_url
-    }
+    },
+    "resource_url": ""
 }
 ```

@@ -25,17 +25,15 @@
 
 + Request (application/json)
 ```
-{
-    [
-        {
-            "teams": [0, 1]
-            "chairs": [0],
-            "panels": [1, 2],
-            "venue": 33,
-            "trainees": []
-        }
-    ]
-}
+[
+    {
+        "teams": [0, 1]
+        "chairs": [0],
+        "panels": [1, 2],
+        "venue": 33,
+        "trainees": []
+    }
+]
 ```
 + Response 200 (application/json)
 ```
@@ -49,24 +47,23 @@
             "venue": 33, /* venue id */
             "trainees": []
         }
-    ]
+    ],
+    "resource_url": ""
 }
 
 ### Confirm Venue Allocation [POST]
 
 + Request (application/json)
 ```
-{
-    [
-        {
-            "teams": [0, 1]
-            "chairs": [0],
-            "panels": [1, 2],
-            "venue": 33,
-            "trainees": []
-        }
-    ]
-}
+[
+    {
+        "teams": [0, 1]
+        "chairs": [0],
+        "panels": [1, 2],
+        "venue": 33,
+        "trainees": []
+    }
+]
 ```
 + Response 200 (application/json)
 ```
@@ -80,6 +77,7 @@
             "venue": 33, /* venue id */
             "trainees": []
         }
-    ]
+    ],
+    "resource_url": ""
 }
 ```
