@@ -2,17 +2,27 @@
 
 [/v1.0/{tournament_name}/results/teams]
 
-preparing
-
-### Download Team Results [GET]
-
-<!-- Modify Results [POST] : not supported by current api version -->
+### Download Total Team Results [GET]
 
 + Response 200 (application/json)
 ```
 {
-    "errors": null,
-    "data": undef,
-    "resource_url": ""
+	'errors': [],
+	'data':
+	{
+		3:
+		{
+			'id': 3,
+			'name': 'Team3',
+			'ranking': 1,
+			'wins': 1,
+			'sum': 189.5,
+			'margin': 5.0,
+			'sd': 0.0,
+			'average': 189.5,
+			'round1': 189.5
+		}
+	},
+	'resource_url': '/v1.0/testtournament/results/teams'
 }
 ```

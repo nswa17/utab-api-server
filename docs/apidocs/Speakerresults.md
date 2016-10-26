@@ -6,6 +6,8 @@
 
 + Response 200 (application/json)
 
+preparing
+
 ### Send Speaker Result [PUT]
 
 + Request (application/json)

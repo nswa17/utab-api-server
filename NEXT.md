@@ -194,7 +194,6 @@
 
 [/v2.0/{tournament_name}/teams/{team_id}]
 
-
 ### Create/Update-if-exist Team [PUT]
 
 + Request (application/json)

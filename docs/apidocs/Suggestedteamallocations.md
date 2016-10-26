@@ -60,7 +60,7 @@
 ```
 + Response 200 (application/json)
 
-### Send Team Allocation [POST]
+### Confirm Team Allocation [POST]
 
 + Request(application/json)
 ```

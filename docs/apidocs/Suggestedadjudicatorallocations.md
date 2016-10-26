@@ -38,18 +38,33 @@
 }
 ```
 ### Check Adjudicator Allocation [PUT]
+
++ Request (application/json)
 ```
 [
-{
-    "teams": [0, 1],
-    "chairs": [0],
-    "panels": [1, 2],
-    "venue": null,
-    "trainees": []
-}
+    {
+        "teams": [0, 1],
+        "chairs": [0],
+        "panels": [1, 2],
+        "venue": null,
+        "trainees": []
+    }
 ]
 ```
-### Send Adjudicator Allocation [POST]
++Response 200 (application/json)
+```
+[
+    {
+        "teams": [0, 1],
+        "chairs": [0],
+        "panels": [1, 2],
+        "venue": null,
+        "trainees": []
+    }
+]
+```
+
+### Confirm Adjudicator Allocation [POST]
 
 + Request
 ```
@@ -66,5 +81,16 @@
 + Response 200 (application/json)
 ```
 {
+    "errors": null,
+    "data": 
+    [
+        {
+            "teams": [0, 1]
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": null,
+            "trainees": []
+        }
+    ]
 }
 ```

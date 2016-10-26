@@ -54,7 +54,7 @@ def add_style_callback():
 def list_all_tournaments_callback():
 	return list_all_tournaments()
 
-@stools.route_json(URL_tournament, method='POST')
+@stools.route_json(URL_tournament, method='GET')
 def fetch_tournament_callback(tournament_name):
 	return fetch_tournament(tournament_name)
 

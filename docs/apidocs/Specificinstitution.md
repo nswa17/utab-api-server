@@ -10,9 +10,9 @@
     "errors": null,
     "data":
     {
-        "id": institution_id,
-        "name": institution_name,
-        "url": institution_url,
+        "id": 2,
+        "name": "KYM",
+        "url": "",
         "scale": 'a',
     },
     "resource_url": ""
@@ -23,10 +23,21 @@
 + Request (application/json)
 ```
 {
+    "name": "KKM",
+    "url": "",
+    "scale": 'a',
 }
 ```
 + Response 200 (application/json)
 ```
 {
+	"errors": null,
+	"data":
+	{
+        "id": 4,
+	    "name": "KKM",
+	    "url": "",
+	    "scale": 'a',
+	}
 }
 ```

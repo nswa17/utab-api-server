@@ -23,10 +23,20 @@
 + Request (application/json)
 ```
 {
+    "name": "kym",
+    "team": 0,
+    "url": ""
 }
 ```
 + Response 200 (application/json)
 ```
 {
+	"errors": null,
+	"data":
+	{
+	    "name": "kym",
+	    "team": 0,
+	    "url": ""
+	}
 }
 ```

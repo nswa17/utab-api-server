@@ -23,15 +23,63 @@
 ```
 ### Check Venue Allocation [PUT]
 
-### Send Venue Allocation [POST]
-
 + Request (application/json)
 ```
 {
+    [
+        {
+            "teams": [0, 1]
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": 33,
+            "trainees": []
+        }
+    ]
 }
 ```
 + Response 200 (application/json)
 ```
 {
+    "errors": null,
+    "data": [
+        {
+            "teams": [0, 1]
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": 33, /* venue id */
+            "trainees": []
+        }
+    ]
+}
+
+### Confirm Venue Allocation [POST]
+
++ Request (application/json)
+```
+{
+    [
+        {
+            "teams": [0, 1]
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": 33,
+            "trainees": []
+        }
+    ]
+}
+```
++ Response 200 (application/json)
+```
+{
+    "errors": null,
+    "data": [
+        {
+            "teams": [0, 1]
+            "chairs": [0],
+            "panels": [1, 2],
+            "venue": 33, /* venue id */
+            "trainees": []
+        }
+    ]
 }
 ```

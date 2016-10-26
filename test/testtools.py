@@ -47,12 +47,6 @@ def jsonize(func):
 @jsonize
 def create_tournament(style, tournament_name, num_of_rounds):
 	d = {
-	    "args":
-	    {
-	      "force": False
-	    },
-	    "data": 
-	    {
 	        "url": "",
 	        "name": tournament_name,
 	        "style": style["style_name"],
@@ -60,7 +54,6 @@ def create_tournament(style, tournament_name, num_of_rounds):
 	        "num_of_rounds": num_of_rounds,
 	        "break_team_num": 0
 	    }
-	}	
 	return d
 
 @jsonize

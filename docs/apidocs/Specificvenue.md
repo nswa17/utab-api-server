@@ -24,10 +24,19 @@
 + Request (application/json)
 ```
 {
+    "name": '383',
+    "available": true,
+    "priority": 1,
+    "url": "www.google.com"
 }
 ```
 + Response 200 (application/json)
 ```
 {
+    "id": 3,
+    "name": '383',
+    "available": true,
+    "priority": 1,
+    "url": "www.google.com"
 }
 ```

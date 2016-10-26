@@ -5,12 +5,16 @@
 ### List Adjudicator Results [GET]
 
 + Response 200 (application/json)
+
+preparing
+<!--
 ```
 {
     "errors": null,
     "data": undef
 }
 ```
+-->
 ### Send Adjudicator Result [PUT]
 
 + Request (application/json)

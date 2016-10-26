@@ -105,15 +105,15 @@ def create_tournament(req):######################
 	errors = []
 	data = {}
 
-	if req["data"]["name"] in tournaments.keys():
+	if req["name"] in tournaments.keys():
 		errors.append(stools.set_error(0, "AlreadyExists", "The tournament name is already used."))#set_json_error_response(0, "AlreadyExists", "The tournament name is already used.") 
 	else:
-		name = req["data"]["name"]
-		round_num = req["data"]["num_of_rounds"]
-		style = styles[req["data"]["style"]]
-		url = req["data"]["url"]
-		host = req["data"]["host"]
-		break_team_num = req["data"]["break_team_num"]
+		name = req["name"]
+		round_num = req["num_of_rounds"]
+		style = styles[req["style"]]
+		url = req["url"]
+		host = req["host"]
+		break_team_num = req["break_team_num"]
 		new_tournament = tn.Tournament(name=name, code=len(tournaments), round_num=round_num, style=style, host=host, url=url, break_team_num=break_team_num)
 		tournaments[name] = new_tournament
 
@@ -123,6 +123,7 @@ def create_tournament(req):######################
 		data["style"] = new_tournament.style
 		data["host"] = new_tournament.host
 		data["url"] = new_tournament.url
+		data["judge_criterion"] = new_tournament.judge_criterion
 		data["break_team_num"] = new_tournament.break_team_num
 
 	return data, errors
@@ -371,6 +372,9 @@ def download_total_speaker_results(tournament_name):
 	errors = []
 	t = tournaments[tournament_name]
 	data = t.total_debater_results()
+	for d in data.values():
+		d['id'] = d['code']
+		del d['code']
 
 	return data, errors
 
@@ -378,6 +382,9 @@ def download_total_team_results(tournament_name):
 	errors = []
 	t = tournaments[tournament_name]
 	data = t.total_team_results()
+	for d in data.values():
+		d['id'] = d['code']
+		del d['code']
 
 	return data, errors
 
@@ -385,6 +392,9 @@ def download_total_adjudicator_results(tournament_name):
 	errors = []
 	t = tournaments[tournament_name]
 	data = t.total_adjudicator_results()
+	for d in data.values():
+		d['id'] = d['code']
+		del d['code']
 
 	return data, errors
 

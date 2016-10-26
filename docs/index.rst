@@ -66,9 +66,13 @@ Newly Added
 .. toctree::
    :maxdepth: 2
 
- 
-   apidocs/Venues
-   apidocs/Tournaments
+Recently Updated
+================
 
-* :ref:`modindex`
+.. toctree::
+   :maxdepth: 2
+   
+   apidocs/Totaladjudicatorresults
+   apidocs/Totalspeakerresults
+   apidocs/Totalteamresults
 

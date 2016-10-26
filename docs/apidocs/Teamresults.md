@@ -5,6 +5,9 @@
 ### List Team Results [GET]
 
 + Response 200 (application/json)
+
+preparing
+<!--
 ```
 {
     "errors": null,
@@ -17,3 +20,4 @@
     ]
 }
 ```
+-->

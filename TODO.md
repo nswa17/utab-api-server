@@ -2,6 +2,10 @@
 
 ## Need early fix
 
+1. team based institution ではなく speaker based institution
+
+1. check allocation
+
 1. 変数のprivate化
 
 1. styles中身確認

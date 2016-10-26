@@ -50,6 +50,7 @@ In the next UTab-api version, the following features will be available.
 1. Redundancy of result data
 1. Json format checking on server side
 1. Simple backup system
+1. Logging
 
 ### UTab api version 3.0 (by 2016/12?)
 
