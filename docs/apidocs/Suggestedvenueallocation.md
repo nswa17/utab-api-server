@@ -2,7 +2,13 @@
 
 [/v1.0/{tournament_name}/{round_num}/suggested_venue_allocation]
 
-### Get Venue Allocation [GET]
+### Get Venue Allocation [POST]
+
++ Request (application/json)
+```
+{
+}
+```
 
 + Response 200 (application/json)
 ```

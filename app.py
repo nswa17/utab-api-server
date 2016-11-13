@@ -118,7 +118,7 @@ def check_adjudicator_allocation_callback(tournament_name, round_num):
 	req = request.json
 	return check_adjudicator_allocation(tournament_name, round_num, req)
 
-@stools.route_json(URL_adjudicator_allocations)
+@stools.route_json(URL_adjudicator_allocations, method='POST')
 def get_suggested_adjudicator_allocations_callback(tournament_name, round_num):
 	return get_suggested_adjudicator_allocations(tournament_name, round_num)
 
@@ -127,7 +127,7 @@ def confirm_adjudicator_allocation_callback(tournament_name, round_num, allocati
 	req = request.json
 	return confirm_adjudicator_allocation(tournament_name, round_num, allocation_id, req)
 
-@stools.route_json(URL_venue_allocation)
+@stools.route_json(URL_venue_allocation, method='POST')
 def get_suggested_venue_allocation_callback(tournament_name, round_num):
 	return get_suggested_venue_allocation(tournament_name, round_num)
 

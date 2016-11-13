@@ -36,13 +36,13 @@ Documents for UTab API are available at [here](http://UTab-api-server.readthedoc
 
 **version 1.0** - Candle Light
 
-**version 2.0** - PDA Official
+**version 2.0** - Luna Flight
 
 **version 3.0** - Frosty Night
 
 ## Future Coming
 
-### UTab api version 2.0 PDA Official (by 2016/11/20)
+### UTab api version 2.0 Luna Flight (by 2016/11/20)
 
 **To improve safety**
 

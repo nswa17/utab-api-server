@@ -2,7 +2,13 @@
 
 [/v1.0/{tournament_name}/{round_num}/suggested_adjdicator_allocations]
 
-### Get All Suggested Adudicator Allocations [GET]
+### Get All Suggested Adudicator Allocations [POST]
+
++ Request (application/json)
+```
+{
+}
+```
 
 + Response 200 (application/json)
 ```
