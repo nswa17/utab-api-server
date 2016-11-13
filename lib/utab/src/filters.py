@@ -46,7 +46,7 @@ def power_pairing(grid_list, round_num, team_list, shift):
 			else:
 				grid.adoptbits_strict = bitshiftadd(grid.adoptbitslong, 0, shift*3+2)
 	else:
-		
+
 		for grid in grid_list:
 			grid.power_pairing = 0
 			grid_average = sum([team.ranking for team in grid.teams])/4
@@ -104,7 +104,7 @@ def power_pairing(grid_list, round_num, team_list, shift):
 			else:
 				grid.adoptbits_strict = bitshiftadd(grid.adoptbitslong, 0, shift*3+2)
 			"""
-		
+
 		"""
 		continuous_grid_list = []
 		team_list_cp = copy.copy(team_list)
@@ -422,7 +422,7 @@ def prevent_unfair_side(grid_list, round_num, team_list, shift):
 				grid.adoptbitslong = bitshiftadd(grid.adoptbitslong, 1, shift*3)
 				grid.adoptbitslong = bitshiftadd(grid.adoptbitslong, 1, shift*3+1)
 				grid.adoptbitslong = bitshiftadd(grid.adoptbitslong, 1, shift*3+2)
-			else:	
+			else:
 				if k < int(0.2*all_len+4):
 					grid.adoptbitslong = bitshiftadd(grid.adoptbitslong, 0, shift*3)
 				else:
@@ -665,9 +665,9 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 				lattice.adopt.append(True)
 			else:
 				lattice.adopt.append(False)
-		
+
 		#show_recent_adopt(grids_of_adj_and_grid)
-		
+
 		grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list = grids_of_adj_and_grid_without_personal_and_with_same_institution_list+grids_of_adj_and_grid_without_personal_and_institution_conflict_list
 		grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list_new = []
 		for lattice in grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list:
@@ -679,9 +679,9 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 				lattice.adopt.append(True)
 			else:
 				lattice.adopt.append(False)
-		
+
 		#show_recent_adopt(grids_of_adj_and_grid)
-		
+
 		for lattice in lattice_list:
 			if lattice in grids_of_adj_and_grid_without_personal_and_institution_conflict_list:
 				lattice.adopt.append(True)
@@ -705,9 +705,9 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 					lattice.adopt.append(True)
 				else:
 					lattice.adopt.append(False)
-			
+
 			#show_recent_adopt(grids_of_adj_and_grid)
-			
+
 			grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list = grids_of_adj_and_grid_without_personal_and_with_same_institution_list+grids_of_adj_and_grid_without_personal_and_institution_conflict_list
 			grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list_new = []
 			for lattice in grids_of_adj_and_grid_without_personal_and_with_same_institution_and_without_conflict_list:
@@ -719,17 +719,17 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 					lattice.adopt.append(True)
 				else:
 					lattice.adopt.append(False)
-			
+
 			#show_recent_adopt(grids_of_adj_and_grid)
-			
+
 			for lattice in lattice_list:
 				if lattice in grids_of_adj_and_grid_without_personal_and_institution_conflict_list:
 					lattice.adopt.append(True)
 				else:
 					lattice.adopt.append(False)
-			
+
 			#show_recent_adopt(grids_of_adj_and_grid)
-			
+
 		"""
 		#lattice_check_conflict(lattice_list)
 	else:
@@ -769,21 +769,21 @@ def prevent_conflicts(round_num, tournament, selected_grid_list, lattice_list, s
 def prevent_unfair_adjudicators(round_num, tournament, selected_grid_list, lattice_list, shift):
 	lattice_list_cp = copy.copy(lattice_list)
 	lattice_list_cp.sort(key=lambda lattice: lattice.chair.active_num)
-	
+
 	max_active_num = 0
 	for adjudicator in tournament.adjudicator_list:
 		if adjudicator.active_num > max_active_num:
 			max_active_num = adjudicator.active_num
-	
+
 	unfair_lattice_num = 0
 	for lattice in lattice_list:
 		if lattice.chair.active_num < max_active_num:
-			unfair_lattice_num+=1 
+			unfair_lattice_num+=1
 
 	#lattice_list_cp2 = [lattice for lattice in lattice_list_cp if lattice.chair.active_num < max_active_num]
 
 	#print [lattice.chair.active_num for lattice in lattice_list]
-	
+
 	#all_len = len(lattice_list)
 
 	for i, lattice in enumerate(lattice_list_cp):
@@ -845,7 +845,7 @@ def prevent_unfair_adjudicators(round_num, tournament, selected_grid_list, latti
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 1, shift*3+2)
 			else:
 				lattice.adoptbitslong = bitshiftadd(lattice.adoptbitslong, 0, shift*3+2)
-		
+
 		"""
 		"""
 
@@ -976,7 +976,7 @@ def avoid_watched_teams(round_num, tournament, selected_grid_list, lattice_list,
 
 		#lattice_check_same_round(lattice_list)
 
-def add_bubble(selected_grid_list, may_be_breaking_wins):	
+def add_bubble(selected_grid_list, may_be_breaking_wins):
 	if len(selected_grid_list[0].teams) == 2:
 		for grid in selected_grid_list:
 			team1_win = sum(grid.teams[0].wins)
@@ -1078,7 +1078,7 @@ def prioritize_bubble_round(round_num, tournament, selected_grid_list, lattice_l
 				team.bubble = 2
 			else:
 				team.bubble = 4
-		
+
 		selected_grid_list_cp = copy.copy(selected_grid_list)
 		selected_grid_list_cp.sort(key=lambda grid: (grid.teams[0].bubble + grid.teams[1].bubble, grid.teams[0].ranking+grid.teams[1].ranking))
 		for k, grid in enumerate(selected_grid_list_cp):
