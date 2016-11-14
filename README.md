@@ -2,7 +2,7 @@
 
 The UTab-api project has moved to [utab-core-js](https://github.com/taulukointipalvelut/utab-core-js).
 
-This repository is not maintainanced.
+This repository is not maintenanced.
 
 # UTab API Server
 
